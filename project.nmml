@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <app file="Dungeons" main="Main"/>
+    <window width="1024" height="768" />
+
+    <classpath name="src" />
+    <set name="BUILD_DIR" value="out" />
+
+    <assets path="assets" rename="" />
+
+    <haxelib name="nme"/>
+    <haxelib name="polygonal-ds" />
+
+    <ndll name="nme" haxelib="nme" />
+
+    <haxedef name="fdb" if="flash" />
+</project>
