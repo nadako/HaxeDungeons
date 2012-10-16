@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
     <app file="Dungeons" main="Main"/>
-    <window width="1024" height="768" />
+    <window width="1024" height="768" background="#000000" />
 
     <classpath name="src" />
     <set name="BUILD_DIR" value="out" />
