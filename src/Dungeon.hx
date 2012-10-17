@@ -3,6 +3,8 @@ package ;
 import de.polygonal.core.math.random.Random;
 import de.polygonal.ds.Array2;
 
+using ArrayUtil;
+
 class Dungeon
 {
     public var size:Array2Cell;
@@ -92,8 +94,8 @@ class Dungeon
 
     private function chooseConnection():Connection
     {
-        var room:Room = randomChoice(rooms);
-        var direction:Direction = randomChoice(Type.allEnums(Direction));
+        var room:Room = rooms.randomChoice();
+        var direction:Direction = Type.allEnums(Direction).randomChoice();
         var position:Array2Cell = new Array2Cell();
         switch (direction)
         {
@@ -158,12 +160,6 @@ class Dungeon
                 grid.set(connection.position.x + 1, connection.position.y, Floor);
         }
     }
-
-    private function randomChoice<T>(values:Array<T>):T
-    {
-        return values[Std.random(values.length)];
-    }
-
 }
 
 typedef Room = {
