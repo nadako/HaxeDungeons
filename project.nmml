@@ -12,6 +12,4 @@
     <haxelib name="polygonal-ds" />
 
     <ndll name="nme" haxelib="nme" />
-
-    <haxedef name="fdb" if="flash" />
 </project>
