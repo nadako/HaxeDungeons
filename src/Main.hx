@@ -1,5 +1,8 @@
 package ;
 
+import components.TileRenderable;
+import net.richardlord.ash.core.Entity;
+import components.Position;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import nme.display.Shape;
@@ -14,6 +17,7 @@ import nme.display.Sprite;
 import nme.Lib;
 
 import de.polygonal.ds.Array2;
+import net.richardlord.ash.core.Game;
 
 import Dungeon;
 import ShadowCaster;
@@ -63,6 +67,8 @@ class Main extends Sprite, implements IShadowCasterDataProvider
         dungeonCanvas = new Shape();
         scene.addChild(dungeonCanvas);
 
+        var game:Game = new Game();
+
         lightCanvas = new Shape();
         scene.addChild(lightCanvas);
 
@@ -71,28 +77,19 @@ class Main extends Sprite, implements IShadowCasterDataProvider
 
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
-
-        var tileData:Array<Float> = new Array<Float>();
-        for (x in 0...dungeon.grid.getW())
+        for (y in 0...dungeon.grid.getH())
         {
-            for (y in 0...dungeon.grid.getH())
+            for (x in 0...dungeon.grid.getW())
             {
-                var tileID:Float;
-                switch (dungeon.grid.get(x, y))
-                {
-                    case Wall:
-                        tileID = isVerticalWall(dungeon.grid, x, y) ? 1 : 0;
-                    case Floor:
-                        tileID = 2;
-                    default:
-                        continue;
-                }
-                tileData.push(x * TILE_SIZE);
-                tileData.push(y * TILE_SIZE);
-                tileData.push(tileID);
+                var entity:Entity = new Entity();
+                entity.add(new Position(x, y));
+                entity.add(new TileRenderable(dungeon.grid.get(x, y)));
+                game.addEntity(entity);
             }
         }
-        dungeonTilesheet.drawTiles(dungeonCanvas.graphics, tileData);
+
+        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 0);
+        game.update(0);
 
         lightCaster = new ShadowCaster(this);
 
