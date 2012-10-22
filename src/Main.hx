@@ -1,5 +1,11 @@
 package ;
 
+import components.LightSource;
+import components.CameraFocus;
+import net.richardlord.ash.tick.FrameTickProvider;
+import nme.display.DisplayObjectContainer;
+import components.PlayerControls;
+import components.Renderable;
 import components.TileRenderable;
 import net.richardlord.ash.core.Entity;
 import components.Position;
@@ -24,7 +30,7 @@ import ShadowCaster;
 
 using ArrayUtil;
 
-class Main extends Sprite, implements IShadowCasterDataProvider
+class Main extends Sprite
 {
     private static inline var TILE_SIZE:Int = 8;
     private static inline var HERO_SIGHT_RADIUS:Int = 10;
@@ -37,10 +43,8 @@ class Main extends Sprite, implements IShadowCasterDataProvider
     private var scene:Sprite;
     private var dungeonCanvas:Shape;
     private var lightCanvas:Shape;
-    private var objectsCanvas:Shape;
+    private var objectsContainer:DisplayObjectContainer;
 
-    private var hero:Array2Cell;
-    private var lightCaster:ShadowCaster;
 
     public function new()
     {
@@ -72,8 +76,8 @@ class Main extends Sprite, implements IShadowCasterDataProvider
         lightCanvas = new Shape();
         scene.addChild(lightCanvas);
 
-        objectsCanvas = new Shape();
-        scene.addChild(objectsCanvas);
+        objectsContainer = new Sprite();
+        scene.addChild(objectsContainer);
 
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
@@ -88,59 +92,29 @@ class Main extends Sprite, implements IShadowCasterDataProvider
             }
         }
 
-        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 0);
-        game.update(0);
-
-        lightCaster = new ShadowCaster(this);
-
         var startRoom:Room = dungeon.rooms.randomChoice();
-        hero = new Array2Cell(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2));
 
-        redrawObjects();
-        redrawLight();
+        var hero:Entity = new Entity();
+        var heroDisplay:Shape = new Shape();
+        characterTilesheet.drawTiles(heroDisplay.graphics, [0, 0, 0]);
+        hero.add(new Renderable(heroDisplay));
+        hero.add(new Position(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2)));
+        hero.add(new CameraFocus());
+        hero.add(new PlayerControls());
+        hero.add(new LightSource(HERO_SIGHT_RADIUS));
+        game.addEntity(hero);
 
-        stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-    }
+        var keyPoll = new KeyPoll(stage);
 
-    private function onKeyDown(event:KeyboardEvent):Void
-    {
-        switch (event.keyCode)
-        {
-            case Keyboard.UP:
-                moveHero(0, -1);
-            case Keyboard.DOWN:
-                moveHero(0, 1);
-            case Keyboard.LEFT:
-                moveHero(-1, 0);
-            case Keyboard.RIGHT:
-                moveHero(1, 0);
-        }
-    }
+        game.addSystem(new PlayerControlSystem(keyPoll, dungeon.grid), -1);
+        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 0);
+        game.addSystem(new RenderSystem(objectsContainer), 1);
+        game.addSystem(new CameraSystem(scene), 1);
+        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), 0);
 
-    private function moveHero(dx:Int, dy:Int):Void
-    {
-        var tile:Tile = dungeon.grid.get(hero.x + dx, hero.y + dy);
-        if (tile == Floor)
-        {
-            hero.x += dx;
-            hero.y += dy;
-            redrawObjects();
-            redrawLight();
-        }
-    }
-
-    private function redrawLight():Void
-    {
-        lightCanvas.graphics.clear();
-        lightCaster.calculateLight(hero.x, hero.y, HERO_SIGHT_RADIUS);
-    }
-
-    private function redrawObjects():Void
-    {
-        objectsCanvas.graphics.clear();
-        characterTilesheet.drawTiles(objectsCanvas.graphics, [hero.x * TILE_SIZE, hero.y * TILE_SIZE, 0]);
-        scene.x = stage.stageWidth / 2 - hero.x * TILE_SIZE * scene.scaleX;
-        scene.y = stage.stageHeight / 2 - hero.y * TILE_SIZE * scene.scaleY;
+        var tickProvider = new FrameTickProvider(this);
+        tickProvider.add(game.update);
+        tickProvider.start();
     }
 
     private function isVerticalWall(grid:Array2<Tile>, x:Int, y:Int):Bool
@@ -148,16 +122,4 @@ class Main extends Sprite, implements IShadowCasterDataProvider
         return grid.inRange(x, y + 1) && grid.get(x, y + 1) == Wall;
     }
 
-    public function isBlocking(x:Int, y:Int):Bool
-    {
-        var tile:Tile = dungeon.grid.get(x, y);
-        return tile == Wall || tile == Empty;
-    }
-
-    public function light(x:Int, y:Int, intensity:Float):Void
-    {
-        lightCanvas.graphics.beginFill(0xFFFF00, 0.5);
-        lightCanvas.graphics.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        lightCanvas.graphics.endFill();
-    }
 }
