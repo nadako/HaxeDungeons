@@ -4,13 +4,13 @@
     <window width="1024" height="768" background="#000000" />
 
     <classpath name="src" />
-    <classpath name="../Ash/src" />
     <set name="BUILD_DIR" value="out" />
 
     <assets path="assets" rename="" />
 
     <haxelib name="nme"/>
     <haxelib name="polygonal-ds" />
+    <haxelib name="ash" />
 
     <ndll name="nme" haxelib="nme" />
     <haxedef name="fdb" if="flash"/>
