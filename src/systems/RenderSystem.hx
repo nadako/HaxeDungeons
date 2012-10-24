@@ -1,4 +1,4 @@
-package ;
+package systems;
 
 import nme.display.DisplayObjectContainer;
 import nme.display.Tilesheet;

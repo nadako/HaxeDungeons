@@ -1,4 +1,4 @@
-package ;
+package systems;
 
 import nodes.CameraFocusNode;
 import net.richardlord.ash.tools.ListIteratingSystem;

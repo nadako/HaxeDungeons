@@ -1,4 +1,4 @@
-package ;
+package systems;
 
 import de.polygonal.ds.Array2;
 import nme.ui.Keyboard;

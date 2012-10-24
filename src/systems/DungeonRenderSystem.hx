@@ -1,4 +1,4 @@
-package ;
+package systems;
 
 import nme.display.Tilesheet;
 import nme.display.Graphics;
