@@ -1,9 +1,9 @@
-package nodes;
+package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
 
-import components.CameraFocus;
-import components.Position;
+import dungeons.components.CameraFocus;
+import dungeons.components.Position;
 
 class CameraFocusNode extends Node<CameraFocusNode>
 {

@@ -1,8 +1,8 @@
-package nodes;
+package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
 
-import components.Actor;
+import dungeons.components.Actor;
 
 class ActorNode extends Node<ActorNode>
 {

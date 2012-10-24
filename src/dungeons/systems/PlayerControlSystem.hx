@@ -1,19 +1,18 @@
-package systems;
+package dungeons.systems;
 
-import flash.ui.Keyboard;
-import flash.events.KeyboardEvent;
-import flash.display.Sprite;
+import nme.ui.Keyboard;
+import nme.events.KeyboardEvent;
+import nme.display.Sprite;
 
 import de.polygonal.ds.Array2;
-
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.System;
 
-import components.Actor;
-import components.Position;
-import nodes.PlayerActorNode;
-import Dungeon.Tile;
+import dungeons.components.Actor;
+import dungeons.components.Position;
+import dungeons.nodes.PlayerActorNode;
+import dungeons.Dungeon.Tile;
 
 class PlayerControlSystem extends System
 {

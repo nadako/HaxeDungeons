@@ -1,9 +1,9 @@
-package nodes;
+package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
 
-import components.Move;
-import components.Position;
+import dungeons.components.Move;
+import dungeons.components.Position;
 
 class MoveNode extends Node<MoveNode>
 {

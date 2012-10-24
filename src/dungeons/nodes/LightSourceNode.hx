@@ -1,9 +1,9 @@
-package nodes;
-
-import components.LightSource;
-import components.Position;
+package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
+
+import dungeons.components.LightSource;
+import dungeons.components.Position;
 
 class LightSourceNode extends Node<LightSourceNode>
 {

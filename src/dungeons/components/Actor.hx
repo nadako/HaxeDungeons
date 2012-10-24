@@ -1,6 +1,6 @@
-package components;
+package dungeons.components;
 
-import Dungeon.Direction;
+import dungeons.Dungeon.Direction;
 
 class Actor
 {

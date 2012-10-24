@@ -1,13 +1,12 @@
-package systems;
+package dungeons.systems;
 
-import net.richardlord.ash.tools.ComponentPool;
-import components.Move;
 import de.polygonal.ds.Array2;
-
+import net.richardlord.ash.tools.ComponentPool;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
-import nodes.MoveNode;
-import Dungeon.Tile;
+import dungeons.components.Move;
+import dungeons.nodes.MoveNode;
+import dungeons.Dungeon.Tile;
 
 class MoveSystem extends ListIteratingSystem<MoveNode>
 {

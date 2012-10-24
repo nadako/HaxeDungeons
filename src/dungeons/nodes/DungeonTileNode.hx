@@ -1,8 +1,9 @@
-package nodes;
+package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
-import components.TileRenderable;
-import components.Position;
+
+import dungeons.components.TileRenderable;
+import dungeons.components.Position;
 
 class DungeonTileNode extends Node<DungeonTileNode>
 {

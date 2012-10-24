@@ -1,5 +1,6 @@
-package components;
+package dungeons.components;
 
+import dungeons.Dungeon;
 import Dungeon.Tile;
 
 class TileRenderable

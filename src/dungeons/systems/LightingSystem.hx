@@ -1,13 +1,13 @@
-package systems;
+package dungeons.systems;
 
-import de.polygonal.ds.Array2;
-import nodes.LightSourceNode;
 import nme.display.Graphics;
 
+import de.polygonal.ds.Array2;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
-import Dungeon.Tile;
-import ShadowCaster.IShadowCasterDataProvider;
+import dungeons.Dungeon.Tile;
+import dungeons.ShadowCaster.IShadowCasterDataProvider;
+import dungeons.nodes.LightSourceNode;
 
 class LightingSystem extends ListIteratingSystem<LightSourceNode>, implements IShadowCasterDataProvider
 {

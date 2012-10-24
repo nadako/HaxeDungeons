@@ -1,4 +1,4 @@
-package components;
+package dungeons.components;
 
 import nme.display.DisplayObject;
 

@@ -1,16 +1,16 @@
-package systems;
+package dungeons.systems;
 
-import components.Move;
-import net.richardlord.ash.tools.ComponentPool;
 import de.polygonal.ds.ArrayedDeque;
 import de.polygonal.ds.Deque;
 
+import net.richardlord.ash.tools.ComponentPool;
 import net.richardlord.ash.core.Entity;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
-import nodes.ActorNode;
-import components.Actor;
+import dungeons.nodes.ActorNode;
+import dungeons.components.Actor;
+import dungeons.components.Move;
 
 class ActorSystem extends ListIteratingSystem<ActorNode>
 {
@@ -76,7 +76,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         switch (action)
         {
             case Action.Move(direction):
-                var move:components.Move = ComponentPool.get(components.Move);
+                var move = ComponentPool.get(dungeons.components.Move);
                 move.direction = direction;
                 entity.add(move);
             default:

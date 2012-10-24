@@ -1,4 +1,4 @@
-package ;
+package dungeons;
 
 import nme.display.DisplayObjectContainer;
 import nme.events.KeyboardEvent;
@@ -20,26 +20,26 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tick.FrameTickProvider;
 import net.richardlord.ash.core.Entity;
 
-import components.LightSource;
-import components.CameraFocus;
-import components.Actor;
-import components.PlayerControls;
-import components.Renderable;
-import components.TileRenderable;
-import components.Position;
+import dungeons.components.LightSource;
+import dungeons.components.CameraFocus;
+import dungeons.components.Actor;
+import dungeons.components.PlayerControls;
+import dungeons.components.Renderable;
+import dungeons.components.TileRenderable;
+import dungeons.components.Position;
 
-import systems.MoveSystem;
-import systems.ActorSystem;
-import systems.CameraSystem;
-import systems.DungeonRenderSystem;
-import systems.LightingSystem;
-import systems.PlayerControlSystem;
-import systems.RenderSystem;
+import dungeons.systems.MoveSystem;
+import dungeons.systems.ActorSystem;
+import dungeons.systems.CameraSystem;
+import dungeons.systems.DungeonRenderSystem;
+import dungeons.systems.LightingSystem;
+import dungeons.systems.PlayerControlSystem;
+import dungeons.systems.RenderSystem;
 
-import Dungeon;
-import ShadowCaster;
+import dungeons.Dungeon;
+import dungeons.ShadowCaster;
 
-using ArrayUtil;
+using dungeons.ArrayUtil;
 
 class Main extends Sprite
 {

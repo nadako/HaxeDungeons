@@ -1,4 +1,4 @@
-package systems;
+package dungeons.systems;
 
 import nme.display.DisplayObjectContainer;
 import nme.display.Tilesheet;
@@ -7,7 +7,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 import net.richardlord.ash.core.NodeList;
 
-import nodes.RenderNode;
+import dungeons.nodes.RenderNode;
 
 class RenderSystem extends System
 {

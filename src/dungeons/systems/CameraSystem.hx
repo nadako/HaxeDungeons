@@ -1,9 +1,10 @@
-package systems;
-
-import nodes.CameraFocusNode;
-import net.richardlord.ash.tools.ListIteratingSystem;
+package dungeons.systems;
 
 import nme.display.DisplayObject;
+
+import net.richardlord.ash.tools.ListIteratingSystem;
+
+import dungeons.nodes.CameraFocusNode;
 
 class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 {

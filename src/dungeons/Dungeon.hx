@@ -1,9 +1,9 @@
-package ;
+package dungeons;
 
 import de.polygonal.core.math.random.Random;
 import de.polygonal.ds.Array2;
 
-using ArrayUtil;
+using dungeons.ArrayUtil;
 
 class Dungeon
 {

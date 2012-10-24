@@ -1,4 +1,4 @@
-package ;
+package dungeons;
 
 class ShadowCaster implements IIntensityCalculator
 {
