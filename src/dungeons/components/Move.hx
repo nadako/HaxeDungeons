@@ -1,7 +1,6 @@
 package dungeons.components;
 
-import dungeons.Dungeon;
-import Dungeon.Direction;
+import dungeons.Dungeon.Direction;
 
 class Move
 {
