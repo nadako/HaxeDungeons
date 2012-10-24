@@ -1,22 +1,6 @@
 package ;
 
-import systems.MoveSystem;
-import components.Actor;
-import systems.ActorSystem;
-import systems.CameraSystem;
-import systems.DungeonRenderSystem;
-import systems.LightingSystem;
-import systems.PlayerControlSystem;
-import systems.RenderSystem;
-import components.LightSource;
-import components.CameraFocus;
-import net.richardlord.ash.tick.FrameTickProvider;
 import nme.display.DisplayObjectContainer;
-import components.PlayerControls;
-import components.Renderable;
-import components.TileRenderable;
-import net.richardlord.ash.core.Entity;
-import components.Position;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import nme.display.Shape;
@@ -31,7 +15,26 @@ import nme.display.Sprite;
 import nme.Lib;
 
 import de.polygonal.ds.Array2;
+
 import net.richardlord.ash.core.Game;
+import net.richardlord.ash.tick.FrameTickProvider;
+import net.richardlord.ash.core.Entity;
+
+import components.LightSource;
+import components.CameraFocus;
+import components.Actor;
+import components.PlayerControls;
+import components.Renderable;
+import components.TileRenderable;
+import components.Position;
+
+import systems.MoveSystem;
+import systems.ActorSystem;
+import systems.CameraSystem;
+import systems.DungeonRenderSystem;
+import systems.LightingSystem;
+import systems.PlayerControlSystem;
+import systems.RenderSystem;
 
 import Dungeon;
 import ShadowCaster;
