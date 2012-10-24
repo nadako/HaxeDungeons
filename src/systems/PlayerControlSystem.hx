@@ -1,43 +1,72 @@
 package systems;
 
+import flash.ui.Keyboard;
+import flash.events.KeyboardEvent;
+import flash.display.Sprite;
+
 import de.polygonal.ds.Array2;
-import nme.ui.Keyboard;
+
+import net.richardlord.ash.core.Game;
+import net.richardlord.ash.core.NodeList;
+import net.richardlord.ash.core.System;
+
+import components.Actor;
 import components.Position;
-import nodes.PlayerNode;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import nodes.PlayerActorNode;
 import Dungeon.Tile;
 
-class PlayerControlSystem extends ListIteratingSystem<PlayerNode>
+class PlayerControlSystem extends System
 {
-    private var keyPoll:KeyPoll;
-    private var dungeonGrid:Array2<Tile>;
+    private var application:Sprite;
+    private var nodeList:NodeList<PlayerActorNode>;
 
-    public function new(keyPoll:KeyPoll, dungeonGrid:Array2<Tile>)
+    public function new(application:Sprite)
     {
-        super(PlayerNode, nodeUpdate);
-        this.keyPoll = keyPoll;
-        this.dungeonGrid = dungeonGrid;
+        this.application = application;
     }
 
-    private function nodeUpdate(node:PlayerNode, dt:Float):Void
+    override public function addToGame(game:Game):Void
     {
-        if (keyPoll.isDown(Keyboard.UP))
-            moveHero(node.position, 0, -1);
-        else if (keyPoll.isDown(Keyboard.DOWN))
-            moveHero(node.position, 0, 1);
-        else if (keyPoll.isDown(Keyboard.LEFT))
-            moveHero(node.position, -1, 0);
-        else if (keyPoll.isDown(Keyboard.RIGHT))
-            moveHero(node.position, 1, 0);
+        nodeList = game.getNodeList(PlayerActorNode);
+        application.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
     }
 
-    private function moveHero(position:Position, dx:Int, dy:Int):Void
+    override public function removeFromGame(game:Game):Void
     {
-        var tile:Tile = dungeonGrid.get(Std.int(position.x) + dx, Std.int(position.y) + dy);
-        if (tile == Floor)
+        application.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        nodeList = null;
+    }
+
+    private function onKeyDown(event:KeyboardEvent):Void
+    {
+        for (node in nodeList)
         {
-            position.x += dx;
-            position.y += dy;
+            if (node.actor.awaitingAction)
+            {
+                var action = getAction(event);
+                if (action != null)
+                {
+                    node.actor.awaitingAction = false;
+                    node.actor.resultAction = action;
+                }
+            }
+        }
+    }
+
+    private function getAction(event:KeyboardEvent):Action
+    {
+        switch (event.keyCode)
+        {
+            case Keyboard.UP:
+                return Move(North);
+            case Keyboard.DOWN:
+                return Move(South);
+            case Keyboard.LEFT:
+                return Move(West);
+            case Keyboard.RIGHT:
+                return Move(East);
+            default:
+                return null;
         }
     }
 }

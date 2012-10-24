@@ -3,10 +3,10 @@ package nodes;
 import net.richardlord.ash.core.Node;
 
 import components.PlayerControls;
-import components.Position;
+import components.Actor;
 
-class PlayerNode extends Node<PlayerNode>
+class PlayerActorNode extends Node<PlayerActorNode>
 {
-    public var position:Position;
+    public var actor:Actor;
     public var controls:PlayerControls;
 }

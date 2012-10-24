@@ -1,5 +1,8 @@
 package ;
 
+import systems.MoveSystem;
+import components.Actor;
+import systems.ActorSystem;
 import systems.CameraSystem;
 import systems.DungeonRenderSystem;
 import systems.LightingSystem;
@@ -106,16 +109,17 @@ class Main extends Sprite
         hero.add(new Position(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2)));
         hero.add(new CameraFocus());
         hero.add(new PlayerControls());
+        hero.add(new Actor(100));
         hero.add(new LightSource(HERO_SIGHT_RADIUS));
         game.addEntity(hero);
 
-        var keyPoll = new KeyPoll(stage);
-
-        game.addSystem(new PlayerControlSystem(keyPoll, dungeon.grid), -1);
-        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 0);
-        game.addSystem(new RenderSystem(objectsContainer), 1);
-        game.addSystem(new CameraSystem(scene), 1);
-        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), 0);
+        game.addSystem(new PlayerControlSystem(this), 1);
+        game.addSystem(new ActorSystem(), 2);
+        game.addSystem(new MoveSystem(dungeon.grid), 3);
+        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 4);
+        game.addSystem(new RenderSystem(objectsContainer), 4);
+        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), 4);
+        game.addSystem(new CameraSystem(scene), 4);
 
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);
