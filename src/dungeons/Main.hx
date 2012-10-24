@@ -1,5 +1,6 @@
 package dungeons;
 
+import nme.ObjectHash;
 import nme.display.DisplayObjectContainer;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
@@ -20,6 +21,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tick.FrameTickProvider;
 import net.richardlord.ash.core.Entity;
 
+import dungeons.components.Move;
 import dungeons.components.LightSource;
 import dungeons.components.CameraFocus;
 import dungeons.components.Actor;
@@ -36,6 +38,7 @@ import dungeons.systems.DungeonRenderSystem;
 import dungeons.systems.LightingSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
+import dungeons.systems.EventCleanupSystem;
 
 import dungeons.Dungeon;
 import dungeons.ShadowCaster;
@@ -124,6 +127,11 @@ class Main extends Sprite
         game.addSystem(new RenderSystem(objectsContainer), SystemPriorities.RENDER);
         game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);
         game.addSystem(new CameraSystem(scene), SystemPriorities.RENDER);
+
+        var cleanupConfig:ObjectHash<Class<Dynamic>, Bool> = new ObjectHash();
+        cleanupConfig.set(dungeons.components.Move, true);
+
+        game.addSystem(new EventCleanupSystem(cleanupConfig), SystemPriorities.CLEANUP);
 
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);

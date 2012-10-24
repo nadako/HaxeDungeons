@@ -20,11 +20,9 @@ class MoveSystem extends ListIteratingSystem<MoveNode>
 
     private function updateNode(node:MoveNode, dt:Float):Void
     {
-        var move:Move = node.entity.remove(Move);
-        ComponentPool.dispose(Move);
         var dx:Int = 0;
         var dy:Int = 0;
-        switch (move.direction)
+        switch (node.move.direction)
         {
             case North:
                 dy = -1;
