@@ -28,6 +28,7 @@ import dungeons.components.Renderable;
 import dungeons.components.TileRenderable;
 import dungeons.components.Position;
 
+import dungeons.systems.SystemPriorities;
 import dungeons.systems.MoveSystem;
 import dungeons.systems.ActorSystem;
 import dungeons.systems.CameraSystem;
@@ -116,22 +117,16 @@ class Main extends Sprite
         hero.add(new LightSource(HERO_SIGHT_RADIUS));
         game.addEntity(hero);
 
-        game.addSystem(new PlayerControlSystem(this), 1);
-        game.addSystem(new ActorSystem(), 2);
-        game.addSystem(new MoveSystem(dungeon.grid), 3);
-        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet), 4);
-        game.addSystem(new RenderSystem(objectsContainer), 4);
-        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), 4);
-        game.addSystem(new CameraSystem(scene), 4);
+        game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
+        game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
+        game.addSystem(new MoveSystem(dungeon.grid), SystemPriorities.MOVE);
+        game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet, dungeon.grid), SystemPriorities.RENDER);
+        game.addSystem(new RenderSystem(objectsContainer), SystemPriorities.RENDER);
+        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);
+        game.addSystem(new CameraSystem(scene), SystemPriorities.RENDER);
 
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);
         tickProvider.start();
     }
-
-    private function isVerticalWall(grid:Array2<Tile>, x:Int, y:Int):Bool
-    {
-        return grid.inRange(x, y + 1) && grid.get(x, y + 1) == Wall;
-    }
-
 }

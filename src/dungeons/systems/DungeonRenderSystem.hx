@@ -3,10 +3,12 @@ package dungeons.systems;
 import nme.display.Tilesheet;
 import nme.display.Graphics;
 
+import de.polygonal.ds.Array2;
 import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
+import dungeons.Dungeon.Tile;
 import dungeons.nodes.DungeonTileNode;
 
 class DungeonRenderSystem extends System
@@ -15,11 +17,13 @@ class DungeonRenderSystem extends System
     private var tiles:Tilesheet;
     private var nodeList:NodeList<DungeonTileNode>;
     private var needUpdate:Bool;
+    private var dungeonGrid:Array2<Tile>;
 
-    public function new(canvas:Graphics, tiles:Tilesheet)
+    public function new(canvas:Graphics, tiles:Tilesheet, dungeonGrid:Array2<Tile>)
     {
         this.canvas = canvas;
         this.tiles = tiles;
+        this.dungeonGrid = dungeonGrid;
     }
 
     override public function addToGame(game:Game):Void
@@ -58,8 +62,7 @@ class DungeonRenderSystem extends System
                 switch (node.renderable.tile)
                 {
                     case Wall:
-                        tileID = 0;
-//                        tileID = isVerticalWall(dungeon.grid, x, y) ? 1 : 0;
+                        tileID = isVerticalWall(node.position.x, node.position.y) ? 1 : 0;
                     case Floor:
                         tileID = 2;
                     default:
@@ -71,5 +74,10 @@ class DungeonRenderSystem extends System
             }
             tiles.drawTiles(canvas, tileData);
         }
+    }
+
+    private function isVerticalWall(x:Int, y:Int):Bool
+    {
+        return dungeonGrid.inRange(x, y + 1) && dungeonGrid.get(x, y + 1) == Wall;
     }
 }
