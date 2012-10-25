@@ -11,6 +11,7 @@
     <haxelib name="nme"/>
     <haxelib name="polygonal-ds" />
     <haxelib name="ash" />
+    <haxelib name="actuate" />
 
     <ndll name="nme" haxelib="nme" />
     <haxedef name="fdb" if="flash"/>

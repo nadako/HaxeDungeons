@@ -1,6 +1,7 @@
 package dungeons.systems;
 
 import de.polygonal.ds.Array2;
+
 import net.richardlord.ash.tools.ComponentPool;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
@@ -39,8 +40,7 @@ class MoveSystem extends ListIteratingSystem<MoveNode>
 
         if (dungeonGrid.inRange(x, y) && dungeonGrid.get(x, y) == Floor)
         {
-            node.position.x = x;
-            node.position.y = y;
+            node.position.moveBy(dx, dy);
         }
     }
 }
