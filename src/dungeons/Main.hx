@@ -39,6 +39,7 @@ import dungeons.systems.LightingSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
 import dungeons.systems.EventCleanupSystem;
+import dungeons.systems.PositionSystem;
 
 import dungeons.Dungeon;
 import dungeons.ShadowCaster;
@@ -123,6 +124,7 @@ class Main extends Sprite
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new MoveSystem(dungeon.grid), SystemPriorities.MOVE);
+        game.addSystem(new PositionSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
         game.addSystem(new DungeonRenderSystem(dungeonCanvas.graphics, dungeonTilesheet, dungeon.grid), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(objectsContainer), SystemPriorities.RENDER);
         game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);
