@@ -45,9 +45,8 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 
     private function getSceneCoords():Point
     {
-        var TILE_SIZE = 8;
-        var x = scene.stage.stageWidth / 2 - focus.position.x * TILE_SIZE * scene.scaleX;
-        var y = scene.stage.stageHeight / 2 - focus.position.y * TILE_SIZE * scene.scaleY;
+        var x = scene.stage.stageWidth / 2 - focus.position.x * Constants.TILE_SIZE * scene.scaleX;
+        var y = scene.stage.stageHeight / 2 - focus.position.y * Constants.TILE_SIZE * scene.scaleY;
         return new Point(x, y);
     }
 

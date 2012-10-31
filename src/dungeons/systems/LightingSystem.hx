@@ -37,9 +37,8 @@ class LightingSystem extends ListIteratingSystem<LightSourceNode>, implements IS
 
     public function light(x:Int, y:Int, intensity:Float):Void
     {
-        var TILE_SIZE:Int = 8;
         canvas.beginFill(0xFFFF00, intensity);
-        canvas.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        canvas.drawRect(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE);
         canvas.endFill();
     }
 }

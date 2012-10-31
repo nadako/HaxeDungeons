@@ -13,8 +13,6 @@ import dungeons.nodes.RenderNode;
 
 class RenderSystem extends ListIteratingSystem<RenderNode>
 {
-    private static inline var TILE_SIZE:Int = 8;
-
     private var container:DisplayObjectContainer;
     private var moveListeners:ObjectHash<RenderNode, PositionChangeListener>;
 
@@ -41,8 +39,8 @@ class RenderSystem extends ListIteratingSystem<RenderNode>
     private function nodeAdded(node:RenderNode):Void
     {
         container.addChild(node.renderable.displayObject);
-        node.renderable.displayObject.x = node.position.x * TILE_SIZE;
-        node.renderable.displayObject.y = node.position.y * TILE_SIZE;
+        node.renderable.displayObject.x = node.position.x * Constants.TILE_SIZE;
+        node.renderable.displayObject.y = node.position.y * Constants.TILE_SIZE;
         moveListeners.set(node, new PositionChangeListener(node));
     }
 
@@ -61,7 +59,6 @@ class RenderSystem extends ListIteratingSystem<RenderNode>
 
 private class PositionChangeListener
 {
-    private static inline var TILE_SIZE:Int = 8;
     private static inline var ANIM_DURATION:Float = 0.25;
 
     private var node:RenderNode;
@@ -74,8 +71,8 @@ private class PositionChangeListener
 
     private function onPositionChange():Void
     {
-        var x = node.position.x * TILE_SIZE;
-        var y = node.position.y * TILE_SIZE;
+        var x = node.position.x * Constants.TILE_SIZE;
+        var y = node.position.y * Constants.TILE_SIZE;
         Actuate.stop(node.renderable.displayObject);
         Actuate.tween(node.renderable.displayObject, ANIM_DURATION, {x: x, y: y});
     }

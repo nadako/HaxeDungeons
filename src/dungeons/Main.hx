@@ -48,7 +48,6 @@ using dungeons.ArrayUtil;
 
 class Main extends Sprite
 {
-    private static inline var TILE_SIZE:Int = 8;
     private static inline var HERO_SIGHT_RADIUS:Int = 10;
 
     private var dungeonTilesheet:Tilesheet;
@@ -77,12 +76,12 @@ class Main extends Sprite
         addChild(scene);
 
         dungeonTilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_environment.png"));
-        dungeonTilesheet.addTileRect(new Rectangle(0, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE)); // wall h
-        dungeonTilesheet.addTileRect(new Rectangle(4 * TILE_SIZE, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE)); // wall v
-        dungeonTilesheet.addTileRect(new Rectangle(5 * TILE_SIZE, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE)); // floor
+        dungeonTilesheet.addTileRect(new Rectangle(0, 2 * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE)); // wall h
+        dungeonTilesheet.addTileRect(new Rectangle(4 * Constants.TILE_SIZE, 2 * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE)); // wall v
+        dungeonTilesheet.addTileRect(new Rectangle(5 * Constants.TILE_SIZE, 2 * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE)); // floor
 
         characterTilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_char.png"));
-        characterTilesheet.addTileRect(new Rectangle(0, 0, TILE_SIZE, TILE_SIZE)); // sample char
+        characterTilesheet.addTileRect(new Rectangle(0, 0, Constants.TILE_SIZE, Constants.TILE_SIZE)); // sample char
 
         dungeonCanvas = new Shape();
         scene.addChild(dungeonCanvas);

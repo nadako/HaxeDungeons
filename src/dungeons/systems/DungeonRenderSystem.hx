@@ -54,7 +54,6 @@ class DungeonRenderSystem extends System
             needUpdate = false;
 
             canvas.clear();
-            var TILE_SIZE:Int = 8;
             var tileData:Array<Float> = new Array<Float>();
             for (node in nodeList)
             {
@@ -68,8 +67,8 @@ class DungeonRenderSystem extends System
                     default:
                         continue;
                 }
-                tileData.push(node.position.x * TILE_SIZE);
-                tileData.push(node.position.y * TILE_SIZE);
+                tileData.push(node.position.x * Constants.TILE_SIZE);
+                tileData.push(node.position.y * Constants.TILE_SIZE);
                 tileData.push(tileID);
             }
             tiles.drawTiles(canvas, tileData);
