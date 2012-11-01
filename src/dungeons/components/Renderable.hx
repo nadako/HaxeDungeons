@@ -9,8 +9,8 @@ class Renderable
 {
     public var renderer:IRenderer;
     public var layer:RenderLayer;
-    public var animOffsetX:Int;
-    public var animOffsetY:Int;
+    public var animOffsetX:Float = 0;
+    public var animOffsetY:Float = 0;
 
     public function new(layer:RenderLayer, renderer:IRenderer)
     {
