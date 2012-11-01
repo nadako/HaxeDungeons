@@ -1,5 +1,6 @@
 package dungeons.systems;
 
+import nme.geom.Rectangle;
 import nme.geom.Point;
 import nme.display.DisplayObject;
 
@@ -12,14 +13,14 @@ import dungeons.nodes.CameraFocusNode;
 
 class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 {
-    private var scene:DisplayObject;
+    private var viewport:Rectangle;
     private var animateDuration:Float;
     private var focus:CameraFocusNode;
 
-    public function new(scene:DisplayObject, animateDuration:Float = 0.5)
+    public function new(viewport:Rectangle, animateDuration:Float = 0.5)
     {
         super(CameraFocusNode, null, nodeAdded, nodeRemoved);
-        this.scene = scene;
+        this.viewport = viewport;
         this.animateDuration = animateDuration;
     }
 
@@ -39,14 +40,14 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         focus.position.changed.add(onFocusMove);
 
         var coords = getSceneCoords();
-        scene.x = coords.x;
-        scene.y = coords.y;
+        viewport.x = coords.x;
+        viewport.y = coords.y;
     }
 
     private function getSceneCoords():Point
     {
-        var x = scene.stage.stageWidth / 2 - focus.position.x * Constants.TILE_SIZE * scene.scaleX;
-        var y = scene.stage.stageHeight / 2 - focus.position.y * Constants.TILE_SIZE * scene.scaleY;
+        var x = Math.max(0, focus.position.x * Constants.TILE_SIZE - viewport.width / 2);
+        var y = Math.max(0, focus.position.y * Constants.TILE_SIZE - viewport.height / 2);
         return new Point(x, y);
     }
 
@@ -58,8 +59,10 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
     private function onFocusMove():Void
     {
         var coords = getSceneCoords();
-        Actuate.stop(scene);
-        Actuate.tween(scene, animateDuration, {x: coords.x, y: coords.y});
+//        viewport.x = coords.x;
+//        viewport.y = coords.y;
+        Actuate.stop(viewport);
+        Actuate.tween(viewport, animateDuration, {x: coords.x, y: coords.y});
     }
 
     override public function update(time:Float):Void

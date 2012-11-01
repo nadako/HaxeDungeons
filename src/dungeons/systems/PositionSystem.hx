@@ -73,7 +73,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
         {
             entities.push(node.entity);
         }
-        trace("Added node to " + node.position.x + "x" + node.position.y);
+//        trace("Added node to " + node.position.x + "x" + node.position.y);
         nodeListeners.set(node, new PositionChangeListener(node, positionGrid));
     }
 
@@ -84,7 +84,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
         listener.dispose();
 
         var entities = positionGrid.get(node.position.x, node.position.y);
-        trace("Removed node from " + node.position.x + "x" + node.position.y);
+//        trace("Removed node from " + node.position.x + "x" + node.position.y);
         entities.remove(node.entity);
     }
 
@@ -124,7 +124,7 @@ private class PositionChangeListener
             newEntities.push(node.entity);
         }
 
-        trace("Moved node from " + previousPosition.x + "x" + previousPosition.y + " to " + node.position.x + "x" + node.position.y);
+//        trace("Moved node from " + previousPosition.x + "x" + previousPosition.y + " to " + node.position.x + "x" + node.position.y);
 
         previousPosition.moveTo(node.position.x, node.position.y);
     }

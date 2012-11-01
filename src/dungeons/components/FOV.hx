@@ -1,6 +1,6 @@
 package dungeons.components;
 
-class LightSource
+class FOV
 {
     public var radius(default, null):Int;
 

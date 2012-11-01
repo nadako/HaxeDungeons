@@ -9,10 +9,10 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
 import dungeons.Dungeon.Tile;
-import dungeons.nodes.DungeonTileNode;
 
 class DungeonRenderSystem extends System
 {
+/*
     private var canvas:Graphics;
     private var tiles:Tilesheet;
     private var nodeList:NodeList<DungeonTileNode>;
@@ -79,4 +79,5 @@ class DungeonRenderSystem extends System
     {
         return dungeonGrid.inRange(x, y + 1) && dungeonGrid.get(x, y + 1) == Wall;
     }
+*/
 }

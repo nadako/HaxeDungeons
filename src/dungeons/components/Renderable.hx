@@ -2,12 +2,14 @@ package dungeons.components;
 
 import nme.display.DisplayObject;
 
+import dungeons.render.IRenderer;
+
 class Renderable
 {
-    public var displayObject(default, null):DisplayObject;
+    public var renderer:IRenderer;
 
-    public function new(displayObject:DisplayObject)
+    public function new(renderer:IRenderer)
     {
-        this.displayObject = displayObject;
+        this.renderer = renderer;
     }
 }

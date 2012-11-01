@@ -2,11 +2,11 @@ package dungeons.nodes;
 
 import net.richardlord.ash.core.Node;
 
-import dungeons.components.TileRenderable;
+import dungeons.components.FOV;
 import dungeons.components.Position;
 
-class DungeonTileNode extends Node<DungeonTileNode>
+class FOVNode extends Node<FOVNode>
 {
     public var position:Position;
-    public var renderable:TileRenderable;
+    public var fov:FOV;
 }

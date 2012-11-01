@@ -19,6 +19,9 @@ class Position
 
     public function moveTo(x:Int, y:Int):Void
     {
+        if (this.x == x && this.y == y)
+            return;
+
         this.x = x;
         this.y = y;
         changed.dispatch();
