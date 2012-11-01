@@ -162,5 +162,26 @@ class RenderSystem extends System
                 }
             }
         }
+
+        // render nice FOV overlay
+        var rectBitmap = new BitmapData(Constants.TILE_SIZE, Constants.TILE_SIZE);
+        for (x in startX...endX)
+        {
+            for (y in startY...endY)
+            {
+                var light:Float = fovSystem.getLight(x, y);
+                if (light < 1)
+                {
+                    drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX;
+                    drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY;
+
+                    var color:Int = Std.int(255 * (1 - light)) << 24;
+
+                    rectBitmap.fillRect(rectBitmap.rect, color);
+                    target.copyPixels(rectBitmap, rectBitmap.rect, drawPoint, null, null, true);
+                }
+            }
+        }
+        rectBitmap.dispose();
     }
 }
