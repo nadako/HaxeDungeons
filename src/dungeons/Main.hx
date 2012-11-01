@@ -115,10 +115,12 @@ class Main extends Sprite
         hero.add(obstacle);
         game.addEntity(hero);
 
-        var viewport:Rectangle = new Rectangle(0, 0, 100, 100);
+        var zoom:Float = 4;
+
+        var viewport:Rectangle = new Rectangle(0, 0, stage.stageWidth / zoom, stage.stageHeight / zoom);
         targetBitmapData = new BitmapData(Std.int(viewport.width), Std.int(viewport.height));
         targetBitmap = new Bitmap(targetBitmapData);
-        targetBitmap.scaleX = targetBitmap.scaleY = 4;
+        targetBitmap.scaleX = targetBitmap.scaleY = zoom;
         addChild(targetBitmap);
 
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
