@@ -15,6 +15,7 @@ import net.richardlord.ash.core.System;
 
 import dungeons.nodes.RenderNode;
 import dungeons.components.Renderable;
+import dungeons.render.RenderLayer;
 
 class RenderSystem extends System
 {
@@ -25,7 +26,7 @@ class RenderSystem extends System
 
     private var nodeList:NodeList<RenderNode>;
     private var positionHelpers:ObjectHash<RenderNode, PositionHelper>;
-    private var positionStorage:IntHash<Array<RenderNode>>;
+    private var positionStorage:Array<IntHash<Array<RenderNode>>>;
     private var emptyIterable:Iterable<RenderNode>;
 
     public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
@@ -40,7 +41,11 @@ class RenderSystem extends System
     override public function addToGame(game:Game):Void
     {
         positionHelpers = new ObjectHash<RenderNode, PositionHelper>();
-        positionStorage = new IntHash<Array<RenderNode>>();
+
+        positionStorage = new Array<IntHash<Array<RenderNode>>>();
+        for (construct in Type.getEnumConstructs(RenderLayer))
+            positionStorage.push(new IntHash<Array<RenderNode>>());
+
         nodeList = game.getNodeList(RenderNode);
         for (node in nodeList)
             onNodeAdded(node);
@@ -64,14 +69,15 @@ class RenderSystem extends System
         return y * width + x;
     }
 
-    private function getArray(x:Int, y:Int):Array<RenderNode>
+    private function getArray(layer:RenderLayer, x:Int, y:Int):Array<RenderNode>
     {
+        var storage:IntHash<Array<RenderNode>> = positionStorage[Type.enumIndex(layer)];
         var key:Int = getStorageKey(x, y);
-        var result:Array<RenderNode> = positionStorage.get(key);
+        var result:Array<RenderNode> = storage.get(key);
         if (result == null)
         {
             result = [];
-            positionStorage.set(key, result);
+            storage.set(key, result);
         }
         return result;
     }
@@ -88,9 +94,9 @@ class RenderSystem extends System
         helper.dispose();
     }
 
-    private function getNodes(x:Int, y:Int):Iterable<RenderNode>
+    private function getNodes(storage:IntHash<Array<RenderNode>>, x:Int, y:Int):Iterable<RenderNode>
     {
-        var result:Array<RenderNode> = positionStorage.get(getStorageKey(x, y));
+        var result:Array<RenderNode> = storage.get(getStorageKey(x, y));
         if (result == null)
             return emptyIterable;
         else
@@ -109,16 +115,19 @@ class RenderSystem extends System
         var viewOffsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
 
         var drawPoint:Point = new Point();
-        for (x in startX...endX)
+        for (layer in positionStorage)
         {
-            for (y in startY...endY)
+            for (x in startX...endX)
             {
-                for (node in getNodes(x, y))
+                for (y in startY...endY)
                 {
-                    var renderable:Renderable = node.renderable;
-                    drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
-                    drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
-                    renderable.renderer.render(target, drawPoint);
+                    for (node in getNodes(layer, x, y))
+                    {
+                        var renderable:Renderable = node.renderable;
+                        drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
+                        drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
+                        renderable.renderer.render(target, drawPoint);
+                    }
                 }
             }
         }
@@ -129,21 +138,21 @@ private class PositionHelper
 {
     private var node:RenderNode;
     private var prevPosition:{var x:Int; var y:Int;};
-    private var getArray:Int->Int->Array<RenderNode>;
+    private var getArray:RenderLayer->Int->Int->Array<RenderNode>;
 
-    public function new(node:RenderNode, getArray:Int->Int->Array<RenderNode>):Void
+    public function new(node:RenderNode, getArray:RenderLayer->Int->Int->Array<RenderNode>):Void
     {
         this.node = node;
         this.getArray = getArray;
         prevPosition = {x: node.position.x, y: node.position.y};
         node.position.changed.add(onPositionChange);
-        getArray(prevPosition.x, prevPosition.y).push(node);
+        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).push(node);
     }
 
     private function onPositionChange():Void
     {
-        getArray(prevPosition.x, prevPosition.y).remove(node);
-        getArray(node.position.x, node.position.y).push(node);
+        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).remove(node);
+        getArray(node.renderable.layer, node.position.x, node.position.y).push(node);
 
         animateMove();
 
@@ -161,7 +170,7 @@ private class PositionHelper
 
     public function dispose():Void
     {
-        getArray(prevPosition.x, prevPosition.y).remove(node);
+        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).remove(node);
         node.position.changed.remove(onPositionChange);
         node = null;
         prevPosition = null;

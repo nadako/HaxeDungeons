@@ -1,6 +1,5 @@
 package dungeons;
 
-import dungeons.render.Tilesheet;
 import nme.display.Bitmap;
 import nme.ObjectHash;
 import nme.display.DisplayObjectContainer;
@@ -40,6 +39,9 @@ import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
 import dungeons.systems.EventCleanupSystem;
 import dungeons.systems.PositionSystem;
+
+import dungeons.render.RenderLayer;
+import dungeons.render.Tilesheet;
 
 import dungeons.Dungeon;
 import dungeons.ShadowCaster;
@@ -90,7 +92,7 @@ class Main extends Sprite
 
                 var entity:Entity = new Entity();
                 entity.add(new Position(x, y));
-                entity.add(new Renderable(new TilesheetRenderer(dungeonTilesheet, col, row)));
+                entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, col, row)));
                 game.addEntity(entity);
             }
         }
@@ -98,7 +100,7 @@ class Main extends Sprite
         var startRoom:Room = dungeon.rooms.randomChoice();
 
         var hero:Entity = new Entity();
-        hero.add(new Renderable(new TilesheetRenderer(characterTilesheet, 1, 0)));
+        hero.add(new Renderable(RenderLayer.Player, new TilesheetRenderer(characterTilesheet, 1, 0)));
         hero.add(new Position(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2)));
         hero.add(new CameraFocus());
         hero.add(new PlayerControls());
