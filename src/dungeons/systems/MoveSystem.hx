@@ -35,6 +35,8 @@ class MoveSystem extends ListIteratingSystem<MoveNode>
                 dx = -1;
         }
 
+        ComponentPool.dispose(node.entity.remove(Move));
+
         var x:Int = node.position.x + dx;
         var y:Int = node.position.y + dy;
 

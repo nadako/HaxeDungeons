@@ -37,7 +37,6 @@ import dungeons.systems.DungeonRenderSystem;
 //import dungeons.systems.LightingSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
-import dungeons.systems.EventCleanupSystem;
 
 import dungeons.render.RenderLayer;
 import dungeons.render.Tilesheet;
@@ -116,14 +115,13 @@ class Main extends Sprite
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new MoveSystem(dungeon.grid), SystemPriorities.MOVE);
+        game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
 //        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);
-        game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
 
         var cleanupConfig:ObjectHash<Class<Dynamic>, Bool> = new ObjectHash();
         cleanupConfig.set(dungeons.components.Move, true);
 
-        game.addSystem(new EventCleanupSystem(cleanupConfig), SystemPriorities.CLEANUP);
         game.updateComplete.add(function() { targetBitmap.bitmapData = targetBitmapData; });
 
         var tickProvider = new FrameTickProvider(this);

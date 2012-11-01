@@ -14,6 +14,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
 import dungeons.nodes.RenderNode;
+import dungeons.components.Position;
 import dungeons.components.Renderable;
 import dungeons.render.RenderLayer;
 
@@ -25,7 +26,7 @@ class RenderSystem extends System
     private var viewport:Rectangle;
 
     private var nodeList:NodeList<RenderNode>;
-    private var positionHelpers:ObjectHash<RenderNode, Int -> Int -> Void>;
+    private var positionHelpers:ObjectHash<RenderNode, PositionChangeListener>;
     private var positionStorage:Array<IntHash<Array<RenderNode>>>;
     private var emptyIterable:Iterable<RenderNode>;
 

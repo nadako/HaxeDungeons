@@ -36,3 +36,6 @@ class Position
         moveTo(x + dx, y + dy);
     }
 }
+
+
+typedef PositionChangeListener = Int -> Int -> Void;
