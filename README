@@ -1,1 +1,4 @@
-Various experiments on dungeon crawling with haXe. Nothing to see here yet.
+Various experiments on making a dungeon crawling game with haXe.
+Nothing really worthy, just learning HaXe and implementing roguelike-related
+algorithms in haXe. I'm also using and testing Ash entity-component framework
+that I have ported from ActionScript 3 (see https://github.com/nadako/Ash-HaXe).
