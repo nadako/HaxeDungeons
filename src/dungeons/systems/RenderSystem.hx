@@ -6,12 +6,15 @@ import nme.display.Sprite;
 import nme.ObjectHash;
 import nme.geom.Rectangle;
 
+import com.eclecticdesignstudio.motion.Actuate;
+
 import net.richardlord.ash.core.Node;
 import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
 import dungeons.nodes.RenderNode;
+import dungeons.components.Renderable;
 
 class RenderSystem extends System
 {
@@ -102,17 +105,20 @@ class RenderSystem extends System
         var startY:Int = Std.int(Math.max(0, viewport.top / Constants.TILE_SIZE));
         var endX:Int = Std.int(Math.min((viewport.right / Constants.TILE_SIZE) + 1, width));
         var endY:Int = Std.int(Math.min((viewport.bottom / Constants.TILE_SIZE) + 1, height));
-        var offsetX:Int = Std.int(viewport.left % Constants.TILE_SIZE);
-        var offsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
+        var viewOffsetX:Int = Std.int(viewport.left % Constants.TILE_SIZE);
+        var viewOffsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
 
+        var drawPoint:Point = new Point();
         for (x in startX...endX)
         {
             for (y in startY...endY)
             {
-                var drawPosition:Point = new Point((x - startX) * Constants.TILE_SIZE - offsetX, (y - startY) * Constants.TILE_SIZE - offsetY);
                 for (node in getNodes(x, y))
                 {
-                    node.renderable.renderer.render(target, drawPosition);
+                    var renderable:Renderable = node.renderable;
+                    drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
+                    drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
+                    renderable.renderer.render(target, drawPoint);
                 }
             }
         }
@@ -138,8 +144,19 @@ private class PositionHelper
     {
         getArray(prevPosition.x, prevPosition.y).remove(node);
         getArray(node.position.x, node.position.y).push(node);
+
+        animateMove();
+
         prevPosition.x = node.position.x;
         prevPosition.y = node.position.y;
+    }
+
+    private function animateMove():Void
+    {
+        Actuate.stop(node.renderable);
+        node.renderable.animOffsetX -= (node.position.x - prevPosition.x) * Constants.TILE_SIZE;
+        node.renderable.animOffsetY -= (node.position.y - prevPosition.y) * Constants.TILE_SIZE;
+        Actuate.tween(node.renderable, 0.5, {animOffsetX: 0, animOffsetY: 0});
     }
 
     public function dispose():Void
