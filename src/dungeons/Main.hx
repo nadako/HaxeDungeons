@@ -29,12 +29,13 @@ import dungeons.components.Actor;
 import dungeons.components.PlayerControls;
 import dungeons.components.Renderable;
 import dungeons.components.Position;
+import dungeons.components.LightOccluder;
 
 import dungeons.systems.SystemPriorities;
 import dungeons.systems.MoveSystem;
 import dungeons.systems.ActorSystem;
 import dungeons.systems.CameraSystem;
-//import dungeons.systems.LightingSystem;
+import dungeons.systems.FOVSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
 import dungeons.systems.ObstacleSystem;
@@ -70,6 +71,7 @@ class Main extends Sprite
         var game:Game = new Game();
 
         var obstacle:Obstacle = new Obstacle();
+        var lightOccluder:LightOccluder = new LightOccluder();
 
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
@@ -89,6 +91,7 @@ class Main extends Sprite
                         if (dungeon.grid.inRange(x, y + 1) && dungeon.grid.get(x, y + 1) == Wall)
                             col = 4;
                         entity.add(obstacle);
+                        entity.add(lightOccluder);
                     case Floor:
                         col = 5;
                     default:
@@ -121,10 +124,10 @@ class Main extends Sprite
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new ObstacleSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
+        game.addSystem(new FOVSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
         game.addSystem(new MoveSystem(), SystemPriorities.MOVE);
         game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
-//        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);
 
         var cleanupConfig:ObjectHash<Class<Dynamic>, Bool> = new ObjectHash();
         cleanupConfig.set(dungeons.components.Move, true);

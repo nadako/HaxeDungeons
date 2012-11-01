@@ -29,6 +29,7 @@ class RenderSystem extends System
     private var positionHelpers:ObjectHash<RenderNode, PositionChangeListener>;
     private var positionStorage:Array<IntHash<Array<RenderNode>>>;
     private var emptyIterable:Iterable<RenderNode>;
+    private var fovSystem:FOVSystem;
 
     public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
     {
@@ -41,6 +42,8 @@ class RenderSystem extends System
 
     override public function addToGame(game:Game):Void
     {
+        fovSystem = game.getSystem(FOVSystem);
+
         positionHelpers = new ObjectHash();
 
         positionStorage = new Array<IntHash<Array<RenderNode>>>();
@@ -65,6 +68,8 @@ class RenderSystem extends System
         nodeList = null;
         positionHelpers = null;
         positionStorage = null;
+
+        fovSystem = null;
     }
 
     private inline function getStorageKey(x:Int, y:Int):Int
@@ -144,6 +149,9 @@ class RenderSystem extends System
             {
                 for (y in startY...endY)
                 {
+                    if (fovSystem.getLight(x, y) <= 0)
+                        continue;
+
                     for (node in getNodes(layer, x, y))
                     {
                         var renderable:Renderable = node.renderable;
