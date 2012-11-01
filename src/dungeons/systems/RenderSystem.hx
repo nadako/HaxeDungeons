@@ -1,7 +1,5 @@
 package dungeons.systems;
 
-import de.polygonal.ds.Array2;
-import dungeons.nodes.RenderNode;
 import nme.geom.Point;
 import nme.display.BitmapData;
 import nme.display.Sprite;
@@ -13,6 +11,7 @@ import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
+import dungeons.nodes.RenderNode;
 
 class RenderSystem extends System
 {
@@ -23,7 +22,7 @@ class RenderSystem extends System
 
     private var nodeList:NodeList<RenderNode>;
     private var positionHelpers:ObjectHash<RenderNode, PositionHelper>;
-    private var positionStorage:Array2<Array<RenderNode>>;
+    private var positionStorage:IntHash<Array<RenderNode>>;
     private var emptyIterable:Iterable<RenderNode>;
 
     public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
@@ -38,7 +37,7 @@ class RenderSystem extends System
     override public function addToGame(game:Game):Void
     {
         positionHelpers = new ObjectHash<RenderNode, PositionHelper>();
-        positionStorage = new Array2<Array<RenderNode>>(width, height);
+        positionStorage = new IntHash<Array<RenderNode>>();
         nodeList = game.getNodeList(RenderNode);
         for (node in nodeList)
             onNodeAdded(node);
@@ -57,9 +56,26 @@ class RenderSystem extends System
         positionStorage = null;
     }
 
+    private inline function getStorageKey(x:Int, y:Int):Int
+    {
+        return y * width + x;
+    }
+
+    private function getArray(x:Int, y:Int):Array<RenderNode>
+    {
+        var key:Int = getStorageKey(x, y);
+        var result:Array<RenderNode> = positionStorage.get(key);
+        if (result == null)
+        {
+            result = [];
+            positionStorage.set(key, result);
+        }
+        return result;
+    }
+
     private function onNodeAdded(node:RenderNode):Void
     {
-        positionHelpers.set(node, new PositionHelper(node, positionStorage));
+        positionHelpers.set(node, new PositionHelper(node, getArray));
     }
 
     private function onNodeRemoved(node:RenderNode):Void
@@ -71,7 +87,7 @@ class RenderSystem extends System
 
     private function getNodes(x:Int, y:Int):Iterable<RenderNode>
     {
-        var result:Array<RenderNode> = positionStorage.get(x, y);
+        var result:Array<RenderNode> = positionStorage.get(getStorageKey(x, y));
         if (result == null)
             return emptyIterable;
         else
@@ -106,27 +122,16 @@ class RenderSystem extends System
 private class PositionHelper
 {
     private var node:RenderNode;
-    private var storage:Array2<Array<RenderNode>>;
     private var prevPosition:{var x:Int; var y:Int;};
+    private var getArray:Int->Int->Array<RenderNode>;
 
-    public function new(node:RenderNode, storage:Array2<Array<RenderNode>>):Void
+    public function new(node:RenderNode, getArray:Int->Int->Array<RenderNode>):Void
     {
         this.node = node;
-        this.storage = storage;
+        this.getArray = getArray;
         prevPosition = {x: node.position.x, y: node.position.y};
         node.position.changed.add(onPositionChange);
         getArray(prevPosition.x, prevPosition.y).push(node);
-    }
-
-    private inline function getArray(x:Int, y:Int):Array<RenderNode>
-    {
-        var result:Array<RenderNode> = storage.get(x, y);
-        if (result == null)
-        {
-            result = [];
-            storage.set(x, y, result);
-        }
-        return result;
     }
 
     private function onPositionChange():Void
