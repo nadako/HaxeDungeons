@@ -25,7 +25,7 @@ class RenderSystem extends System
     private var viewport:Rectangle;
 
     private var nodeList:NodeList<RenderNode>;
-    private var positionHelpers:ObjectHash<RenderNode, PositionHelper>;
+    private var positionHelpers:ObjectHash<RenderNode, Int -> Int -> Void>;
     private var positionStorage:Array<IntHash<Array<RenderNode>>>;
     private var emptyIterable:Iterable<RenderNode>;
 
@@ -40,7 +40,7 @@ class RenderSystem extends System
 
     override public function addToGame(game:Game):Void
     {
-        positionHelpers = new ObjectHash<RenderNode, PositionHelper>();
+        positionHelpers = new ObjectHash();
 
         positionStorage = new Array<IntHash<Array<RenderNode>>>();
         for (construct in Type.getEnumConstructs(RenderLayer))
@@ -55,8 +55,10 @@ class RenderSystem extends System
 
     override public function removeFromGame(game:Game):Void
     {
-        for (listener in positionHelpers)
-            listener.dispose();
+        for (node in positionHelpers.keys())
+        {
+            node.position.changed.remove(positionHelpers.get(node));
+        }
         nodeList.nodeAdded.remove(onNodeAdded);
         nodeList.nodeRemoved.remove(onNodeRemoved);
         nodeList = null;
@@ -84,14 +86,34 @@ class RenderSystem extends System
 
     private function onNodeAdded(node:RenderNode):Void
     {
-        positionHelpers.set(node, new PositionHelper(node, getArray));
+        getArray(node.renderable.layer, node.position.x, node.position.y).push(node);
+
+        var listener = callback(onNodePositionChange, node);
+        node.position.changed.add(listener);
+        positionHelpers.set(node, listener);
+    }
+
+    private function onNodePositionChange(node:RenderNode, oldX:Int, oldY:Int):Void
+    {
+        getArray(node.renderable.layer, oldX, oldY).remove(node);
+        getArray(node.renderable.layer, node.position.x, node.position.y).push(node);
+        animateMove(node, oldX, oldY);
+    }
+
+    private function animateMove(node:RenderNode, oldX:Int, oldY:Int):Void
+    {
+        Actuate.stop(node.renderable);
+        node.renderable.animOffsetX -= (node.position.x - oldX) * Constants.TILE_SIZE;
+        node.renderable.animOffsetY -= (node.position.y - oldY) * Constants.TILE_SIZE;
+        Actuate.tween(node.renderable, 0.5, {animOffsetX: 0, animOffsetY: 0});
     }
 
     private function onNodeRemoved(node:RenderNode):Void
     {
-        var helper:PositionHelper = positionHelpers.get(node);
-        positionHelpers.remove(node);
-        helper.dispose();
+        getArray(node.renderable.layer, node.position.x, node.position.y).remove(node);
+
+        var listener = positionHelpers.get(node);
+        node.position.changed.remove(listener);
     }
 
     private function getNodes(storage:IntHash<Array<RenderNode>>, x:Int, y:Int):Iterable<RenderNode>
@@ -131,48 +153,5 @@ class RenderSystem extends System
                 }
             }
         }
-    }
-}
-
-private class PositionHelper
-{
-    private var node:RenderNode;
-    private var prevPosition:{var x:Int; var y:Int;};
-    private var getArray:RenderLayer->Int->Int->Array<RenderNode>;
-
-    public function new(node:RenderNode, getArray:RenderLayer->Int->Int->Array<RenderNode>):Void
-    {
-        this.node = node;
-        this.getArray = getArray;
-        prevPosition = {x: node.position.x, y: node.position.y};
-        node.position.changed.add(onPositionChange);
-        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).push(node);
-    }
-
-    private function onPositionChange():Void
-    {
-        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).remove(node);
-        getArray(node.renderable.layer, node.position.x, node.position.y).push(node);
-
-        animateMove();
-
-        prevPosition.x = node.position.x;
-        prevPosition.y = node.position.y;
-    }
-
-    private function animateMove():Void
-    {
-        Actuate.stop(node.renderable);
-        node.renderable.animOffsetX -= (node.position.x - prevPosition.x) * Constants.TILE_SIZE;
-        node.renderable.animOffsetY -= (node.position.y - prevPosition.y) * Constants.TILE_SIZE;
-        Actuate.tween(node.renderable, 0.5, {animOffsetX: 0, animOffsetY: 0});
-    }
-
-    public function dispose():Void
-    {
-        getArray(node.renderable.layer, prevPosition.x, prevPosition.y).remove(node);
-        node.position.changed.remove(onPositionChange);
-        node = null;
-        prevPosition = null;
     }
 }

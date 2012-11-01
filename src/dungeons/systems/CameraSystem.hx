@@ -56,7 +56,7 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         node.position.changed.remove(onFocusMove);
     }
 
-    private function onFocusMove():Void
+    private function onFocusMove(oldX:Int, oldY:Int):Void
     {
         var coords = getSceneCoords();
 //        viewport.x = coords.x;
