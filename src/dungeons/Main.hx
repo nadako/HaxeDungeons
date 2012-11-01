@@ -21,6 +21,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tick.FrameTickProvider;
 import net.richardlord.ash.core.Entity;
 
+import dungeons.components.Obstacle;
 import dungeons.components.Move;
 import dungeons.components.FOV;
 import dungeons.components.CameraFocus;
@@ -33,10 +34,10 @@ import dungeons.systems.SystemPriorities;
 import dungeons.systems.MoveSystem;
 import dungeons.systems.ActorSystem;
 import dungeons.systems.CameraSystem;
-import dungeons.systems.DungeonRenderSystem;
 //import dungeons.systems.LightingSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
+import dungeons.systems.ObstacleSystem;
 
 import dungeons.render.RenderLayer;
 import dungeons.render.Tilesheet;
@@ -68,6 +69,8 @@ class Main extends Sprite
 
         var game:Game = new Game();
 
+        var obstacle:Obstacle = new Obstacle();
+
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
         for (y in 0...dungeon.grid.getH())
@@ -77,19 +80,21 @@ class Main extends Sprite
                 var col:Int = 0;
                 var row:Int = 2;
 
+                var entity:Entity = new Entity();
+                entity.add(new Position(x, y));
+
                 switch (dungeon.grid.get(x, y))
                 {
                     case Wall:
                         if (dungeon.grid.inRange(x, y + 1) && dungeon.grid.get(x, y + 1) == Wall)
                             col = 4;
+                        entity.add(obstacle);
                     case Floor:
                         col = 5;
                     default:
                         continue;
                 }
 
-                var entity:Entity = new Entity();
-                entity.add(new Position(x, y));
                 entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, col, row)));
                 game.addEntity(entity);
             }
@@ -104,6 +109,7 @@ class Main extends Sprite
         hero.add(new PlayerControls());
         hero.add(new Actor(100));
         hero.add(new FOV(10));
+        hero.add(obstacle);
         game.addEntity(hero);
 
         var viewport:Rectangle = new Rectangle(0, 0, 100, 100);
@@ -114,7 +120,8 @@ class Main extends Sprite
 
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
-        game.addSystem(new MoveSystem(dungeon.grid), SystemPriorities.MOVE);
+        game.addSystem(new ObstacleSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
+        game.addSystem(new MoveSystem(), SystemPriorities.MOVE);
         game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
 //        game.addSystem(new LightingSystem(lightCanvas.graphics, dungeon.grid), SystemPriorities.RENDER);

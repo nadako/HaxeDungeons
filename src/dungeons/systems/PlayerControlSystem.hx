@@ -4,7 +4,6 @@ import nme.ui.Keyboard;
 import nme.events.KeyboardEvent;
 import nme.display.Sprite;
 
-import de.polygonal.ds.Array2;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.System;
