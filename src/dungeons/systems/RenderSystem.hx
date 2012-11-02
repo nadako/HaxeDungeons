@@ -103,7 +103,8 @@ class RenderSystem extends System
     {
         getArray(node.renderable.layer, oldX, oldY).remove(node);
         getArray(node.renderable.layer, node.position.x, node.position.y).push(node);
-        animateMove(node, oldX, oldY);
+        if (fovSystem.getLight(node.position.x, node.position.y) > 0)
+            animateMove(node, oldX, oldY);
     }
 
     private function animateMove(node:RenderNode, oldX:Int, oldY:Int):Void
