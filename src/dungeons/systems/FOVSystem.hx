@@ -75,12 +75,16 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         var listener = callback(onOccluderPositionChange, node);
         node.position.changed.add(listener);
         occluderListeners.set(node, listener);
+
+        calculateLightMap();
     }
 
     private function onOccluderPositionChange(node:LightOccluderNode, oldX:Int, oldY:Int):Void
     {
         removeOccluder(oldX, oldY);
         addOccluder(node.position.x, node.position.y);
+
+        calculateLightMap();
     }
 
     private function occluderNodeRemoved(node:LightOccluderNode):Void
@@ -89,6 +93,8 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         var listener = occluderListeners.get(node);
         occluderListeners.remove(node);
         node.position.changed.remove(listener);
+
+        calculateLightMap();
     }
 
     private inline function getKey(x:Int, y:Int):Int
@@ -132,11 +138,15 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
             return 0;
     }
 
-    private function calculateLightMap(x:Int, y:Int, radius:Int):Void
+    private function calculateLightMap():Void
     {
         lightMap = new IntHash();
-        lightMap.set(getKey(x, y), 1);
-        shadowCaster.calculateLight(x, y, radius);
+
+        if (fovCaster == null)
+            return;
+
+        lightMap.set(getKey(fovCaster.position.x, fovCaster.position.y), 1);
+        shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
     }
 
     private function onFOVAdded(node:FOVNode):Void
@@ -146,12 +156,13 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
 
         fovCaster = node;
         node.position.changed.add(onFOVMove);
-        calculateLightMap(node.position.x, node.position.y, node.fov.radius);
+
+        calculateLightMap();
     }
 
     private function onFOVMove(oldX:Int, oldY:Int):Void
     {
-        calculateLightMap(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
+        calculateLightMap();
     }
 
     private function onFOVRemoved(node:FOVNode):Void
@@ -159,5 +170,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         node.position.changed.remove(onFOVMove);
         if (node == fovCaster)
             fovCaster = null;
+
+        calculateLightMap();
     }
 }
