@@ -21,6 +21,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tick.FrameTickProvider;
 import net.richardlord.ash.core.Entity;
 
+import dungeons.components.MonsterAI;
 import dungeons.components.Obstacle;
 import dungeons.components.Move;
 import dungeons.components.FOV;
@@ -31,6 +32,7 @@ import dungeons.components.Renderable;
 import dungeons.components.Position;
 import dungeons.components.LightOccluder;
 
+import dungeons.systems.MonsterAISystem;
 import dungeons.systems.SystemPriorities;
 import dungeons.systems.MoveSystem;
 import dungeons.systems.ActorSystem;
@@ -115,6 +117,21 @@ class Main extends Sprite
         hero.add(obstacle);
         game.addEntity(hero);
 
+        var monsterAI = new MonsterAI();
+        for (room in dungeon.rooms)
+        {
+            if (room == startRoom)
+                continue;
+
+            var monster:Entity = new Entity();
+            monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
+            monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
+            monster.add(new Actor(100));
+            monster.add(monsterAI);
+            monster.add(obstacle);
+            game.addEntity(monster);
+        }
+
         var zoom:Float = 4;
 
         var viewport:Rectangle = new Rectangle(0, 0, stage.stageWidth / zoom, stage.stageHeight / zoom);
@@ -124,6 +141,7 @@ class Main extends Sprite
         addChild(targetBitmap);
 
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
+        game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new ObstacleSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
         game.addSystem(new FOVSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
