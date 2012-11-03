@@ -152,8 +152,6 @@ class Main extends Sprite
         var cleanupConfig:ObjectHash<Class<Dynamic>, Bool> = new ObjectHash();
         cleanupConfig.set(dungeons.components.Move, true);
 
-        game.updateComplete.add(function() { targetBitmap.bitmapData = targetBitmapData; });
-
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);
         tickProvider.start();
