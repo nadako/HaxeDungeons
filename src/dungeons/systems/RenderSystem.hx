@@ -134,6 +134,7 @@ class RenderSystem extends System
 
     override public function update(time:Float):Void
     {
+        target.lock();
         target.fillRect(new Rectangle(0, 0, target.width, target.height), 0);
 
         var startX:Int = Std.int(Math.max(0, viewport.left / Constants.TILE_SIZE));
@@ -184,5 +185,7 @@ class RenderSystem extends System
             }
         }
         rectBitmap.dispose();
+
+        target.unlock();
     }
 }
