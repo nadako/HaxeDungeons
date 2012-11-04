@@ -54,7 +54,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         if (actor.resultAction != null)
         {
             var action = actor.resultAction;
-            actor.resultAction = null;
+            actor.clearAction();
             actor.energy -= ACTION_COST;
             processAction(node.entity, action);
         }
@@ -67,8 +67,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         }
 
         if (actor.energy > 0)
-            actor.awaitingAction = true;
-
+            actor.requestAction();
     }
 
     private function processAction(entity:Entity, action:Action):Void

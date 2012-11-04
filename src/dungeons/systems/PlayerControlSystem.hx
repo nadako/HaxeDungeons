@@ -43,10 +43,7 @@ class PlayerControlSystem extends System
             {
                 var action = getAction(event);
                 if (action != null)
-                {
-                    node.actor.awaitingAction = false;
-                    node.actor.resultAction = action;
-                }
+                    node.actor.setAction(action);
             }
         }
     }
