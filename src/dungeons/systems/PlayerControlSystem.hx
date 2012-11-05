@@ -60,6 +60,8 @@ class PlayerControlSystem extends System
                 return Move(West);
             case Keyboard.RIGHT:
                 return Move(East);
+            case Keyboard.SPACE:
+                return Wait;
             default:
                 return null;
         }
