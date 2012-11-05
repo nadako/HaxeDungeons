@@ -7,6 +7,7 @@ import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
 import nme.display.Shape;
 import nme.Assets;
+import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.geom.Matrix;
 import nme.events.Event;
@@ -47,6 +48,7 @@ import dungeons.render.Tilesheet;
 
 import dungeons.Dungeon;
 import dungeons.ShadowCaster;
+import dungeons.Eight2Empire;
 
 using dungeons.ArrayUtil;
 
@@ -67,7 +69,7 @@ class Main extends Sprite
     {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 
-        var dungeonTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_environment.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var dungeonTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("eight2empire/level assets.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
         var characterTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_char.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
 
         var game:Game = new Game();
@@ -75,33 +77,54 @@ class Main extends Sprite
         var obstacle:Obstacle = new Obstacle();
         var lightOccluder:LightOccluder = new LightOccluder();
 
+        var renderedWalls:BitmapData = new BitmapData(25 * Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var renderedWallsCache:IntHash<Bool> = new IntHash();
+        var wallTilesheet:Tilesheet = new Tilesheet(renderedWalls, Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var tmpPoint:Point = new Point(0, 0);
+
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
         for (y in 0...dungeon.grid.getH())
         {
             for (x in 0...dungeon.grid.getW())
             {
-                var col:Int = 0;
-                var row:Int = 2;
-
                 var entity:Entity = new Entity();
+                game.addEntity(entity);
                 entity.add(new Position(x, y));
 
                 switch (dungeon.grid.get(x, y))
                 {
                     case Wall:
-                        if (dungeon.grid.inRange(x, y + 1) && dungeon.grid.get(x, y + 1) == Wall)
-                            col = 4;
                         entity.add(obstacle);
                         entity.add(lightOccluder);
+
+                        var col:Int = Eight2Empire.getTileNumber(dungeon.getWallTransition(x, y));
+                        if (!renderedWallsCache.exists(col))
+                        {
+                            tmpPoint.x = Constants.TILE_SIZE * col;
+                            dungeonTilesheet.draw(renderedWalls, 4, 0, tmpPoint);
+                            dungeonTilesheet.draw(renderedWalls, col, 2, tmpPoint);
+                            renderedWallsCache.set(col, true);
+                        }
+
+                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(wallTilesheet, col, 0)));
                     case Floor:
-                        col = 5;
+                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 4, 0)));
+                    case Door(open):
+                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 4, 0)));
+
+                        var door:Entity = new Entity();
+                        door.add(new Position(x, y));
+                        door.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 2, open ? 31 : 30)));
+                        if (!open)
+                        {
+                            door.add(lightOccluder);
+                            door.add(obstacle);
+                        }
+                        game.addEntity(door);
                     default:
                         continue;
                 }
-
-                entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, col, row)));
-                game.addEntity(entity);
             }
         }
 

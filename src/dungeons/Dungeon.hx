@@ -12,15 +12,20 @@ class Dungeon
     public var minRoomSize:Array2Cell;
     public var maxRoomSize:Array2Cell;
 
+    public var doorChance:Float;
+    public var openDoorChance:Float;
+
     public var grid(default, null):Array2<Tile>;
     public var rooms(default, null):Array<Room>;
 
-    public function new(size:Array2Cell, maxRooms:Int, minRoomSize:Array2Cell, maxRoomSize:Array2Cell)
+    public function new(size:Array2Cell, maxRooms:Int, minRoomSize:Array2Cell, maxRoomSize:Array2Cell, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
     {
         this.size = size;
         this.maxRooms = maxRooms;
         this.minRoomSize = minRoomSize;
         this.maxRoomSize = maxRoomSize;
+        this.doorChance = doorChance;
+        this.openDoorChance = openDoorChance;
     }
 
     public function generate():Void
@@ -72,6 +77,46 @@ class Dungeon
 
             i++;
         }
+    }
+
+    public function getWallTransition(x:Int, y:Int):Int
+    {
+        var n = 1;
+        var e = 2;
+        var s = 4;
+        var w = 8;
+        var nw = 128;
+        var ne = 16;
+        var se = 32;
+        var sw = 64;
+
+        var v:Int = 0;
+        if (isWallForTransition(x, y - 1))
+            v |= n;
+        if (isWallForTransition(x + 1, y))
+            v |= e;
+        if (isWallForTransition(x, y + 1))
+            v |= s;
+        if (isWallForTransition(x - 1, y))
+            v |= w;
+        if (isWallForTransition(x - 1, y - 1))
+            v |= nw;
+        if (isWallForTransition(x + 1, y - 1))
+            v |= ne;
+        if (isWallForTransition(x - 1, y + 1))
+            v |= sw;
+        if (isWallForTransition(x + 1, y + 1))
+            v |= se;
+
+        return v;
+    }
+
+    private inline function isWallForTransition(x:Int, y:Int):Bool
+    {
+        if (!grid.inRange(x, y))
+            return true;
+        var tile:Tile = grid.get(x, y);
+        return tile == Wall || tile == Empty;
     }
 
     private function generateRoom():Room
@@ -146,19 +191,25 @@ class Dungeon
 
     private function connectRooms(connection:Connection):Void
     {
-        grid.set(connection.position.x, connection.position.y, Floor);
-
+        var posX:Int = connection.position.x;
+        var posY:Int = connection.position.y;
         switch (connection.direction)
         {
             case North:
-                grid.set(connection.position.x, connection.position.y - 1, Floor);
+                posY--;
             case South:
-                grid.set(connection.position.x, connection.position.y + 1, Floor);
+                posY++;
             case West:
-                grid.set(connection.position.x - 1, connection.position.y, Floor);
+                posX--;
             case East:
-                grid.set(connection.position.x + 1, connection.position.y, Floor);
+                posX++;
         }
+
+        var outerDoor:Bool = Math.random() < 0.5;
+        var doorTile:Tile = (Math.random() < doorChance) ? Door(Math.random() < openDoorChance) : Floor;
+
+        grid.set(connection.position.x, connection.position.y, outerDoor ? Floor : doorTile);
+        grid.set(posX, posY, outerDoor ? doorTile : Floor);
     }
 }
 
@@ -177,6 +228,7 @@ enum Tile
     Empty;
     Wall;
     Floor;
+    Door(open:Bool);
 }
 
 enum Direction
