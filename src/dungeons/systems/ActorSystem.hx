@@ -14,6 +14,7 @@ import dungeons.components.Move;
 
 class ActorSystem extends ListIteratingSystem<ActorNode>
 {
+    private static inline var MAX_ACTORS_PER_UPDATE:Int = 1000;
     private static inline var ACTION_COST:Int = 100;
 
     private var deque:Deque<ActorNode>;
@@ -42,32 +43,50 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
 
     override public function update(time:Float):Void
     {
-        if (deque.isEmpty())
-            return;
-
-        var node:ActorNode = deque.front();
-        var actor:Actor = node.actor;
-
-        if (actor.awaitingAction)
-            return;
-
-        if (actor.resultAction != null)
+        for (i in 0...MAX_ACTORS_PER_UPDATE)
         {
-            var action = actor.resultAction;
-            actor.clearAction();
-            actor.energy -= ACTION_COST;
-            processAction(node.entity, action);
-        }
+            if (deque.isEmpty())
+                return;
 
-        if (actor.energy <= 0)
-        {
+            var node:ActorNode = deque.front();
+            var actor:Actor = node.actor;
+
+            // return if still waiting for action
+            if (actor.awaitingAction)
+                return;
+
+            // if we was waiting and now got the action
+            if (actor.resultAction != null)
+                processActor(node);
+
+            // if we still have energy, try to do more actions
+            while (actor.energy > 0)
+            {
+                // request new action
+                actor.requestAction();
+
+                if (actor.awaitingAction)
+                    // if there was no immediate reaction, then we wait for it
+                    return;
+                else
+                    // else process the action and continue the loop
+                    processActor(node);
+            }
+
+            // all actions processed now and actor have no energy
+            // add some and push the actor back into queue
             actor.energy += actor.speed;
             deque.popFront();
             deque.pushBack(node);
         }
+    }
 
-        if (actor.energy > 0)
-            actor.requestAction();
+    private inline function processActor(node:ActorNode):Void
+    {
+        var action:Action = node.actor.resultAction;
+        node.actor.clearAction();
+        node.actor.energy -= ACTION_COST;
+        processAction(node.entity, action);
     }
 
     private function processAction(entity:Entity, action:Action):Void
