@@ -4,6 +4,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tools.ComponentPool;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
+import dungeons.components.Position;
 import dungeons.components.Move;
 import dungeons.nodes.MoveNode;
 
@@ -13,37 +14,43 @@ class MoveSystem extends ListIteratingSystem<MoveNode>
 
     public function new()
     {
-        super(MoveNode, updateNode);
+        super(MoveNode, null, nodeAdded);
     }
 
     override public function addToGame(game:Game):Void
     {
-        super.addToGame(game);
         obstacleSystem = game.getSystem(ObstacleSystem);
+        super.addToGame(game);
     }
 
-    private function updateNode(node:MoveNode, dt:Float):Void
+    override public function removeFromGame(game:Game):Void
     {
-        var dx:Int = 0;
-        var dy:Int = 0;
+        super.removeFromGame(game);
+        obstacleSystem = null;
+    }
+
+    private function nodeAdded(node:MoveNode):Void
+    {
+        var position:Position = node.position;
+
+        var x:Int = position.x;
+        var y:Int = position.y;
+
         switch (node.move.direction)
         {
             case North:
-                dy = -1;
+                y--;
             case South:
-                dy = 1;
+                y++;
             case East:
-                dx = 1;
+                x++;
             case West:
-                dx = -1;
+                x--;
         }
 
-        ComponentPool.dispose(node.entity.remove(Move));
-
-        var x:Int = node.position.x + dx;
-        var y:Int = node.position.y + dy;
-
         if (!obstacleSystem.isBlocked(x, y))
-            node.position.moveBy(dx, dy);
+            node.position.moveTo(x, y);
+
+        ComponentPool.dispose(node.entity.remove(Move));
     }
 }
