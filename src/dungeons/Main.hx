@@ -149,9 +149,6 @@ class Main extends Sprite
         game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
 
-        var cleanupConfig:ObjectHash<Class<Dynamic>, Bool> = new ObjectHash();
-        cleanupConfig.set(dungeons.components.Move, true);
-
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);
         tickProvider.start();
