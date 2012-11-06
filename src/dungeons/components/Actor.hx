@@ -1,5 +1,6 @@
 package dungeons.components;
 
+import net.richardlord.ash.core.Entity;
 import net.richardlord.signals.Signal0;
 
 import dungeons.Dungeon.Direction;
@@ -46,4 +47,5 @@ enum Action
 {
     Wait;
     Move(direction:Direction);
+    OpenDoor(door:Entity);
 }

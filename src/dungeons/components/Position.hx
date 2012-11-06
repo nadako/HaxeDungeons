@@ -1,5 +1,6 @@
 package dungeons.components;
 
+import dungeons.Dungeon;
 import nme.geom.Point;
 
 import net.richardlord.signals.Signal2;
@@ -34,6 +35,23 @@ class Position
     public inline function moveBy(dx:Int, dy:Int):Void
     {
         moveTo(x + dx, y + dy);
+    }
+
+    public function getAdjacentTile(direction:Direction):{var x:Int; var y:Int;}
+    {
+        var result = {x: x, y: y};
+        switch (direction)
+        {
+            case North:
+                result.y--;
+            case South:
+                result.y++;
+            case West:
+                result.x--;
+            case East:
+                result.x++;
+        }
+        return result;
     }
 }
 

@@ -32,6 +32,8 @@ import dungeons.components.PlayerControls;
 import dungeons.components.Renderable;
 import dungeons.components.Position;
 import dungeons.components.LightOccluder;
+import dungeons.components.DoorRenderable;
+import dungeons.components.Door;
 
 import dungeons.systems.MonsterAISystem;
 import dungeons.systems.SystemPriorities;
@@ -42,6 +44,7 @@ import dungeons.systems.FOVSystem;
 import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
 import dungeons.systems.ObstacleSystem;
+import dungeons.systems.DoorSystem;
 
 import dungeons.render.RenderLayer;
 import dungeons.render.Tilesheet;
@@ -84,6 +87,10 @@ class Main extends Sprite
 
         dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
+
+        var openDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 31);
+        var closedDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 30);
+
         for (y in 0...dungeon.grid.getH())
         {
             for (x in 0...dungeon.grid.getW())
@@ -114,13 +121,9 @@ class Main extends Sprite
                         entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 4, 0)));
 
                         var door:Entity = new Entity();
+                        door.add(new dungeons.components.Door(open));
                         door.add(new Position(x, y));
-                        door.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 2, open ? 31 : 30)));
-                        if (!open)
-                        {
-                            door.add(lightOccluder);
-                            door.add(obstacle);
-                        }
+                        door.add(new DoorRenderable(openDoorRenderer, closedDoorRenderer), Renderable);
                         game.addEntity(door);
                     default:
                         continue;
@@ -163,7 +166,6 @@ class Main extends Sprite
         targetBitmap.scaleX = targetBitmap.scaleY = zoom;
         addChild(targetBitmap);
 
-        game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
         game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new ObstacleSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
@@ -171,6 +173,8 @@ class Main extends Sprite
         game.addSystem(new MoveSystem(), SystemPriorities.MOVE);
         game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
+        game.addSystem(new DoorSystem(), SystemPriorities.MOVE);
+        game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
 
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);

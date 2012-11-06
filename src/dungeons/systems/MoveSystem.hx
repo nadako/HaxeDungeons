@@ -32,25 +32,9 @@ class MoveSystem extends ListIteratingSystem<MoveNode>
     private function nodeAdded(node:MoveNode):Void
     {
         var position:Position = node.position;
-
-        var x:Int = position.x;
-        var y:Int = position.y;
-
-        switch (node.move.direction)
-        {
-            case North:
-                y--;
-            case South:
-                y++;
-            case East:
-                x++;
-            case West:
-                x--;
-        }
-
-        if (!obstacleSystem.isBlocked(x, y))
-            node.position.moveTo(x, y);
-
+        var target = position.getAdjacentTile(node.move.direction);
+        if (!obstacleSystem.isBlocked(target.x, target.y))
+            node.position.moveTo(target.x, target.y);
         ComponentPool.dispose(node.entity.remove(Move));
     }
 }

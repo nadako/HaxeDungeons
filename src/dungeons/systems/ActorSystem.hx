@@ -9,6 +9,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.ActorNode;
+import dungeons.components.Door;
 import dungeons.components.Actor;
 import dungeons.components.Move;
 
@@ -97,6 +98,8 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
                 var move = ComponentPool.get(dungeons.components.Move);
                 move.direction = direction;
                 entity.add(move);
+            case Action.OpenDoor(door):
+                door.get(Door).requestOpen(entity);
             default:
         }
     }
