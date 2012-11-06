@@ -17,6 +17,7 @@ import dungeons.nodes.RenderNode;
 import dungeons.components.Position;
 import dungeons.components.Renderable;
 import dungeons.render.RenderLayer;
+import dungeons.PositionMap.PositionArrayMap;
 
 class RenderSystem extends System
 {
@@ -27,7 +28,7 @@ class RenderSystem extends System
 
     private var nodeList:NodeList<RenderNode>;
     private var positionHelpers:ObjectHash<RenderNode, PositionChangeListener>;
-    private var positionStorage:Array<IntHash<Array<RenderNode>>>;
+    private var positionStorage:Array<PositionArrayMap<RenderNode>>;
     private var emptyIterable:Iterable<RenderNode>;
     private var fovSystem:FOVSystem;
 
@@ -46,9 +47,9 @@ class RenderSystem extends System
 
         positionHelpers = new ObjectHash();
 
-        positionStorage = new Array<IntHash<Array<RenderNode>>>();
+        positionStorage = [];
         for (construct in Type.getEnumConstructs(RenderLayer))
-            positionStorage.push(new IntHash<Array<RenderNode>>());
+            positionStorage.push(new PositionArrayMap(width, height));
 
         nodeList = game.getNodeList(RenderNode);
         for (node in nodeList)
@@ -67,27 +68,17 @@ class RenderSystem extends System
         nodeList.nodeRemoved.remove(onNodeRemoved);
         nodeList = null;
         positionHelpers = null;
+        for (layer in positionStorage)
+            layer.clear();
         positionStorage = null;
 
         fovSystem = null;
     }
 
-    private inline function getStorageKey(x:Int, y:Int):Int
-    {
-        return y * width + x;
-    }
-
     private function getArray(layer:RenderLayer, x:Int, y:Int):Array<RenderNode>
     {
-        var storage:IntHash<Array<RenderNode>> = positionStorage[Type.enumIndex(layer)];
-        var key:Int = getStorageKey(x, y);
-        var result:Array<RenderNode> = storage.get(key);
-        if (result == null)
-        {
-            result = [];
-            storage.set(key, result);
-        }
-        return result;
+        var storage:PositionArrayMap<RenderNode> = positionStorage[Type.enumIndex(layer)];
+        return storage.getOrCreate(x, y);
     }
 
     private function onNodeAdded(node:RenderNode):Void
@@ -123,9 +114,9 @@ class RenderSystem extends System
         node.position.changed.remove(listener);
     }
 
-    private function getNodes(storage:IntHash<Array<RenderNode>>, x:Int, y:Int):Iterable<RenderNode>
+    private function getNodes(storage:PositionArrayMap<RenderNode>, x:Int, y:Int):Iterable<RenderNode>
     {
-        var result:Array<RenderNode> = storage.get(getStorageKey(x, y));
+        var result:Array<RenderNode> = storage.get(x, y);
         if (result == null)
             return emptyIterable;
         else
