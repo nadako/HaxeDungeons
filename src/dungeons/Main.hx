@@ -84,15 +84,18 @@ class Main extends Sprite
         var wallTilesheet:Tilesheet = new Tilesheet(renderedWalls, Constants.TILE_SIZE, Constants.TILE_SIZE);
         var tmpPoint:Point = new Point(0, 0);
 
-        dungeon = new Dungeon(new Array2Cell(50, 50), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
+        var dungeonWidth:Int = 50;
+        var dungeonHeight:Int = 50;
+
+        dungeon = new Dungeon(new Array2Cell(dungeonWidth, dungeonHeight), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
         dungeon.generate();
 
         var openDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 31);
         var closedDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 30);
 
-        for (y in 0...dungeon.grid.getH())
+        for (y in 0...dungeonHeight)
         {
-            for (x in 0...dungeon.grid.getW())
+            for (x in 0...dungeonWidth)
             {
                 var entity:Entity = new Entity();
                 game.addEntity(entity);
@@ -167,12 +170,12 @@ class Main extends Sprite
 
         game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
-        game.addSystem(new ObstacleSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
-        game.addSystem(new FOVSystem(dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.MOVE);
-        game.addSystem(new MoveSystem(), SystemPriorities.MOVE);
-        game.addSystem(new CameraSystem(viewport), SystemPriorities.RENDER);
-        game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeon.grid.getW(), dungeon.grid.getH()), SystemPriorities.RENDER);
-        game.addSystem(new DoorSystem(), SystemPriorities.MOVE);
+        game.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        game.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        game.addSystem(new MoveSystem(), SystemPriorities.NONE);
+        game.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
+        game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
+        game.addSystem(new DoorSystem(), SystemPriorities.NONE);
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
 
         var tickProvider = new FrameTickProvider(this);
