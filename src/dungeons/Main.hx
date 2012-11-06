@@ -24,7 +24,6 @@ import net.richardlord.ash.core.Entity;
 
 import dungeons.components.MonsterAI;
 import dungeons.components.Obstacle;
-import dungeons.components.Move;
 import dungeons.components.FOV;
 import dungeons.components.CameraFocus;
 import dungeons.components.Actor;

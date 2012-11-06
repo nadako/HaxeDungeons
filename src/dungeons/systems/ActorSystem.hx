@@ -3,15 +3,14 @@ package dungeons.systems;
 import de.polygonal.ds.ArrayedDeque;
 import de.polygonal.ds.Deque;
 
-import net.richardlord.ash.tools.ComponentPool;
 import net.richardlord.ash.core.Entity;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.ActorNode;
+import dungeons.components.Position;
 import dungeons.components.Door;
 import dungeons.components.Actor;
-import dungeons.components.Move;
 
 class ActorSystem extends ListIteratingSystem<ActorNode>
 {
@@ -95,9 +94,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         switch (action)
         {
             case Action.Move(direction):
-                var move = ComponentPool.get(dungeons.components.Move);
-                move.direction = direction;
-                entity.add(move);
+                entity.get(Position).requestMove(direction);
             case Action.OpenDoor(door):
                 door.get(Door).requestOpen(entity);
             default:

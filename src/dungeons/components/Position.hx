@@ -1,14 +1,17 @@
 package dungeons.components;
 
-import dungeons.Dungeon;
 import nme.geom.Point;
 
+import net.richardlord.signals.Signal1;
 import net.richardlord.signals.Signal2;
+
+import dungeons.Dungeon;
 
 class Position
 {
     public var x(default, null):Int;
     public var y(default, null):Int;
+    public var moveRequested:Signal1<Direction>;
     public var changed(default, null):Signal2<Int, Int>;
 
     public function new(x:Int = 0, y:Int = 0)
@@ -16,6 +19,7 @@ class Position
         this.x = x;
         this.y = y;
         changed = new Signal2<Int, Int>();
+        moveRequested = new Signal1<Direction>();
     }
 
     public function moveTo(x:Int, y:Int):Void
@@ -35,6 +39,11 @@ class Position
     public inline function moveBy(dx:Int, dy:Int):Void
     {
         moveTo(x + dx, y + dy);
+    }
+
+    public function requestMove(direction:Direction):Void
+    {
+        moveRequested.dispatch(direction);
     }
 
     public function getAdjacentTile(direction:Direction):{var x:Int; var y:Int;}
@@ -57,3 +66,4 @@ class Position
 
 
 typedef PositionChangeListener = Int -> Int -> Void;
+typedef MoveRequestListener = Direction -> Void;
