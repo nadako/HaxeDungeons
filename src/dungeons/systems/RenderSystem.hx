@@ -13,9 +13,12 @@ import net.richardlord.ash.core.NodeList;
 import net.richardlord.ash.core.Game;
 import net.richardlord.ash.core.System;
 
+import dungeons.Constants;
 import dungeons.nodes.RenderNode;
+import dungeons.components.Fighter;
 import dungeons.components.Position;
 import dungeons.components.Renderable;
+import dungeons.render.HealthRenderer;
 import dungeons.render.RenderLayer;
 import dungeons.PositionMap.PositionArrayMap;
 
@@ -31,6 +34,7 @@ class RenderSystem extends System
     private var positionStorage:Array<PositionArrayMap<RenderNode>>;
     private var emptyIterable:Iterable<RenderNode>;
     private var fovSystem:FOVSystem;
+    private var healthRenderer:HealthRenderer;
 
     public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
     {
@@ -39,6 +43,7 @@ class RenderSystem extends System
         this.target = target;
         this.viewport = viewport;
         emptyIterable = [];
+        healthRenderer = new HealthRenderer(Constants.TILE_SIZE, 1);
     }
 
     override public function addToGame(game:Game):Void
@@ -135,6 +140,7 @@ class RenderSystem extends System
         var viewOffsetX:Int = Std.int(viewport.left % Constants.TILE_SIZE);
         var viewOffsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
 
+        var healthBars:Array<HealthBarEntry> = [];
         var drawPoint:Point = new Point();
         for (layer in positionStorage)
         {
@@ -151,10 +157,21 @@ class RenderSystem extends System
                         drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
                         drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
                         renderable.renderer.render(target, drawPoint);
+
+                        var fighter:Fighter = node.entity.get(Fighter);
+                        if (fighter != null)
+                            healthBars.push({
+                                x: Std.int(drawPoint.x),
+                                y: Std.int(drawPoint.y) - healthRenderer.healthBarHeight - 1,
+                                fighter: fighter
+                            });
                     }
                 }
             }
         }
+
+        for (entry in healthBars)
+            healthRenderer.renderHealth(entry.fighter, target, entry.x, entry.y);
 
         // render nice FOV overlay
         var rectBitmap = new BitmapData(Constants.TILE_SIZE, Constants.TILE_SIZE);
@@ -179,4 +196,11 @@ class RenderSystem extends System
 
         target.unlock();
     }
+}
+
+private typedef HealthBarEntry =
+{
+    var x:Int;
+    var y:Int;
+    var fighter:Fighter;
 }
