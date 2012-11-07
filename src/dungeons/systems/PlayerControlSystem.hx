@@ -73,7 +73,7 @@ class PlayerControlSystem extends System
                 action = null;
         }
 
-        if (Type.enumConstructor(action) == "Move")
+        if (action != null && Type.enumConstructor(action) == "Move")
             action = processMove(entity, action);
 
         return action;
