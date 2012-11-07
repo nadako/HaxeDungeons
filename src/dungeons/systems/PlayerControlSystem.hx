@@ -91,6 +91,8 @@ class PlayerControlSystem extends System
             {
                 if (blocker.has(dungeons.components.Door))
                     return OpenDoor(blocker);
+                if (blocker.has(dungeons.components.Fighter))
+                    return Attack(blocker);
             }
         }
         return moveAction;

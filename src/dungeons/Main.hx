@@ -33,7 +33,9 @@ import dungeons.components.Position;
 import dungeons.components.LightOccluder;
 import dungeons.components.DoorRenderable;
 import dungeons.components.Door;
+import dungeons.components.Fighter;
 
+import dungeons.systems.FightSystem;
 import dungeons.systems.MonsterAISystem;
 import dungeons.systems.SystemPriorities;
 import dungeons.systems.MoveSystem;
@@ -136,12 +138,14 @@ class Main extends Sprite
         var startRoom:Room = dungeon.rooms.randomChoice();
 
         var hero:Entity = new Entity();
+        hero.name = "player";
         hero.add(new Renderable(RenderLayer.Player, new TilesheetRenderer(characterTilesheet, 1, 0)));
         hero.add(new Position(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2)));
         hero.add(new CameraFocus());
         hero.add(new PlayerControls());
         hero.add(new Actor(100));
         hero.add(new FOV(10));
+        hero.add(new Fighter(10, 3, 2));
         hero.add(obstacle);
         game.addEntity(hero);
 
@@ -155,6 +159,7 @@ class Main extends Sprite
             monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
             monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
             monster.add(new Actor(100));
+            monster.add(new Fighter(10, 1 + Std.random(2), Std.random(3)));
             monster.add(monsterAI);
             monster.add(obstacle);
             game.addEntity(monster);
@@ -176,6 +181,7 @@ class Main extends Sprite
         game.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
         game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
         game.addSystem(new DoorSystem(), SystemPriorities.NONE);
+        game.addSystem(new FightSystem(), SystemPriorities.NONE);
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
 
         var tickProvider = new FrameTickProvider(this);

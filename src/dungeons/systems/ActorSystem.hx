@@ -8,6 +8,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.ActorNode;
+import dungeons.components.Fighter;
 import dungeons.components.Position;
 import dungeons.components.Door;
 import dungeons.components.Actor;
@@ -97,7 +98,9 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
                 entity.get(Position).requestMove(direction);
             case Action.OpenDoor(door):
                 door.get(Door).requestOpen(entity);
-            default:
+            case Action.Attack(defender):
+                defender.get(Fighter).requestAttack(entity);
+            case Action.Wait:
         }
     }
 }

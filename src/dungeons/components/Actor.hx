@@ -48,4 +48,5 @@ enum Action
     Wait;
     Move(direction:Direction);
     OpenDoor(door:Entity);
+    Attack(defender:Entity);
 }
