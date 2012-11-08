@@ -140,7 +140,6 @@ class RenderSystem extends System
         var viewOffsetX:Int = Std.int(viewport.left % Constants.TILE_SIZE);
         var viewOffsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
 
-        var healthBars:Array<HealthBarEntry> = [];
         var drawPoint:Point = new Point();
         for (layer in positionStorage)
         {
@@ -160,18 +159,11 @@ class RenderSystem extends System
 
                         var fighter:Fighter = node.entity.get(Fighter);
                         if (fighter != null)
-                            healthBars.push({
-                                x: Std.int(drawPoint.x),
-                                y: Std.int(drawPoint.y) - healthRenderer.healthBarHeight - 1,
-                                fighter: fighter
-                            });
+                            healthRenderer.renderHealth(fighter, target, Std.int(drawPoint.x), Std.int(drawPoint.y) - healthRenderer.healthBarHeight - 1);
                     }
                 }
             }
         }
-
-        for (entry in healthBars)
-            healthRenderer.renderHealth(entry.fighter, target, entry.x, entry.y);
 
         // render nice FOV overlay
         var rectBitmap = new BitmapData(Constants.TILE_SIZE, Constants.TILE_SIZE);
@@ -196,11 +188,4 @@ class RenderSystem extends System
 
         target.unlock();
     }
-}
-
-private typedef HealthBarEntry =
-{
-    var x:Int;
-    var y:Int;
-    var fighter:Fighter;
 }
