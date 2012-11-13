@@ -17,6 +17,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     private var shadowCaster:ShadowCaster;
 
     private var lightMap:PositionMap<Float>;
+    private var memoryMap:PositionMap<Bool>;
 
     private var occluders:NodeList<LightOccluderNode>;
     private var occluderListeners:ObjectHash<LightOccluderNode, PositionChangeListener>;
@@ -29,6 +30,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         shadowCaster = new ShadowCaster(this);
         lightMap = new PositionMap(width, height);
         occludeMap = new PositionMap(width, height);
+        memoryMap = new PositionMap(width, height);
     }
 
     override public function addToGame(game:Game):Void
@@ -51,6 +53,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     override public function removeFromGame(game:Game):Void
     {
         lightMap.clear();
+        memoryMap.clear();
 
         for (node in occluderListeners.keys())
             node.position.changed.remove(occluderListeners.get(node));
@@ -115,6 +118,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     public function light(x:Int, y:Int, intensity:Float):Void
     {
         lightMap.set(x, y, intensity);
+        memoryMap.set(x, y, true);
     }
 
     public function getLight(x:Int, y:Int):Float
@@ -126,6 +130,11 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
             return value;
     }
 
+    public function inMemory(x:Int, y:Int):Bool
+    {
+        return memoryMap.get(x, y);
+    }
+
     private function calculateLightMap():Void
     {
         lightMap.clear();
@@ -133,7 +142,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         if (fovCaster == null)
             return;
 
-        lightMap.set(fovCaster.position.x, fovCaster.position.y, 1);
+        light(fovCaster.position.x, fovCaster.position.y, 1);
         shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
     }
 

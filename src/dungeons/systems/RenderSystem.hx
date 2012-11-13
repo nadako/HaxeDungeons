@@ -141,25 +141,27 @@ class RenderSystem extends System
         var viewOffsetY:Int = Std.int(viewport.top % Constants.TILE_SIZE);
 
         var drawPoint:Point = new Point();
-        for (layer in positionStorage)
+        for (i in 0...positionStorage.length)
         {
+            var layer = positionStorage[i];
+            var isDungeonLayer:Bool = (i == Type.enumIndex(RenderLayer.Dungeon));
             for (x in startX...endX)
             {
                 for (y in startY...endY)
                 {
-                    if (fovSystem.getLight(x, y) <= 0)
-                        continue;
-
-                    for (node in getNodes(layer, x, y))
+                    if (fovSystem.getLight(x, y) > 0 || (isDungeonLayer && fovSystem.inMemory(x, y)))
                     {
-                        var renderable:Renderable = node.renderable;
-                        drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
-                        drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
-                        renderable.renderer.render(target, drawPoint);
+                        for (node in getNodes(layer, x, y))
+                        {
+                            var renderable:Renderable = node.renderable;
+                            drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
+                            drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY + renderable.animOffsetY;
+                            renderable.renderer.render(target, drawPoint);
 
-                        var fighter:Fighter = node.entity.get(Fighter);
-                        if (fighter != null)
-                            healthRenderer.renderHealth(fighter, target, Std.int(drawPoint.x), Std.int(drawPoint.y) - healthRenderer.healthBarHeight - 1);
+                            var fighter:Fighter = node.entity.get(Fighter);
+                            if (fighter != null)
+                                healthRenderer.renderHealth(fighter, target, Std.int(drawPoint.x), Std.int(drawPoint.y) - healthRenderer.healthBarHeight - 1);
+                        }
                     }
                 }
             }
@@ -177,7 +179,7 @@ class RenderSystem extends System
                     drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX;
                     drawPoint.y = (y - startY) * Constants.TILE_SIZE - viewOffsetY;
 
-                    var color:Int = Std.int(255 * (1 - light)) << 24;
+                    var color:Int = Std.int(255 * (1 - (0.3 + light * 0.7))) << 24;
 
                     rectBitmap.fillRect(rectBitmap.rect, color);
                     target.copyPixels(rectBitmap, rectBitmap.rect, drawPoint, null, null, true);
