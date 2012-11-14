@@ -18,12 +18,12 @@ class PositionMap<T>
         return y * width + x;
     }
 
-    public inline function get(x:Int, y:Int):T
+    public inline function get(x:Int, y:Int):Null<T>
     {
         if (x < 0 || x >= width || y < 0 || x >= height)
             return null;
-
-        return hash.get(getKey(x, y));
+        else
+            return hash.get(getKey(x, y));
     }
 
     public inline function set(x:Int, y:Int, value:T):Void

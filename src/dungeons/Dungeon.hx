@@ -114,9 +114,14 @@ class Dungeon
     private inline function isWallForTransition(x:Int, y:Int):Bool
     {
         if (!grid.inRange(x, y))
+        {
             return true;
-        var tile:Tile = grid.get(x, y);
-        return tile == Wall || tile == Empty;
+        }
+        else
+        {
+            var tile:Tile = grid.get(x, y);
+            return tile == Wall || tile == Empty;
+        }
     }
 
     private function generateRoom():Room
