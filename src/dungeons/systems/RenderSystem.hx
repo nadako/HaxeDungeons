@@ -38,6 +38,7 @@ class RenderSystem extends System
 
     public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
     {
+        super();
         this.width = width;
         this.height = height;
         this.target = target;

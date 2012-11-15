@@ -27,6 +27,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
 
     public function new(width:Int, height:Int)
     {
+        super();
         shadowCaster = new ShadowCaster(this);
         lightMap = new PositionMap(width, height);
         occludeMap = new PositionMap(width, height);

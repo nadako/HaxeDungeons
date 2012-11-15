@@ -23,6 +23,7 @@ class PlayerControlSystem extends System
 
     public function new(application:Sprite)
     {
+        super();
         this.application = application;
     }
 
