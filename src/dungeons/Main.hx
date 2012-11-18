@@ -152,17 +152,53 @@ class Main extends Sprite
         var monsterAI = new MonsterAI();
         for (room in dungeon.rooms)
         {
-            if (room == startRoom)
-                continue;
+            var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
+            switch (feature)
+            {
+                case Library:
+                    var y:Int = room.position.y + 1;
+                    for (x in room.position.x + 1...room.position.x + room.grid.getW() - 1)
+                    {
+                        if (Math.random() < 0.25)
+                            continue;
 
-            var monster:Entity = new Entity();
-            monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
-            monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
-            monster.add(new Actor(100));
-            monster.add(new Fighter(10, 1 + Std.random(2), Std.random(3)));
-            monster.add(monsterAI);
-            monster.add(obstacle);
-            game.addEntity(monster);
+                        if (x == room.position.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
+                            continue;
+
+                        if (x == room.position.x + room.grid.getW() - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
+                            continue;
+
+                        if (dungeon.grid.get(x, y - 1) != Tile.Wall)
+                            continue;
+
+                        var shelf:Entity = new Entity();
+                        shelf.add(new Position(x, y));
+                        shelf.add(obstacle);
+                        shelf.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 14 + Std.random(6), 22)));
+                        game.addEntity(shelf);
+                    }
+                case Fountain:
+
+                    var fountain:Entity = new Entity();
+                    fountain.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), Std.int(room.position.y + room.grid.getH() / 2)));
+                    fountain.add(obstacle);
+                    fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
+                    game.addEntity(fountain);
+
+                default:
+            }
+
+            if (room != startRoom)
+            {
+                var monster:Entity = new Entity();
+                monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
+                monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
+                monster.add(new Actor(100));
+                monster.add(new Fighter(10, 1 + Std.random(2), Std.random(3)));
+                monster.add(monsterAI);
+                monster.add(obstacle);
+                game.addEntity(monster);
+            }
         }
 
         var zoom:Float = 4;
@@ -188,4 +224,12 @@ class Main extends Sprite
         tickProvider.add(game.update);
         tickProvider.start();
     }
+}
+
+enum RoomFeature
+{
+    None;
+    Library;
+    Fountain;
+    Light;
 }
