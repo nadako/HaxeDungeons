@@ -12,6 +12,7 @@ import net.richardlord.ash.tools.ListIteratingSystem;
 
 import dungeons.components.Door;
 import dungeons.nodes.DoorNode;
+using dungeons.EntityUtils;
 
 class DoorSystem extends ListIteratingSystem<DoorNode>
 {
@@ -57,6 +58,7 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
             // TODO: use friend typedef cast or haxe 2.11 ACL metadata
             untyped node.door.open = true;
             updateDoor(node);
+            MessageLogSystem.message(who.isPlayer() ? "You open the door." : "Door opens...");
         }
     }
 

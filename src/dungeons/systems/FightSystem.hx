@@ -9,6 +9,7 @@ import net.richardlord.ash.tools.ListIteratingSystem;
 
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
+using dungeons.EntityUtils;
 
 class FightSystem extends ListIteratingSystem<FighterNode>
 {
@@ -51,8 +52,21 @@ class FightSystem extends ListIteratingSystem<FighterNode>
         if (damage > 0)
         {
             defenderFighter.currentHP -= damage;
+
+            if (attacker.isPlayer())
+                MessageLogSystem.message("You hit " + node.entity.getName() + " for " + damage + " HP.");
+            else if (node.entity.isPlayer())
+                MessageLogSystem.message(attacker.getName() + " hits you for " + damage + " HP.");
+
             if (defenderFighter.currentHP <= 0)
+            {
                 game.removeEntity(node.entity);
+
+                if (node.entity.isPlayer())
+                    MessageLogSystem.message("You die...");
+                else
+                    MessageLogSystem.message(node.entity.getName() + " dies.");
+            }
         }
     }
 

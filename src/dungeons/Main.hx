@@ -14,6 +14,8 @@ import nme.events.Event;
 import nme.display.BitmapData;
 import nme.display.StageScaleMode;
 import nme.display.Sprite;
+import nme.text.TextFormat;
+import nme.text.TextField;
 import nme.Lib;
 
 import de.polygonal.ds.Array2;
@@ -22,6 +24,7 @@ import net.richardlord.ash.core.Game;
 import net.richardlord.ash.tick.FrameTickProvider;
 import net.richardlord.ash.core.Entity;
 
+import dungeons.components.Description;
 import dungeons.components.MonsterAI;
 import dungeons.components.Obstacle;
 import dungeons.components.FOV;
@@ -35,6 +38,7 @@ import dungeons.components.DoorRenderable;
 import dungeons.components.Door;
 import dungeons.components.Fighter;
 
+import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
 import dungeons.systems.MonsterAISystem;
 import dungeons.systems.SystemPriorities;
@@ -150,6 +154,7 @@ class Main extends Sprite
         game.addEntity(hero);
 
         var monsterAI = new MonsterAI();
+        var monsterDescription = new Description("Skeleton");
         for (room in dungeon.rooms)
         {
             var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
@@ -191,6 +196,7 @@ class Main extends Sprite
             if (room != startRoom)
             {
                 var monster:Entity = new Entity();
+                monster.add(monsterDescription);
                 monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
                 monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
                 monster.add(new Actor(100));
@@ -209,6 +215,13 @@ class Main extends Sprite
         targetBitmap.scaleX = targetBitmap.scaleY = zoom;
         addChild(targetBitmap);
 
+        var messageField:TextField = new TextField();
+        messageField.width = stage.stageWidth;
+        messageField.mouseEnabled = false;
+        messageField.selectable = false;
+        messageField.defaultTextFormat = new TextFormat(null, 10, 0xFFFFFF);
+        addChild(messageField);
+
         game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
         game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
         game.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
@@ -219,6 +232,7 @@ class Main extends Sprite
         game.addSystem(new DoorSystem(), SystemPriorities.NONE);
         game.addSystem(new FightSystem(), SystemPriorities.NONE);
         game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
+        game.addSystem(new MessageLogSystem(messageField, 6), SystemPriorities.RENDER);
 
         var tickProvider = new FrameTickProvider(this);
         tickProvider.add(game.update);
