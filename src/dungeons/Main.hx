@@ -219,7 +219,8 @@ class Main extends Sprite
         messageField.width = stage.stageWidth;
         messageField.mouseEnabled = false;
         messageField.selectable = false;
-        messageField.defaultTextFormat = new TextFormat(null, 10, 0xFFFFFF);
+        messageField.embedFonts = true;
+        messageField.defaultTextFormat = new TextFormat(Assets.getFont("eight2empire/eight2empire.ttf").fontName, 16, 0xFFFFFF);
         addChild(messageField);
 
         game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
