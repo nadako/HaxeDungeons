@@ -4,10 +4,10 @@ import nme.ui.Keyboard;
 import nme.events.KeyboardEvent;
 import nme.display.Sprite;
 
-import net.richardlord.ash.core.Entity;
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.core.NodeList;
-import net.richardlord.ash.core.System;
+import ash.core.Entity;
+import ash.core.Engine;
+import ash.core.NodeList;
+import ash.core.System;
 
 import dungeons.components.Actor;
 import dungeons.components.Door;
@@ -27,14 +27,14 @@ class PlayerControlSystem extends System
         this.application = application;
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
-        nodeList = game.getNodeList(PlayerActorNode);
-        obstacleSystem = game.getSystem(ObstacleSystem);
+        nodeList = engine.getNodeList(PlayerActorNode);
+        obstacleSystem = engine.getSystem(ObstacleSystem);
         application.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
         application.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         obstacleSystem = null;

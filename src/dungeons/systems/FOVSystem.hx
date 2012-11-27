@@ -2,9 +2,9 @@ package dungeons.systems;
 
 import nme.ObjectHash;
 
-import net.richardlord.ash.core.NodeList;
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.core.System;
+import ash.core.NodeList;
+import ash.core.Engine;
+import ash.core.System;
 
 import dungeons.PositionMap;
 import dungeons.nodes.FOVNode;
@@ -34,24 +34,24 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         memoryMap = new PositionMap(width, height);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
         occluderListeners = new ObjectHash();
 
-        occluders = game.getNodeList(LightOccluderNode);
+        occluders = engine.getNodeList(LightOccluderNode);
         for (node in occluders)
             occluderNodeAdded(node);
         occluders.nodeAdded.add(occluderNodeAdded);
         occluders.nodeRemoved.add(occluderNodeRemoved);
 
-        var fovCasters = game.getNodeList(FOVNode);
+        var fovCasters = engine.getNodeList(FOVNode);
         for (node in fovCasters)
             onFOVAdded(node);
         fovCasters.nodeAdded.add(onFOVAdded);
         fovCasters.nodeRemoved.add(onFOVRemoved);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
         lightMap.clear();
         memoryMap.clear();
@@ -61,7 +61,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         occluderListeners = null;
         occludeMap.clear();
 
-        var fovCasters = game.getNodeList(FOVNode);
+        var fovCasters = engine.getNodeList(FOVNode);
         fovCasters.nodeAdded.remove(onFOVAdded);
         fovCasters.nodeRemoved.remove(onFOVRemoved);
         fovCaster = null;

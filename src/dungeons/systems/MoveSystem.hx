@@ -1,8 +1,8 @@
 package dungeons.systems;
 
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.tools.ComponentPool;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Engine;
+import ash.tools.ComponentPool;
+import ash.tools.ListIteratingSystem;
 
 import nme.ObjectHash;
 
@@ -20,16 +20,16 @@ class MoveSystem extends ListIteratingSystem<PositionNode>
         super(PositionNode, null, nodeAdded, nodeRemoved);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
-        obstacleSystem = game.getSystem(ObstacleSystem);
+        obstacleSystem = engine.getSystem(ObstacleSystem);
         moveListeners = new ObjectHash();
-        super.addToGame(game);
+        super.addToEngine(engine);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         for (node in moveListeners.keys())
             node.position.moveRequested.remove(moveListeners.get(node));
         moveListeners = null;

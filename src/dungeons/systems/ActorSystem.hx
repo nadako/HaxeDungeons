@@ -3,9 +3,9 @@ package dungeons.systems;
 import de.polygonal.ds.ArrayedDeque;
 import de.polygonal.ds.Deque;
 
-import net.richardlord.ash.core.Entity;
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Entity;
+import ash.core.Engine;
+import ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.ActorNode;
 import dungeons.components.Fighter;
@@ -36,9 +36,9 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         deque.remove(node);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         deque.clear(true);
     }
 

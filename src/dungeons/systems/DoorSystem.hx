@@ -6,9 +6,9 @@ import dungeons.components.LightOccluder;
 import dungeons.components.Obstacle;
 import nme.ObjectHash;
 
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.core.Entity;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Engine;
+import ash.core.Entity;
+import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Door;
 import dungeons.nodes.DoorNode;
@@ -27,15 +27,15 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
         lightOccluder = new LightOccluder();
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
         doorListeners = new ObjectHash();
-        super.addToGame(game);
+        super.addToEngine(engine);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         for (node in doorListeners.keys())
             node.door.openRequested.remove(doorListeners.get(node));
         doorListeners = null;

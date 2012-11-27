@@ -1,7 +1,7 @@
 package dungeons.components;
 
-import net.richardlord.ash.core.Entity;
-import net.richardlord.signals.Signal0;
+import ash.core.Entity;
+import ash.signals.Signal0;
 
 import dungeons.Dungeon.Direction;
 

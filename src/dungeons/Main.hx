@@ -20,9 +20,9 @@ import nme.Lib;
 
 import de.polygonal.ds.Array2;
 
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.tick.FrameTickProvider;
-import net.richardlord.ash.core.Entity;
+import ash.core.Engine;
+import ash.core.Entity;
+import ash.tick.FrameTickProvider;
 
 import dungeons.components.Description;
 import dungeons.components.MonsterAI;
@@ -80,7 +80,7 @@ class Main extends Sprite
         var dungeonTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("eight2empire/level assets.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
         var characterTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_char.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
 
-        var game:Game = new Game();
+        var engine:Engine = new Engine();
 
         var obstacle:Obstacle = new Obstacle();
         var lightOccluder:LightOccluder = new LightOccluder();
@@ -104,7 +104,7 @@ class Main extends Sprite
             for (x in 0...dungeonWidth)
             {
                 var entity:Entity = new Entity();
-                game.addEntity(entity);
+                engine.addEntity(entity);
                 entity.add(new Position(x, y));
 
                 switch (dungeon.grid.get(x, y))
@@ -132,7 +132,7 @@ class Main extends Sprite
                         door.add(new dungeons.components.Door(open));
                         door.add(new Position(x, y));
                         door.add(new DoorRenderable(openDoorRenderer, closedDoorRenderer), Renderable);
-                        game.addEntity(door);
+                        engine.addEntity(door);
                     default:
                         continue;
                 }
@@ -151,7 +151,7 @@ class Main extends Sprite
         hero.add(new FOV(10));
         hero.add(new Fighter(10, 3, 2));
         hero.add(obstacle);
-        game.addEntity(hero);
+        engine.addEntity(hero);
 
         var monsterAI = new MonsterAI();
         var monsterDescription = new Description("Skeleton");
@@ -180,7 +180,7 @@ class Main extends Sprite
                         shelf.add(new Position(x, y));
                         shelf.add(obstacle);
                         shelf.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 14 + Std.random(6), 22)));
-                        game.addEntity(shelf);
+                        engine.addEntity(shelf);
                     }
                 case Fountain:
 
@@ -188,7 +188,7 @@ class Main extends Sprite
                     fountain.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), Std.int(room.position.y + room.grid.getH() / 2)));
                     fountain.add(obstacle);
                     fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
-                    game.addEntity(fountain);
+                    engine.addEntity(fountain);
 
                 default:
             }
@@ -203,7 +203,7 @@ class Main extends Sprite
                 monster.add(new Fighter(10, 1 + Std.random(2), Std.random(3)));
                 monster.add(monsterAI);
                 monster.add(obstacle);
-                game.addEntity(monster);
+                engine.addEntity(monster);
             }
         }
 
@@ -223,20 +223,20 @@ class Main extends Sprite
         messageField.defaultTextFormat = new TextFormat(Assets.getFont("eight2empire/eight2empire.ttf").fontName, 16, 0xFFFFFF);
         addChild(messageField);
 
-        game.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
-        game.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
-        game.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
-        game.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
-        game.addSystem(new MoveSystem(), SystemPriorities.NONE);
-        game.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
-        game.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
-        game.addSystem(new DoorSystem(), SystemPriorities.NONE);
-        game.addSystem(new FightSystem(), SystemPriorities.NONE);
-        game.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
-        game.addSystem(new MessageLogSystem(messageField, 6), SystemPriorities.RENDER);
+        engine.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
+        engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
+        engine.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        engine.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
+        engine.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
+        engine.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
+        engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
+        engine.addSystem(new FightSystem(), SystemPriorities.NONE);
+        engine.addSystem(new PlayerControlSystem(this), SystemPriorities.INPUT);
+        engine.addSystem(new MessageLogSystem(messageField, 6), SystemPriorities.RENDER);
 
         var tickProvider = new FrameTickProvider(this);
-        tickProvider.add(game.update);
+        tickProvider.add(engine.update);
         tickProvider.start();
     }
 }

@@ -1,8 +1,8 @@
 package dungeons;
 
-import dungeons.components.Description;
-import net.richardlord.ash.core.Entity;
+import ash.core.Entity;
 
+import dungeons.components.Description;
 import dungeons.components.PlayerControls;
 
 /**

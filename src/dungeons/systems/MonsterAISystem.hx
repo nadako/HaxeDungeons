@@ -2,9 +2,9 @@ package dungeons.systems;
 
 import nme.ObjectHash;
 
-import net.richardlord.ash.tools.ListIteratingSystem;
-import net.richardlord.ash.core.System;
-import net.richardlord.ash.core.Game;
+import ash.tools.ListIteratingSystem;
+import ash.core.System;
+import ash.core.Engine;
 
 import dungeons.Dungeon;
 import dungeons.nodes.MonsterActorNode;
@@ -22,15 +22,15 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
         super(MonsterActorNode, null, onNodeAdded, onNodeRemoved);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
         nodeListeners = new ObjectHash();
-        super.addToGame(game);
+        super.addToEngine(engine);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         for (node in nodeListeners.keys())
             node.actor.actionRequested.remove(nodeListeners.get(node));
         nodeListeners = null;

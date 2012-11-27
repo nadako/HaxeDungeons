@@ -3,9 +3,9 @@ package dungeons.systems;
 import flash.Lib;
 import nme.ObjectHash;
 
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.core.Entity;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Engine;
+import ash.core.Entity;
+import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
@@ -14,27 +14,27 @@ using dungeons.EntityUtils;
 class FightSystem extends ListIteratingSystem<FighterNode>
 {
     private var attackListeners:ObjectHash<FighterNode, AttackRequestListener>;
-    private var game:Game;
+    private var engine:Engine;
 
     public function new()
     {
         super(FighterNode, null, onNodeAdded, onNodeRemoved);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
-        this.game = game;
+        this.engine = engine;
         attackListeners = new ObjectHash();
-        super.addToGame(game);
+        super.addToEngine(engine);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         for (node in attackListeners.keys())
             node.fighter.attackRequested.remove(attackListeners.get(node));
         attackListeners = null;
-        this.game = null;
+        this.engine = null;
     }
 
     private function onNodeAdded(node:FighterNode):Void
@@ -60,7 +60,7 @@ class FightSystem extends ListIteratingSystem<FighterNode>
 
             if (defenderFighter.currentHP <= 0)
             {
-                game.removeEntity(node.entity);
+                engine.removeEntity(node.entity);
 
                 if (node.entity.isPlayer())
                     MessageLogSystem.message("You die...");

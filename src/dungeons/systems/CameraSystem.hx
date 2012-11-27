@@ -6,8 +6,8 @@ import nme.display.DisplayObject;
 
 import com.eclecticdesignstudio.motion.Actuate;
 
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Engine;
+import ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.CameraFocusNode;
 
@@ -24,9 +24,9 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         this.animateDuration = animateDuration;
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         if (focus != null)
             nodeRemoved(focus);
     }

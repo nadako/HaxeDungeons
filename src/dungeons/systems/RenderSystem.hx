@@ -8,10 +8,10 @@ import nme.geom.Rectangle;
 
 import com.eclecticdesignstudio.motion.Actuate;
 
-import net.richardlord.ash.core.Node;
-import net.richardlord.ash.core.NodeList;
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.core.System;
+import ash.core.Node;
+import ash.core.NodeList;
+import ash.core.Engine;
+import ash.core.System;
 
 import dungeons.Constants;
 import dungeons.nodes.RenderNode;
@@ -47,9 +47,9 @@ class RenderSystem extends System
         healthRenderer = new HealthRenderer(Constants.TILE_SIZE, 1);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
-        fovSystem = game.getSystem(FOVSystem);
+        fovSystem = engine.getSystem(FOVSystem);
 
         positionHelpers = new ObjectHash();
 
@@ -57,14 +57,14 @@ class RenderSystem extends System
         for (construct in Type.getEnumConstructs(RenderLayer))
             positionStorage.push(new PositionArrayMap(width, height));
 
-        nodeList = game.getNodeList(RenderNode);
+        nodeList = engine.getNodeList(RenderNode);
         for (node in nodeList)
             onNodeAdded(node);
         nodeList.nodeAdded.add(onNodeAdded);
         nodeList.nodeRemoved.add(onNodeRemoved);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
         for (node in positionHelpers.keys())
         {

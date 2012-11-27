@@ -2,8 +2,8 @@ package dungeons.components;
 
 import nme.geom.Point;
 
-import net.richardlord.signals.Signal1;
-import net.richardlord.signals.Signal2;
+import ash.signals.Signal1;
+import ash.signals.Signal2;
 
 import dungeons.Dungeon;
 

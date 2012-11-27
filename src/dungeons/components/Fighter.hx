@@ -1,7 +1,7 @@
 package dungeons.components;
 
-import net.richardlord.signals.Signal1;
-import net.richardlord.ash.core.Entity;
+import ash.core.Entity;
+import ash.signals.Signal1;
 
 class Fighter
 {

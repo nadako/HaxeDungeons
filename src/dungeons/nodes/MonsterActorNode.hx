@@ -1,6 +1,6 @@
 package dungeons.nodes;
 
-import net.richardlord.ash.core.Node;
+import ash.core.Node;
 
 import dungeons.components.MonsterAI;
 import dungeons.components.Actor;

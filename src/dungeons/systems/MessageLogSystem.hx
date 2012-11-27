@@ -2,7 +2,7 @@ package dungeons.systems;
 
 import nme.text.TextField;
 
-import net.richardlord.ash.core.System;
+import ash.core.System;
 
 class MessageLogSystem extends System
 {

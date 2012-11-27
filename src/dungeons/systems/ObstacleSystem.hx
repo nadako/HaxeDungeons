@@ -2,9 +2,9 @@ package dungeons.systems;
 
 import nme.ObjectHash;
 
-import net.richardlord.ash.core.Entity;
-import net.richardlord.ash.core.Game;
-import net.richardlord.ash.tools.ListIteratingSystem;
+import ash.core.Entity;
+import ash.core.Engine;
+import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Position;
 import dungeons.nodes.ObstacleNode;
@@ -21,15 +21,15 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
         super(ObstacleNode, null, addNode, removeNode);
     }
 
-    override public function addToGame(game:Game):Void
+    override public function addToEngine(engine:Engine):Void
     {
         listeners = new ObjectHash();
-        super.addToGame(game);
+        super.addToEngine(engine);
     }
 
-    override public function removeFromGame(game:Game):Void
+    override public function removeFromEngine(engine:Engine):Void
     {
-        super.removeFromGame(game);
+        super.removeFromEngine(engine);
         for (node in listeners.keys())
             node.position.changed.remove(listeners.get(node));
         listeners = null;
