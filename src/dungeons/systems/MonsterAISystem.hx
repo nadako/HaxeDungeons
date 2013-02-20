@@ -9,12 +9,10 @@ import ash.core.Engine;
 import dungeons.Dungeon;
 import dungeons.nodes.MonsterActorNode;
 
-using dungeons.ArrayUtil;
+using ArrayUtil.EnumUtil;
 
 class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {
-    private static inline var directions:Array<Direction> = [North, South, West, East];
-
     private var nodeListeners:ObjectHash<MonsterActorNode, Void->Void>;
 
     public function new()
@@ -45,7 +43,7 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 
     private function onNodeActionRequested(node:MonsterActorNode):Void
     {
-        node.actor.setAction(Move(directions.randomChoice()));
+        node.actor.setAction(Move(Direction.randomChoice()));
     }
 
     private function onNodeRemoved(node:MonsterActorNode):Void

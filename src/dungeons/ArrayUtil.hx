@@ -1,9 +1,19 @@
 package dungeons;
 
+// enable these classes with "using"
+
 class ArrayUtil
 {
-    public static function randomChoice<T>(values:Array<T>):T
+    public static function randomChoice<T>(array:Array<T>):T
     {
-        return values[Std.random(values.length)];
+        return array[Std.random(array.length)];
+    }
+}
+
+class EnumUtil
+{
+    public static function randomChoice<T>(e:Enum<T>):T
+    {
+        return ArrayUtil.randomChoice(Type.allEnums(e));
     }
 }

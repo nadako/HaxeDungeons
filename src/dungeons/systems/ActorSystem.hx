@@ -1,8 +1,5 @@
 package dungeons.systems;
 
-import de.polygonal.ds.ArrayedDeque;
-import de.polygonal.ds.Deque;
-
 import ash.core.Entity;
 import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
@@ -18,38 +15,39 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
     private static inline var MAX_ACTORS_PER_UPDATE:Int = 1000;
     private static inline var ACTION_COST:Int = 100;
 
-    private var deque:Deque<ActorNode>;
+    private var actors:List<ActorNode>;
 
     public function new()
     {
         super(ActorNode, null, nodeAdded, nodeRemoved);
-        deque = new ArrayedDeque<ActorNode>();
+        actors = new List<ActorNode>();
     }
 
     private function nodeAdded(node:ActorNode):Void
     {
-        deque.pushBack(node);
+        actors.add(node);
     }
 
     private function nodeRemoved(node:ActorNode):Void
     {
-        deque.remove(node);
+        actors.remove(node);
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
         super.removeFromEngine(engine);
-        deque.clear(true);
+        actors.clear();
     }
 
     override public function update(time:Float):Void
     {
         for (i in 0...MAX_ACTORS_PER_UPDATE)
         {
-            if (deque.isEmpty())
+            var node:ActorNode = actors.first();
+
+            if (node == null)
                 return;
 
-            var node:ActorNode = deque.front();
             var actor:Actor = node.actor;
 
             // return if still waiting for action
@@ -77,8 +75,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
             // all actions processed now and actor have no energy
             // add some and push the actor back into queue
             actor.energy += actor.speed;
-            deque.popFront();
-            deque.pushBack(node);
+            actors.add(actors.pop());
         }
     }
 

@@ -18,8 +18,6 @@ import nme.text.TextFormat;
 import nme.text.TextField;
 import nme.Lib;
 
-import de.polygonal.ds.Array2;
-
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tick.FrameTickProvider;
@@ -93,7 +91,7 @@ class Main extends Sprite
         var dungeonWidth:Int = 50;
         var dungeonHeight:Int = 50;
 
-        dungeon = new Dungeon(new Array2Cell(dungeonWidth, dungeonHeight), 25, new Array2Cell(5, 5), new Array2Cell(20, 20));
+        dungeon = new Dungeon(dungeonWidth, dungeonHeight, 25, {x: 5, y: 5}, {x: 20, y: 20});
         dungeon.generate();
 
         var openDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 31);
@@ -144,7 +142,7 @@ class Main extends Sprite
         var hero:Entity = new Entity();
         hero.name = "player";
         hero.add(new Renderable(RenderLayer.Player, new TilesheetRenderer(characterTilesheet, 1, 0)));
-        hero.add(new Position(startRoom.position.x + Std.int(startRoom.grid.getW() / 2), startRoom.position.y + Std.int(startRoom.grid.getH() / 2)));
+        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
         hero.add(new CameraFocus());
         hero.add(new PlayerControls());
         hero.add(new Actor(100));
@@ -161,16 +159,16 @@ class Main extends Sprite
             switch (feature)
             {
                 case Library:
-                    var y:Int = room.position.y + 1;
-                    for (x in room.position.x + 1...room.position.x + room.grid.getW() - 1)
+                    var y:Int = room.y + 1;
+                    for (x in room.x + 1...room.x + room.grid.width - 1)
                     {
                         if (Math.random() < 0.25)
                             continue;
 
-                        if (x == room.position.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
+                        if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
                             continue;
 
-                        if (x == room.position.x + room.grid.getW() - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
+                        if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
                             continue;
 
                         if (dungeon.grid.get(x, y - 1) != Tile.Wall)
@@ -185,7 +183,7 @@ class Main extends Sprite
                 case Fountain:
 
                     var fountain:Entity = new Entity();
-                    fountain.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), Std.int(room.position.y + room.grid.getH() / 2)));
+                    fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     fountain.add(obstacle);
                     fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
                     engine.addEntity(fountain);
@@ -198,7 +196,7 @@ class Main extends Sprite
                 var monster:Entity = new Entity();
                 monster.add(monsterDescription);
                 monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Std.random(3), 6)));
-                monster.add(new Position(room.position.x + Std.int(room.grid.getW() / 2), room.position.y + Std.int(room.grid.getH() / 2)));
+                monster.add(new Position(room.x + Std.int(room.grid.width / 2), room.y + Std.int(room.grid.height / 2)));
                 monster.add(new Actor(100));
                 monster.add(new Fighter(10, 1 + Std.random(2), Std.random(3)));
                 monster.add(monsterAI);

@@ -8,7 +8,6 @@
     <assets path="assets" rename="" />
 
     <haxelib name="nme"/>
-    <haxelib name="polygonal-ds" />
     <haxelib name="ash" />
     <haxelib name="actuate" />
 
