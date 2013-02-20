@@ -4,36 +4,30 @@ class PositionMap<T>
 {
     private var width:Int;
     private var height:Int;
-    private var hash:IntHash<T>;
+    private var content:Array<T>;
 
     public function new(width:Int, height:Int)
     {
         this.width = width;
         this.height = height;
-        hash = new IntHash();
+        clear();
     }
 
-    private inline function getKey(x:Int, y:Int):Int
+    public inline function get(x:Int, y:Int):T
     {
-        return y * width + x;
-    }
-
-    public inline function get(x:Int, y:Int):Null<T>
-    {
-        if (x < 0 || x >= width || y < 0 || x >= height)
-            return null;
-        else
-            return hash.get(getKey(x, y));
+        return content[y * width + x];
     }
 
     public inline function set(x:Int, y:Int, value:T):Void
     {
-        hash.set(getKey(x, y), value);
+        content[y * width + x] = value;
     }
 
     public function clear():Void
     {
-        hash = new IntHash();
+        content = [];
+        for (i in 0...width * height)
+            content.push(null);
     }
 }
 
@@ -46,7 +40,7 @@ class PositionArrayMap<T> extends PositionMap<Array<T>>
 
     public function getOrCreate(x:Int, y:Int):Array<T>
     {
-        var value = get(x, y);
+        var value:Array<T> = get(x, y);
         if (value == null)
         {
             value = [];

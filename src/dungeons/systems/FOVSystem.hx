@@ -124,11 +124,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
 
     public function getLight(x:Int, y:Int):Float
     {
-        var value:Float = lightMap.get(x, y);
-        if (Math.isNaN(value))
-            return 0;
-        else
-            return value;
+        return lightMap.get(x, y);
     }
 
     public function inMemory(x:Int, y:Int):Bool

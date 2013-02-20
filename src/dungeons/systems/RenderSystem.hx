@@ -32,7 +32,6 @@ class RenderSystem extends System
     private var nodeList:NodeList<RenderNode>;
     private var positionHelpers:ObjectHash<RenderNode, PositionChangeListener>;
     private var positionStorage:Array<PositionArrayMap<RenderNode>>;
-    private var emptyIterable:Iterable<RenderNode>;
     private var fovSystem:FOVSystem;
     private var healthRenderer:HealthRenderer;
 
@@ -43,7 +42,6 @@ class RenderSystem extends System
         this.height = height;
         this.target = target;
         this.viewport = viewport;
-        emptyIterable = [];
         healthRenderer = new HealthRenderer(Constants.TILE_SIZE, 1);
     }
 
@@ -120,15 +118,6 @@ class RenderSystem extends System
         node.position.changed.remove(listener);
     }
 
-    private function getNodes(storage:PositionArrayMap<RenderNode>, x:Int, y:Int):Iterable<RenderNode>
-    {
-        var result:Array<RenderNode> = storage.get(x, y);
-        if (result == null)
-            return emptyIterable;
-        else
-            return result;
-    }
-
     override public function update(time:Float):Void
     {
         target.lock();
@@ -152,7 +141,10 @@ class RenderSystem extends System
                 {
                     if (fovSystem.getLight(x, y) > 0 || (isDungeonLayer && fovSystem.inMemory(x, y)))
                     {
-                        for (node in getNodes(layer, x, y))
+                        var nodes:Array<RenderNode> = layer.get(x, y);
+                        if (nodes == null)
+                            continue;
+                        for (node in nodes)
                         {
                             var renderable:Renderable = node.renderable;
                             drawPoint.x = (x - startX) * Constants.TILE_SIZE - viewOffsetX + renderable.animOffsetX;
@@ -170,6 +162,7 @@ class RenderSystem extends System
 
         // render nice FOV overlay
         var rectBitmap = new BitmapData(Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var rect:Rectangle = new Rectangle(0, 0, Constants.TILE_SIZE, Constants.TILE_SIZE);
         for (x in startX...endX)
         {
             for (y in startY...endY)
@@ -182,8 +175,8 @@ class RenderSystem extends System
 
                     var color:Int = Std.int(255 * (1 - (0.3 + light * 0.7))) << 24;
 
-                    rectBitmap.fillRect(rectBitmap.rect, color);
-                    target.copyPixels(rectBitmap, rectBitmap.rect, drawPoint, null, null, true);
+                    rectBitmap.fillRect(rect, color);
+                    target.copyPixels(rectBitmap, rect, drawPoint, null, null, true);
                 }
             }
         }
