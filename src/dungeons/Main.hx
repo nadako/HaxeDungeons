@@ -154,7 +154,7 @@ class Main extends Sprite
         engine.addEntity(hero);
 
         var monsterAI = new MonsterAI();
-        var monsterDefs:Array<Dynamic> = cast Json.parse(Assets.getText("monsters.json"));
+        var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
         for (room in dungeon.rooms)
         {
             var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
@@ -195,13 +195,13 @@ class Main extends Sprite
 
             if (room != startRoom)
             {
-                var monsterDef:Dynamic = monsterDefs.randomChoice();
+                var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
-                monster.add(new Description(Reflect.field(monsterDef, "name")));
-                monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, Reflect.field(monsterDef, "tileCol"), Reflect.field(monsterDef, "tileRow"))));
+                monster.add(new Description(monsterDef.name));
+                monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, monsterDef.tileCol, monsterDef.tileRow)));
                 monster.add(new Position(room.x + Std.int(room.grid.width / 2), room.y + Std.int(room.grid.height / 2)));
                 monster.add(new Actor(100));
-                monster.add(new Fighter(Reflect.field(monsterDef, "hp"), Reflect.field(monsterDef, "power"), Reflect.field(monsterDef, "defense")));
+                monster.add(new Fighter(monsterDef.hp, monsterDef.power, monsterDef.defense));
                 monster.add(monsterAI);
                 monster.add(obstacle);
                 engine.addEntity(monster);
@@ -248,4 +248,14 @@ enum RoomFeature
     Library;
     Fountain;
     Light;
+}
+
+private typedef MonsterDefinition =
+{
+    var name:String;
+    var tileRow:Int;
+    var tileCol:Int;
+    var hp:Int;
+    var power:Int;
+    var defense:Int;
 }
