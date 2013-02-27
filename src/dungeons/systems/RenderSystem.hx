@@ -26,7 +26,6 @@ class RenderSystem extends System
 {
     private var width:Int;
     private var height:Int;
-    private var target:BitmapData;
     private var viewport:Rectangle;
 
     private var nodeList:NodeList<RenderNode>;
@@ -35,12 +34,11 @@ class RenderSystem extends System
     private var fovSystem:FOVSystem;
     private var healthRenderer:HealthRenderer;
 
-    public function new(target:BitmapData, viewport:Rectangle, width:Int, height:Int)
+    public function new(viewport:Rectangle, width:Int, height:Int)
     {
         super();
         this.width = width;
         this.height = height;
-        this.target = target;
         this.viewport = viewport;
         healthRenderer = new HealthRenderer(Constants.TILE_SIZE, 1);
     }
@@ -118,7 +116,7 @@ class RenderSystem extends System
         node.position.changed.remove(listener);
     }
 
-    override public function update(time:Float):Void
+    public function render(target:BitmapData):Void
     {
         target.lock();
         target.fillRect(new Rectangle(0, 0, target.width, target.height), 0);

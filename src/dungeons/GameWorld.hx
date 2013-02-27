@@ -65,6 +65,7 @@ using dungeons.ArrayUtil;
 class GameWorld extends World
 {
     private var engine:Engine;
+    private var renderSystem:RenderSystem;
 
     public function new()
     {
@@ -204,13 +205,7 @@ class GameWorld extends World
             }
         }
 
-        var zoom:Float = 4;
-        var viewport:Rectangle = new Rectangle(0, 0, HXP.width / zoom, HXP.height / zoom);
-        var targetBitmapData:BitmapData = new BitmapData(Std.int(viewport.width), Std.int(viewport.height));
-
-        var targetBitmap:Bitmap = new Bitmap(targetBitmapData);
-        targetBitmap.scaleX = targetBitmap.scaleY = zoom;
-        HXP.engine.addChild(targetBitmap);
+        var viewport:Rectangle = new Rectangle(0, 0, HXP.width / HXP.screen.scale, HXP.height / HXP.screen.scale);
 
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
@@ -228,7 +223,8 @@ class GameWorld extends World
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
+        renderSystem = new RenderSystem(viewport, dungeonWidth, dungeonHeight);
+        engine.addSystem(renderSystem, SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
 
@@ -254,6 +250,12 @@ class GameWorld extends World
     {
         super.update();
         engine.update(HXP.elapsed);
+    }
+
+    override public function render()
+    {
+        super.render();
+        renderSystem.render(HXP.buffer);
     }
 }
 
