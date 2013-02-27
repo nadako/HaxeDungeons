@@ -64,8 +64,4 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         Actuate.stop(viewport);
         Actuate.tween(viewport, animateDuration, {x: coords.x, y: coords.y});
     }
-
-    override public function update(time:Float):Void
-    {
-    }
 }

@@ -64,10 +64,6 @@ using dungeons.ArrayUtil;
 
 class GameWorld extends World
 {
-    private var targetBitmap:Bitmap;
-    private var targetBitmapData:BitmapData;
-
-    private var dungeon:Dungeon;
     private var engine:Engine;
 
     public function new()
@@ -93,7 +89,7 @@ class GameWorld extends World
         var dungeonWidth:Int = 50;
         var dungeonHeight:Int = 50;
 
-        dungeon = new Dungeon(dungeonWidth, dungeonHeight, 25, {x: 5, y: 5}, {x: 20, y: 20});
+        var dungeon:Dungeon = new Dungeon(dungeonWidth, dungeonHeight, 25, {x: 5, y: 5}, {x: 20, y: 20});
         dungeon.generate();
 
         var openDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 31);
@@ -209,13 +205,38 @@ class GameWorld extends World
         }
 
         var zoom:Float = 4;
-
         var viewport:Rectangle = new Rectangle(0, 0, HXP.width / zoom, HXP.height / zoom);
-        targetBitmapData = new BitmapData(Std.int(viewport.width), Std.int(viewport.height));
-        targetBitmap = new Bitmap(targetBitmapData);
+        var targetBitmapData:BitmapData = new BitmapData(Std.int(viewport.width), Std.int(viewport.height));
+
+        var targetBitmap:Bitmap = new Bitmap(targetBitmapData);
         targetBitmap.scaleX = targetBitmap.scaleY = zoom;
         HXP.engine.addChild(targetBitmap);
 
+        // These systems don't do anything on ticks, instead they react on signals
+        engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
+        engine.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        engine.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
+        engine.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
+        engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
+        engine.addSystem(new FightSystem(), SystemPriorities.NONE);
+
+        // Input system runs first
+        engine.addSystem(new PlayerControlSystem(), SystemPriorities.INPUT);
+
+        // Then actors are processed, here other systems can run because of action processing
+        engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
+
+        // rendering comes last.
+        engine.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
+        engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
+    }
+
+    /**
+     * Create and add a textfield for displaying in-game messages
+     **/
+    private function createMessageField():TextField
+    {
         var messageField:TextField = new TextField();
         messageField.width = HXP.width;
         messageField.mouseEnabled = false;
@@ -223,20 +244,12 @@ class GameWorld extends World
         messageField.embedFonts = true;
         messageField.defaultTextFormat = new TextFormat(Assets.getFont("eight2empire/eight2empire.ttf").fontName, 16, 0xFFFFFF);
         HXP.engine.addChild(messageField);
-
-        engine.addSystem(new MonsterAISystem(), SystemPriorities.INPUT);
-        engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
-        engine.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
-        engine.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
-        engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
-        engine.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
-        engine.addSystem(new RenderSystem(targetBitmapData, viewport, dungeonWidth, dungeonHeight), SystemPriorities.RENDER);
-        engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
-        engine.addSystem(new FightSystem(), SystemPriorities.NONE);
-        engine.addSystem(new PlayerControlSystem(), SystemPriorities.INPUT);
-        engine.addSystem(new MessageLogSystem(messageField, 6), SystemPriorities.RENDER);
+        return messageField;
     }
 
+    /**
+     * Update game entities and systems
+     **/
     override public function update()
     {
         super.update();

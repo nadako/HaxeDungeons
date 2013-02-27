@@ -67,10 +67,6 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         fovCaster = null;
     }
 
-    override public function update(time:Float):Void
-    {
-    }
-
     private function occluderNodeAdded(node:LightOccluderNode):Void
     {
         addOccluder(node.position.x, node.position.y);
