@@ -1,8 +1,7 @@
 package dungeons.systems;
 
-import nme.ui.Keyboard;
-import nme.events.KeyboardEvent;
-import nme.display.Sprite;
+import com.haxepunk.utils.Key;
+import com.haxepunk.utils.Input;
 
 import ash.core.Entity;
 import ash.core.Engine;
@@ -17,58 +16,41 @@ import dungeons.Dungeon;
 
 class PlayerControlSystem extends System
 {
-    private var application:Sprite;
     private var obstacleSystem:ObstacleSystem;
     private var nodeList:NodeList<PlayerActorNode>;
 
-    public function new(application:Sprite)
+    public function new()
     {
         super();
-        this.application = application;
     }
 
     override public function addToEngine(engine:Engine):Void
     {
         nodeList = engine.getNodeList(PlayerActorNode);
         obstacleSystem = engine.getSystem(ObstacleSystem);
-        application.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
-        application.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         obstacleSystem = null;
         nodeList = null;
     }
 
-    private function onKeyDown(event:KeyboardEvent):Void
-    {
-        for (node in nodeList)
-        {
-            if (node.actor.awaitingAction)
-            {
-                var action = getAction(node.entity, event);
-                if (action != null)
-                    node.actor.setAction(action);
-            }
-        }
-    }
-
-    private function getAction(entity:Entity, event:KeyboardEvent):Action
+    private function getAction(entity:Entity):Action
     {
         var action:Action;
-        switch (event.keyCode)
+        switch (Input.lastKey)
         {
 
-            case Keyboard.UP:
+            case Key.UP:
                 action = Move(North);
-            case Keyboard.DOWN:
+            case Key.DOWN:
                 action = Move(South);
-            case Keyboard.LEFT:
+            case Key.LEFT:
                 action = Move(West);
-            case Keyboard.RIGHT:
+            case Key.RIGHT:
                 action = Move(East);
-            case Keyboard.SPACE:
+            case Key.SPACE:
                 action = Wait;
             default:
                 action = null;
@@ -97,5 +79,21 @@ class PlayerControlSystem extends System
             }
         }
         return moveAction;
+    }
+
+    override public function update(time:Float):Void
+    {
+        if (Input.pressed(Key.ANY))
+        {
+            for (node in nodeList)
+            {
+                if (node.actor.awaitingAction)
+                {
+                    var action = getAction(node.entity);
+                    if (action != null)
+                        node.actor.setAction(action);
+                }
+            }
+        }
     }
 }

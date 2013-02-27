@@ -10,6 +10,7 @@
     <haxelib name="nme"/>
     <haxelib name="ash" />
     <haxelib name="actuate" />
+    <haxelib name="HaxePunk" />
 
     <ndll name="nme" haxelib="nme" />
 </project>
