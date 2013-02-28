@@ -38,22 +38,21 @@ class PlayerControlSystem extends System
 
     private function getAction(entity:Entity):Action
     {
-        var action:Action;
-        switch (Input.lastKey)
+        var action:Action = switch (Input.lastKey)
         {
 
             case Key.UP:
-                action = Move(North);
+                Move(North);
             case Key.DOWN:
-                action = Move(South);
+                Move(South);
             case Key.LEFT:
-                action = Move(West);
+                Move(West);
             case Key.RIGHT:
-                action = Move(East);
+                Move(East);
             case Key.SPACE:
-                action = Wait;
+                Wait;
             default:
-                action = null;
+                null;
         }
 
         if (action != null && Type.enumConstructor(action) == "Move")
