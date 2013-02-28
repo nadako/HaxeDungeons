@@ -89,23 +89,11 @@ class GameWorld extends World
         level.add(new Position());
         engine.addEntity(level);
 
+        // marker components can easily be a reusable single instance
         var lightOccluder:LightOccluder = new LightOccluder();
         var obstacle:Obstacle = new Obstacle();
 
         var startRoom:Room = dungeon.rooms.randomChoice();
-
-        var hero:Entity = new Entity();
-        hero.name = "player";
-        hero.add(new Renderable(createTileImage(charBmp, 0, 0), RenderLayers.CHARACTER));
-        hero.add(new PlayerControls());
-        hero.add(new Actor(100));
-        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
-        hero.add(new CameraFocus());
-        hero.add(new FOV(10));
-        hero.add(new Fighter(10, 3, 2));
-        hero.add(obstacle);
-        engine.addEntity(hero);
-
 
         for (y in 0...dungeon.height)
         {
@@ -131,6 +119,18 @@ class GameWorld extends World
             }
         }
 
+        var hero:Entity = new Entity();
+        hero.name = "player";
+        hero.add(new Renderable(createTileImage(charBmp, 0, 0), RenderLayers.CHARACTER));
+        hero.add(new PlayerControls());
+        hero.add(new Actor(100));
+        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
+        hero.add(new CameraFocus());
+        hero.add(new FOV(10));
+        hero.add(new Fighter(10, 3, 2));
+        hero.add(obstacle);
+        engine.addEntity(hero);
+
         var monsterAI = new MonsterAI();
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
         for (room in dungeon.rooms)
@@ -148,51 +148,41 @@ class GameWorld extends World
                 monster.add(obstacle);
                 engine.addEntity(monster);
             }
-        }
-        /*
 
-
-
-
-                for (room in dungeon.rooms)
-                {
-                    var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
-                    switch (feature)
+            var decor:RoomDecor = RoomDecor.randomChoice();
+            switch (decor)
+            {
+                case Library:
+                    var y:Int = room.y + 1;
+                    for (x in room.x + 1...room.x + room.grid.width - 1)
                     {
-                        case Library:
-                            var y:Int = room.y + 1;
-                            for (x in room.x + 1...room.x + room.grid.width - 1)
-                            {
-                                if (Math.random() < 0.25)
-                                    continue;
+                        if (Math.random() < 0.1)
+                            continue;
 
-                                if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
-                                    continue;
+                        if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
+                            continue;
 
-                                if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
-                                    continue;
+                        if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
+                            continue;
 
-                                if (dungeon.grid.get(x, y - 1) != Tile.Wall)
-                                    continue;
+                        if (dungeon.grid.get(x, y - 1) != Tile.Wall)
+                            continue;
 
-                                var shelf:Entity = new Entity();
-                                shelf.add(new Position(x, y));
-                                shelf.add(obstacle);
-                                shelf.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 14 + Std.random(6), 22)));
-                                engine.addEntity(shelf);
-                            }
-                        case Fountain:
-
-                            var fountain:Entity = new Entity();
-                            fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
-                            fountain.add(obstacle);
-                            fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
-                            engine.addEntity(fountain);
-
-                        default:
+                        var shelf:Entity = new Entity();
+                        shelf.add(new Position(x, y));
+                        shelf.add(obstacle);
+                        shelf.add(new Renderable(createTileImage(levelBmp, 14 + Std.random(6), 22), RenderLayers.OBJECT));
+                        engine.addEntity(shelf);
                     }
-                }
-        */
+                case Fountain:
+                    var fountain:Entity = new Entity();
+                    fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
+                    fountain.add(obstacle);
+                    fountain.add(new Renderable(createTileImage(levelBmp, 15, 28), RenderLayers.OBJECT));
+                    engine.addEntity(fountain);
+                default:
+            }
+        }
 
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
@@ -287,7 +277,7 @@ class GameWorld extends World
 }
 
 
-enum RoomFeature
+enum RoomDecor
 {
     None;
     Library;
