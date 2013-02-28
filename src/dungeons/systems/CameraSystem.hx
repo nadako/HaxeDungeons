@@ -1,6 +1,5 @@
 package dungeons.systems;
 
-import com.haxepunk.tweens.misc.MultiVarTween;
 import com.haxepunk.HXP;
 
 import ash.core.Engine;
@@ -11,7 +10,6 @@ import dungeons.nodes.CameraFocusNode;
 class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 {
     private var focus:CameraFocusNode;
-    private var cameraTween:MultiVarTween;
 
     public function new()
     {
@@ -33,29 +31,17 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         focus = node;
         focus.position.changed.add(onFocusMove);
 
-        HXP.camera.x = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth / HXP.screen.scale;
-        HXP.camera.y = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight / HXP.screen.scale;
+        onFocusMove(0, 0);
     }
 
     private function nodeRemoved(node:CameraFocusNode):Void
     {
         node.position.changed.remove(onFocusMove);
-        if (cameraTween != null)
-        {
-            HXP.world.removeTween(cameraTween);
-            cameraTween = null;
-        }
     }
 
     private function onFocusMove(oldX:Int, oldY:Int):Void
     {
-        if (cameraTween == null)
-            cameraTween = cast HXP.world.addTween(new MultiVarTween());
-
-        var x:Float = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth / HXP.screen.scale;
-        var y:Float = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight / HXP.screen.scale;
-
-        cameraTween.tween(HXP.camera, {x: x, y: y}, 0.25);
-        cameraTween.start();
+        HXP.camera.x = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth / HXP.screen.scale;
+        HXP.camera.y = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight / HXP.screen.scale;
     }
 }

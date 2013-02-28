@@ -1,9 +1,5 @@
 package dungeons.systems;
 
-import com.haxepunk.tweens.misc.MultiVarTween;
-import com.haxepunk.tweens.misc.MultiVarTween;
-import com.haxepunk.Tween.TweenType;
-import com.haxepunk.tweens.motion.LinearMotion;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.World;
@@ -64,7 +60,6 @@ class RenderSystem extends System
         positionListeners.set(node, listener);
 
         var entity:com.haxepunk.Entity = world.addGraphic(node.renderable.graphic, node.renderable.layer);
-        entity.active = true; // we want to tween it
         worldEntities.set(node, entity);
 
         entity.x = node.position.x * Constants.TILE_SIZE;
@@ -83,11 +78,8 @@ class RenderSystem extends System
     private function onNodePositionChanged(node:RenderNode, oldX:Int, oldY:Int):Void
     {
         var entity:com.haxepunk.Entity = worldEntities.get(node);
-        entity.clearTweens();
-
-        var tween:MultiVarTween = new MultiVarTween(null, TweenType.OneShot);
-        tween.tween(entity, {x: node.position.x * Constants.TILE_SIZE, y:  node.position.y * Constants.TILE_SIZE}, 0.25);
-        entity.addTween(tween, true);
+        entity.x = node.position.x * Constants.TILE_SIZE;
+        entity.y = node.position.y * Constants.TILE_SIZE;
     }
 }
 
