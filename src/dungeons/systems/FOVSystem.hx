@@ -68,6 +68,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
 
         calculationDisabled = false;
         calculateLightMap();
+        redrawOverlay();
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -192,6 +193,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         }
         overlayData.unlock();
         overlayImage.updateBuffer();
+        overlayDirty = false;
     }
 
     private function onFOVAdded(node:FOVNode):Void
@@ -222,9 +224,6 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     override public function update(time:Float):Void
     {
         if (overlayDirty)
-        {
             redrawOverlay();
-            overlayDirty = false;
-        }
     }
 }
