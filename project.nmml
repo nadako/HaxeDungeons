@@ -3,14 +3,12 @@
     <app file="Dungeons" main="dungeons.Main"/>
     <window width="1024" height="768" background="#000000" />
 
-    <classpath name="src" />
-
+    <source path="src" />
     <assets path="assets" rename="" />
 
     <haxelib name="nme"/>
-    <haxelib name="ash" />
-    <haxelib name="actuate" />
     <haxelib name="HaxePunk" />
+    <haxelib name="ash" />
 
     <ndll name="nme" haxelib="nme" />
 </project>
