@@ -10,7 +10,6 @@ import ash.core.NodeList;
 import ash.core.Engine;
 import ash.core.System;
 
-import dungeons.PositionMap;
 import dungeons.nodes.FOVNode;
 import dungeons.nodes.LightOccluderNode;
 import dungeons.components.Position;
@@ -26,12 +25,12 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     private var calculationDisabled:Bool;
     private var shadowCaster:ShadowCaster;
 
-    private var lightMap:PositionMap<Float>;
-    private var memoryMap:PositionMap<Bool>;
+    private var lightMap:Grid<Float>;
+    private var memoryMap:Grid<Bool>;
 
     private var occluders:NodeList<LightOccluderNode>;
     private var occluderListeners:ObjectHash<LightOccluderNode, PositionChangeListener>;
-    private var occludeMap:PositionMap<Int>;
+    private var occludeMap:Grid<Int>;
 
     private var fovCaster:FOVNode;
 
@@ -44,9 +43,9 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         overlayDirty = false;
         calculationDisabled = false;
         shadowCaster = new ShadowCaster(this);
-        lightMap = new PositionMap(width, height);
-        occludeMap = new PositionMap(width, height);
-        memoryMap = new PositionMap(width, height);
+        lightMap = new Grid(width, height);
+        occludeMap = new Grid(width, height);
+        memoryMap = new Grid(width, height);
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -138,12 +137,12 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         memoryMap.set(x, y, true);
     }
 
-    public function getLight(x:Int, y:Int):Float
+    public inline function getLight(x:Int, y:Int):Float
     {
         return lightMap.get(x, y);
     }
 
-    public function inMemory(x:Int, y:Int):Bool
+    public inline function inMemory(x:Int, y:Int):Bool
     {
         return memoryMap.get(x, y);
     }

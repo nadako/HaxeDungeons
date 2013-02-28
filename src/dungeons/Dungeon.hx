@@ -257,36 +257,3 @@ enum Direction
     West;
     East;
 }
-
-class Grid<T>
-{
-    public var width(default, null):Int;
-    public var height(default, null):Int;
-
-    private var content:Array<T>;
-
-    public function new(width:Int, height:Int, fillValue:T = null)
-    {
-        this.width = width;
-        this.height = height;
-
-        content = [];
-        for (i in 0...width * height)
-            content.push(fillValue);
-    }
-
-    public function get(x:Int, y:Int):T
-    {
-        return content[y * width + x];
-    }
-
-    public function set(x:Int, y:Int, value:T):Void
-    {
-        content[y * width + x] = value;
-    }
-
-    public inline function inRange(x:Int, y:Int):Bool
-    {
-        return x >= 0 && x < width && y >= 0 && y < height;
-    }
-}

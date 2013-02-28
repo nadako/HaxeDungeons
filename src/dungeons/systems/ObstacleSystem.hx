@@ -8,16 +8,15 @@ import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Position;
 import dungeons.nodes.ObstacleNode;
-import dungeons.PositionMap.PositionArrayMap;
 
 class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 {
-    private var obstacleMap:PositionArrayMap<ObstacleNode>;
+    private var obstacleMap:Grid<Array<ObstacleNode>>;
     private var listeners:ObjectHash<ObstacleNode, PositionChangeListener>;
 
     public function new(width:Int, height:Int)
     {
-        obstacleMap = new PositionArrayMap(width, height);
+        obstacleMap = new Grid(width, height);
         super(ObstacleNode, null, addNode, removeNode);
     }
 
@@ -53,7 +52,15 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 
     private function addObstacle(node:ObstacleNode):Void
     {
-        obstacleMap.getOrCreate(node.position.x, node.position.y).push(node);
+        var x:Int = node.position.x;
+        var y:Int = node.position.y;
+        var array:Array<ObstacleNode> = obstacleMap.get(x, y);
+        if (array == null)
+        {
+            array = [];
+            obstacleMap.set(x, y, array);
+        }
+        array.push(node);
     }
 
     private function removeObstacle(node:ObstacleNode, x:Int, y:Int):Void
