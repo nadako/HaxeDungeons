@@ -1,17 +1,19 @@
 package dungeons.systems;
 
-import dungeons.components.DoorRenderable;
 import dungeons.components.Renderable;
-import dungeons.components.LightOccluder;
-import dungeons.components.Obstacle;
-import nme.ObjectHash;
+import com.haxepunk.Graphic;
 
+import ash.ObjectHash;
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Door;
+import dungeons.components.DoorRenderable;
+import dungeons.components.LightOccluder;
+import dungeons.components.Obstacle;
 import dungeons.nodes.DoorNode;
+
 using dungeons.EntityUtils;
 
 class DoorSystem extends ListIteratingSystem<DoorNode>
@@ -76,13 +78,13 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
         {
             node.entity.remove(Obstacle);
             node.entity.remove(LightOccluder);
-            renderable.renderer = renderable.openRenderer;
+            renderable.setOpen(true);
         }
         else
         {
             node.entity.add(obstacle);
             node.entity.add(lightOccluder);
-            renderable.renderer = renderable.closedRenderer;
+            renderable.setOpen(false);
         }
     }
 }

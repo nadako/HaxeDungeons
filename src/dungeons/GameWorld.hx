@@ -1,5 +1,14 @@
 package dungeons;
 
+import nme.display.BitmapData;
+import dungeons.components.Renderable;
+import dungeons.components.Renderable;
+import com.haxepunk.graphics.Image;
+import nme.display.BitmapData;
+import com.haxepunk.graphics.TiledImage;
+import com.haxepunk.graphics.Graphiclist;
+import com.haxepunk.Graphic;
+import com.haxepunk.graphics.Tilemap;
 import com.haxepunk.HXP;
 import com.haxepunk.World;
 
@@ -33,7 +42,6 @@ import dungeons.components.FOV;
 import dungeons.components.CameraFocus;
 import dungeons.components.Actor;
 import dungeons.components.PlayerControls;
-import dungeons.components.Renderable;
 import dungeons.components.Position;
 import dungeons.components.LightOccluder;
 import dungeons.components.DoorRenderable;
@@ -53,9 +61,6 @@ import dungeons.systems.RenderSystem;
 import dungeons.systems.ObstacleSystem;
 import dungeons.systems.DoorSystem;
 
-import dungeons.render.RenderLayer;
-import dungeons.render.Tilesheet;
-
 import dungeons.Dungeon;
 import dungeons.ShadowCaster;
 import dungeons.Eight2Empire;
@@ -74,61 +79,55 @@ class GameWorld extends World
 
     override public function begin()
     {
-        var dungeonTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("eight2empire/level assets.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
-        var characterTilesheet:Tilesheet = new Tilesheet(Assets.getBitmapData("oryx_lofi/lofi_char.png"), Constants.TILE_SIZE, Constants.TILE_SIZE);
-
         engine = new Engine();
 
-        var obstacle:Obstacle = new Obstacle();
-        var lightOccluder:LightOccluder = new LightOccluder();
-
-        var renderedWalls:BitmapData = new BitmapData(25 * Constants.TILE_SIZE, Constants.TILE_SIZE);
-        var renderedWallsCache:IntHash<Bool> = new IntHash();
-        var wallTilesheet:Tilesheet = new Tilesheet(renderedWalls, Constants.TILE_SIZE, Constants.TILE_SIZE);
-        var tmpPoint:Point = new Point(0, 0);
-
-        var dungeonWidth:Int = 50;
-        var dungeonHeight:Int = 50;
-
-        var dungeon:Dungeon = new Dungeon(dungeonWidth, dungeonHeight, 25, {x: 5, y: 5}, {x: 20, y: 20});
+        var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 20, y: 20});
         dungeon.generate();
 
-        var openDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 31);
-        var closedDoorRenderer = new TilesheetRenderer(dungeonTilesheet, 2, 30);
+        var levelBmp:BitmapData = Assets.getBitmapData("eight2empire/level assets.png");
+        var charBmp:BitmapData = Assets.getBitmapData("oryx_lofi/lofi_char.png");
 
-        for (y in 0...dungeonHeight)
+        var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp);
+        var level:Entity = new Entity();
+        level.add(new Renderable(levelGraphic, RenderLayers.DUNGEON));
+        level.add(new Position());
+        engine.addEntity(level);
+
+        var lightOccluder:LightOccluder = new LightOccluder();
+        var obstacle:Obstacle = new Obstacle();
+
+        var startRoom:Room = dungeon.rooms.randomChoice();
+
+        var hero:Entity = new Entity();
+        hero.name = "player";
+        hero.add(new Renderable(createTileImage(charBmp, 0, 0), RenderLayers.CHARACTER));
+        hero.add(new PlayerControls());
+        hero.add(new Actor(100));
+        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
+        hero.add(new CameraFocus());
+        hero.add(new FOV(10));
+        hero.add(new Fighter(10, 3, 2));
+        hero.add(obstacle);
+        engine.addEntity(hero);
+
+
+        for (y in 0...dungeon.height)
         {
-            for (x in 0...dungeonWidth)
+            for (x in 0...dungeon.width)
             {
-                var entity:Entity = new Entity();
-                engine.addEntity(entity);
-                entity.add(new Position(x, y));
-
                 switch (dungeon.grid.get(x, y))
                 {
                     case Wall:
+                        var entity:Entity = new Entity();
+                        entity.add(new Position(x, y));
                         entity.add(obstacle);
                         entity.add(lightOccluder);
-
-                        var col:Int = Eight2Empire.getTileNumber(dungeon.getWallTransition(x, y));
-                        if (!renderedWallsCache.exists(col))
-                        {
-                            tmpPoint.x = Constants.TILE_SIZE * col;
-                            dungeonTilesheet.draw(renderedWalls, 4, 0, tmpPoint);
-                            dungeonTilesheet.draw(renderedWalls, col, 2, tmpPoint);
-                            renderedWallsCache.set(col, true);
-                        }
-
-                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(wallTilesheet, col, 0)));
-                    case Floor:
-                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 4, 0)));
+                        engine.addEntity(entity);
                     case Door(open):
-                        entity.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 4, 0)));
-
                         var door:Entity = new Entity();
-                        door.add(new dungeons.components.Door(open));
                         door.add(new Position(x, y));
-                        door.add(new DoorRenderable(openDoorRenderer, closedDoorRenderer), Renderable);
+                        door.add(new dungeons.components.Door(open));
+                        door.add(new DoorRenderable(createTileImage(levelBmp, 2, 31), createTileImage(levelBmp, 2, 30)), Renderable);
                         engine.addEntity(door);
                     default:
                         continue;
@@ -136,66 +135,16 @@ class GameWorld extends World
             }
         }
 
-        var startRoom:Room = dungeon.rooms.randomChoice();
-
-        var hero:Entity = new Entity();
-        hero.name = "player";
-        hero.add(new Renderable(RenderLayer.Player, new TilesheetRenderer(characterTilesheet, 1, 0)));
-        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
-        hero.add(new CameraFocus());
-        hero.add(new PlayerControls());
-        hero.add(new Actor(100));
-        hero.add(new FOV(10));
-        hero.add(new Fighter(10, 3, 2));
-        hero.add(obstacle);
-        engine.addEntity(hero);
-
         var monsterAI = new MonsterAI();
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
         for (room in dungeon.rooms)
         {
-            var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
-            switch (feature)
-            {
-                case Library:
-                    var y:Int = room.y + 1;
-                    for (x in room.x + 1...room.x + room.grid.width - 1)
-                    {
-                        if (Math.random() < 0.25)
-                            continue;
-
-                        if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
-                            continue;
-
-                        if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
-                            continue;
-
-                        if (dungeon.grid.get(x, y - 1) != Tile.Wall)
-                            continue;
-
-                        var shelf:Entity = new Entity();
-                        shelf.add(new Position(x, y));
-                        shelf.add(obstacle);
-                        shelf.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 14 + Std.random(6), 22)));
-                        engine.addEntity(shelf);
-                    }
-                case Fountain:
-
-                    var fountain:Entity = new Entity();
-                    fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
-                    fountain.add(obstacle);
-                    fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
-                    engine.addEntity(fountain);
-
-                default:
-            }
-
             if (room != startRoom)
             {
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
                 monster.add(new Description(monsterDef.name));
-                monster.add(new Renderable(RenderLayer.NPC, new TilesheetRenderer(characterTilesheet, monsterDef.tileCol, monsterDef.tileRow)));
+                monster.add(new Renderable(createTileImage(charBmp, monsterDef.tileCol, monsterDef.tileRow), RenderLayers.CHARACTER));
                 monster.add(new Position(room.x + Std.int(room.grid.width / 2), room.y + Std.int(room.grid.height / 2)));
                 monster.add(new Actor(100));
                 monster.add(new Fighter(monsterDef.hp, monsterDef.power, monsterDef.defense));
@@ -204,15 +153,57 @@ class GameWorld extends World
                 engine.addEntity(monster);
             }
         }
+        /*
 
-        var viewport:Rectangle = new Rectangle(0, 0, HXP.width / HXP.screen.scale, HXP.height / HXP.screen.scale);
+
+
+
+                for (room in dungeon.rooms)
+                {
+                    var feature:RoomFeature = Type.allEnums(RoomFeature).randomChoice();
+                    switch (feature)
+                    {
+                        case Library:
+                            var y:Int = room.y + 1;
+                            for (x in room.x + 1...room.x + room.grid.width - 1)
+                            {
+                                if (Math.random() < 0.25)
+                                    continue;
+
+                                if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
+                                    continue;
+
+                                if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
+                                    continue;
+
+                                if (dungeon.grid.get(x, y - 1) != Tile.Wall)
+                                    continue;
+
+                                var shelf:Entity = new Entity();
+                                shelf.add(new Position(x, y));
+                                shelf.add(obstacle);
+                                shelf.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 14 + Std.random(6), 22)));
+                                engine.addEntity(shelf);
+                            }
+                        case Fountain:
+
+                            var fountain:Entity = new Entity();
+                            fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
+                            fountain.add(obstacle);
+                            fountain.add(new Renderable(RenderLayer.Dungeon, new TilesheetRenderer(dungeonTilesheet, 15, 28)));
+                            engine.addEntity(fountain);
+
+                        default:
+                    }
+                }
+        */
 
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
-        engine.addSystem(new ObstacleSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
-        engine.addSystem(new FOVSystem(dungeonWidth, dungeonHeight), SystemPriorities.NONE);
+        engine.addSystem(new ObstacleSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
+        engine.addSystem(new FOVSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
         engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
-        engine.addSystem(new CameraSystem(viewport), SystemPriorities.NONE);
+        engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(), SystemPriorities.NONE);
 
@@ -223,9 +214,50 @@ class GameWorld extends World
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        renderSystem = new RenderSystem(viewport, dungeonWidth, dungeonHeight);
-        engine.addSystem(renderSystem, SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
+    }
+
+    private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
+    {
+        return new Image(bmp, new Rectangle(col * Constants.TILE_SIZE, row * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE));
+    }
+
+    private static function renderDungeon(dungeon:Dungeon, tileset:BitmapData):Graphic
+    {
+        var tilemapWidth:Int = dungeon.width * Constants.TILE_SIZE;
+        var tilemapHeight:Int = dungeon.height * Constants.TILE_SIZE;
+
+        var tilesetCols:Int = Math.floor(tileset.width / Constants.TILE_SIZE);
+        var floorTilemap:Tilemap = new Tilemap(tileset, tilemapWidth, tilemapHeight, Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var wallTilemap:Tilemap = new Tilemap(tileset, tilemapWidth, tilemapHeight, Constants.TILE_SIZE, Constants.TILE_SIZE);
+
+        var floorCol:Int = 4;
+        var floorRow:Int = 0;
+        var floorTileIndex:Int = tilesetCols * floorRow + floorCol;
+        var wallRow:Int = 2;
+
+        for (y in 0...dungeon.height)
+        {
+            for (x in 0...dungeon.width)
+            {
+                switch (dungeon.grid.get(x, y))
+                {
+                    case Floor, Door(_):
+                        floorTilemap.setTile(x, y, floorTileIndex);
+
+                    case Wall:
+                        floorTilemap.setTile(x, y, floorTileIndex);
+
+                        var wallCol:Int = Eight2Empire.getTileNumber(dungeon.getWallTransition(x, y));
+                        wallTilemap.setTile(x, y, tilesetCols * wallRow + wallCol);
+                    default:
+                        continue;
+                }
+            }
+        }
+
+        return new Graphiclist([floorTilemap, wallTilemap]);
     }
 
     /**
@@ -250,12 +282,6 @@ class GameWorld extends World
     {
         super.update();
         engine.update(HXP.elapsed);
-    }
-
-    override public function render()
-    {
-        super.render();
-        renderSystem.render(HXP.buffer);
     }
 }
 

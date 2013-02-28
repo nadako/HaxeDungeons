@@ -1,20 +1,16 @@
 package dungeons.components;
 
-import nme.display.DisplayObject;
-
-import dungeons.render.RenderLayer;
-import dungeons.render.IRenderer;
+import com.haxepunk.HXP;
+import com.haxepunk.Graphic;
 
 class Renderable
 {
-    public var renderer:IRenderer;
-    public var layer:RenderLayer;
-    public var animOffsetX:Float = 0;
-    public var animOffsetY:Float = 0;
+    public var graphic(default, null):Graphic;
+    public var layer(default, null):Int;
 
-    public function new(layer:RenderLayer, renderer:IRenderer)
+    public function new(graphic:Graphic, layer:Int = HXP.BASELAYER)
     {
+        this.graphic = graphic;
         this.layer = layer;
-        this.renderer = renderer;
     }
 }
