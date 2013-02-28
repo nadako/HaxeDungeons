@@ -2,8 +2,8 @@ package dungeons;
 
 class PositionMap<T>
 {
-    private var width:Int;
-    private var height:Int;
+    public var width(default, null):Int;
+    public var height(default, null):Int;
     private var content:Array<T>;
 
     public function new(width:Int, height:Int)

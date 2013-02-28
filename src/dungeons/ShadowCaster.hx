@@ -24,6 +24,8 @@ class ShadowCaster implements IIntensityCalculator
 
     public function calculateLight(x:Int, y:Int, radius:Int):Void
     {
+        provider.light(x, y, 1);
+
         // call recursive checking for each octant
         for (octant in 0...8)
             castLight(x, y, 1, 1.0, 0.0, radius, radius * radius, coordMultipliers[0][octant], coordMultipliers[1][octant], coordMultipliers[2][octant], coordMultipliers[3][octant]);

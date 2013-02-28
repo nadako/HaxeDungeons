@@ -1,14 +1,9 @@
 package dungeons;
 
-import nme.display.BitmapData;
-import dungeons.components.Renderable;
-import dungeons.components.Renderable;
 import com.haxepunk.graphics.Image;
-import nme.display.BitmapData;
-import com.haxepunk.graphics.TiledImage;
 import com.haxepunk.graphics.Graphiclist;
-import com.haxepunk.Graphic;
 import com.haxepunk.graphics.Tilemap;
+import com.haxepunk.Graphic;
 import com.haxepunk.HXP;
 import com.haxepunk.World;
 
@@ -47,6 +42,7 @@ import dungeons.components.LightOccluder;
 import dungeons.components.DoorRenderable;
 import dungeons.components.Door;
 import dungeons.components.Fighter;
+import dungeons.components.Renderable;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -201,7 +197,8 @@ class GameWorld extends World
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
         engine.addSystem(new ObstacleSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
-        engine.addSystem(new FOVSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
+
+        var fovSystem:FOVSystem = new FOVSystem(dungeon.width, dungeon.height);
         engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
         engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
@@ -216,6 +213,10 @@ class GameWorld extends World
         // rendering comes last.
         engine.addSystem(new RenderSystem(this), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
+
+        // FOV overlay rendering happens on frame update
+        engine.addSystem(fovSystem, SystemPriorities.RENDER);
+        addGraphic(fovSystem.overlayImage, 0);
     }
 
     private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image

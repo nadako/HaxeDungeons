@@ -1,6 +1,10 @@
 package dungeons.systems;
 
+import nme.geom.Rectangle;
+import nme.display.BitmapData;
 import nme.ObjectHash;
+
+import com.haxepunk.graphics.Image;
 
 import ash.core.NodeList;
 import ash.core.Engine;
@@ -12,8 +16,14 @@ import dungeons.nodes.LightOccluderNode;
 import dungeons.components.Position;
 import dungeons.ShadowCaster;
 
+// TODO: hide non-memorable stuff when not lit
 class FOVSystem extends System, implements IShadowCasterDataProvider
 {
+    private var overlayData:BitmapData;
+    private var overlayDirty:Bool;
+    public var overlayImage(default, null):Image;
+
+    private var calculationDisabled:Bool;
     private var shadowCaster:ShadowCaster;
 
     private var lightMap:PositionMap<Float>;
@@ -28,6 +38,11 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     public function new(width:Int, height:Int)
     {
         super();
+        overlayData = new BitmapData(width, height, true, 0);
+        overlayImage = new Image(overlayData);
+        overlayImage.scale = Constants.TILE_SIZE;
+        overlayDirty = false;
+        calculationDisabled = false;
         shadowCaster = new ShadowCaster(this);
         lightMap = new PositionMap(width, height);
         occludeMap = new PositionMap(width, height);
@@ -37,6 +52,8 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
     override public function addToEngine(engine:Engine):Void
     {
         occluderListeners = new ObjectHash();
+
+        calculationDisabled = true;
 
         occluders = engine.getNodeList(LightOccluderNode);
         for (node in occluders)
@@ -49,6 +66,9 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
             onFOVAdded(node);
         fovCasters.nodeAdded.add(onFOVAdded);
         fovCasters.nodeRemoved.add(onFOVRemoved);
+
+        calculationDisabled = false;
+        calculateLightMap();
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -130,13 +150,49 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
 
     private function calculateLightMap():Void
     {
-        lightMap.clear();
-
-        if (fovCaster == null)
+        // we disable recalculation on initialization and then call it for all added objects
+        if (calculationDisabled)
             return;
 
-        light(fovCaster.position.x, fovCaster.position.y, 1);
-        shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
+        lightMap.clear();
+
+        if (fovCaster != null)
+            shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
+
+        overlayDirty = true;
+    }
+
+    private function redrawOverlay():Void
+    {
+        overlayData.lock();
+        for (y in 0...lightMap.height)
+        {
+            for (x in 0...lightMap.width)
+            {
+                var intensity:Float = 0;
+
+                var light:Float = lightMap.get(x, y);
+                if (light > 0)
+                    intensity = 0.3 + 0.7 * light;
+                else if (memoryMap.get(x, y))
+                    intensity = 0.3;
+
+                var color:Int = 0;
+                if (intensity >= 1)
+                    color = 0;
+                else if (intensity == 0)
+                    color = 0xFF000000;
+                else
+                    color = Std.int((1 - intensity) * 255) << 24;
+
+                // uncomment the following to see overlay in red for debugging purposes
+                // color |= 0x00FF0000;
+
+                overlayData.setPixel32(x, y, color);
+            }
+        }
+        overlayData.unlock();
+        overlayImage.updateBuffer();
     }
 
     private function onFOVAdded(node:FOVNode):Void
@@ -162,5 +218,14 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
             fovCaster = null;
 
         calculateLightMap();
+    }
+
+    override public function update(time:Float):Void
+    {
+        if (overlayDirty)
+        {
+            redrawOverlay();
+            overlayDirty = false;
+        }
     }
 }
