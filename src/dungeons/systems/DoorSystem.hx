@@ -14,7 +14,7 @@ import dungeons.components.LightOccluder;
 import dungeons.components.Obstacle;
 import dungeons.nodes.DoorNode;
 
-using dungeons.EntityUtils;
+using dungeons.utils.EntityUtil;
 
 class DoorSystem extends ListIteratingSystem<DoorNode>
 {

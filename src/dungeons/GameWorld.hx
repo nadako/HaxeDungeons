@@ -10,7 +10,6 @@ import com.haxepunk.World;
 import haxe.Json;
 
 import nme.display.Bitmap;
-import nme.ObjectHash;
 import nme.display.DisplayObjectContainer;
 import nme.events.KeyboardEvent;
 import nme.ui.Keyboard;
@@ -29,6 +28,7 @@ import nme.Lib;
 
 import ash.core.Engine;
 import ash.core.Entity;
+import ash.ObjectHash;
 
 import dungeons.components.Description;
 import dungeons.components.MonsterAI;
@@ -57,11 +57,11 @@ import dungeons.systems.RenderSystem;
 import dungeons.systems.ObstacleSystem;
 import dungeons.systems.DoorSystem;
 
-import dungeons.Dungeon;
-import dungeons.ShadowCaster;
-import dungeons.Eight2Empire;
+import dungeons.mapgen.Dungeon;
+import dungeons.utils.ShadowCaster;
+import dungeons.utils.Eight2Empire;
 
-using dungeons.ArrayUtil;
+using dungeons.utils.ArrayUtil;
 
 class GameWorld extends World
 {
@@ -77,7 +77,7 @@ class GameWorld extends World
     {
         engine = new Engine();
 
-        var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 20, y: 20});
+        var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 15, y: 15});
         dungeon.generate();
 
         var levelBmp:BitmapData = Assets.getBitmapData("eight2empire/level assets.png");
@@ -206,6 +206,7 @@ class GameWorld extends World
 
         // FOV overlay rendering happens on frame update
         engine.addSystem(fovSystem, SystemPriorities.RENDER);
+        fovSystem.overlayImage.scale = Constants.TILE_SIZE;
         addGraphic(fovSystem.overlayImage, 0);
     }
 

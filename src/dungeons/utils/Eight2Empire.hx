@@ -1,4 +1,4 @@
-package dungeons;
+package dungeons.utils;
 
 /**
  * Helper class to deal with eight2empire wall assets

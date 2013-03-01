@@ -1,11 +1,24 @@
-package dungeons;
+package dungeons.mapgen;
 
-using dungeons.ArrayUtil;
+import dungeons.utils.Vector;
+import dungeons.utils.Direction;
+import dungeons.utils.Grid;
 
-private typedef Vector =
+using dungeons.utils.ArrayUtil;
+
+enum Tile
+{
+    Empty;
+    Wall;
+    Floor;
+    Door(open:Bool);
+}
+
+typedef Room =
 {
     var x:Int;
     var y:Int;
+    var grid:Grid<Tile>;
 }
 
 class Dungeon
@@ -22,6 +35,8 @@ class Dungeon
     public var grid(default, null):Grid<Tile>;
     public var rooms(default, null):Array<Room>;
 
+    private var connectionDirections:Array<Direction>;
+
     public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
     {
         this.width = width;
@@ -31,6 +46,8 @@ class Dungeon
         this.maxRoomSize = maxRoomSize;
         this.doorChance = doorChance;
         this.openDoorChance = openDoorChance;
+
+        connectionDirections = [North, West, South, East];
     }
 
     public function generate():Void
@@ -66,6 +83,7 @@ class Dungeon
                 case East:
                     x = connection.x + 1;
                     y = connection.y - 1 - Std.random(room.grid.height - 2);
+                default:
             }
 
             if (hasSpaceForRoom(room, x, y))
@@ -151,7 +169,7 @@ class Dungeon
     private function chooseConnection():Connection
     {
         var room:Room = rooms.randomChoice();
-        var direction:Direction = Type.allEnums(Direction).randomChoice();
+        var direction:Direction = connectionDirections.randomChoice();
 
         var x:Int;
         var y:Int;
@@ -170,6 +188,8 @@ class Dungeon
             case East:
                 x = room.x + room.grid.width - 1;
                 y = room.y + 1 + Std.random(room.grid.height - 2);
+            default:
+                throw "invalid direction";
         }
         return {x: x, y: y, direction: direction};
     }
@@ -218,6 +238,8 @@ class Dungeon
                 posX--;
             case East:
                 posX++;
+            default:
+                throw "invalid direction";
         }
 
         var outerDoor:Bool = Math.random() < 0.5;
@@ -228,32 +250,9 @@ class Dungeon
     }
 }
 
-typedef Room =
-{
-    var x:Int;
-    var y:Int;
-    var grid:Grid<Tile>;
-}
-
 private typedef Connection =
 {
     var x:Int;
     var y:Int;
     var direction:Direction;
-}
-
-enum Tile
-{
-    Empty;
-    Wall;
-    Floor;
-    Door(open:Bool);
-}
-
-enum Direction
-{
-    North;
-    South;
-    West;
-    East;
 }

@@ -1,11 +1,12 @@
 package dungeons.components;
 
-import nme.geom.Point;
-
+import dungeons.utils.Vector;
 import ash.signals.Signal1;
 import ash.signals.Signal2;
 
-import dungeons.Dungeon;
+import dungeons.utils.Direction;
+
+using dungeons.utils.Direction;
 
 class Position
 {
@@ -46,21 +47,10 @@ class Position
         moveRequested.dispatch(direction);
     }
 
-    public function getAdjacentTile(direction:Direction):{var x:Int; var y:Int;}
+    public function getAdjacentTile(direction:Direction):Vector
     {
-        var result = {x: x, y: y};
-        switch (direction)
-        {
-            case North:
-                result.y--;
-            case South:
-                result.y++;
-            case West:
-                result.x--;
-            case East:
-                result.x++;
-        }
-        return result;
+        var offset:Vector = direction.offset();
+        return {x: x + offset.x, y: y + offset.y};
     }
 }
 

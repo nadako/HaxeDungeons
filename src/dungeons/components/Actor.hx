@@ -3,7 +3,15 @@ package dungeons.components;
 import ash.core.Entity;
 import ash.signals.Signal0;
 
-import dungeons.Dungeon.Direction;
+import dungeons.utils.Direction;
+
+enum Action
+{
+    Wait;
+    Move(direction:Direction);
+    OpenDoor(door:Entity);
+    Attack(defender:Entity);
+}
 
 class Actor
 {
@@ -40,13 +48,4 @@ class Actor
     {
         resultAction = null;
     }
-}
-
-
-enum Action
-{
-    Wait;
-    Move(direction:Direction);
-    OpenDoor(door:Entity);
-    Attack(defender:Entity);
 }

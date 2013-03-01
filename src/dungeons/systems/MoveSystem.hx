@@ -3,12 +3,12 @@ package dungeons.systems;
 import ash.core.Engine;
 import ash.tools.ComponentPool;
 import ash.tools.ListIteratingSystem;
-
-import nme.ObjectHash;
+import ash.ObjectHash;
 
 import dungeons.components.Position;
 import dungeons.nodes.PositionNode;
-import dungeons.Dungeon;
+import dungeons.utils.Direction;
+import dungeons.utils.Vector;
 
 class MoveSystem extends ListIteratingSystem<PositionNode>
 {
@@ -46,7 +46,7 @@ class MoveSystem extends ListIteratingSystem<PositionNode>
     private function onNodeMoveRequessted(node:PositionNode, direction:Direction):Void
     {
         var position:Position = node.position;
-        var target = position.getAdjacentTile(direction);
+        var target:Vector = position.getAdjacentTile(direction);
         if (!obstacleSystem.isBlocked(target.x, target.y))
             position.moveTo(target.x, target.y);
     }

@@ -1,15 +1,14 @@
 package dungeons.systems;
 
-import nme.ObjectHash;
-
-import ash.tools.ListIteratingSystem;
 import ash.core.System;
 import ash.core.Engine;
+import ash.ObjectHash;
+import ash.tools.ListIteratingSystem;
 
-import dungeons.Dungeon;
 import dungeons.nodes.MonsterActorNode;
+import dungeons.utils.Direction;
 
-using ArrayUtil.EnumUtil;
+using dungeons.utils.ArrayUtil;
 
 class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {

@@ -1,13 +1,13 @@
 package dungeons.systems;
 
-import nme.ObjectHash;
-
 import ash.core.Entity;
 import ash.core.Engine;
+import ash.ObjectHash;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Position;
 import dungeons.nodes.ObstacleNode;
+import dungeons.utils.Grid;
 
 class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 {

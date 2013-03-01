@@ -1,4 +1,4 @@
-package dungeons;
+package dungeons.utils;
 
 import ash.core.Entity;
 
@@ -7,9 +7,8 @@ import dungeons.components.PlayerControls;
 
 /**
  * Helper class for getting info on entities.
- * Use with "using dungeons.EntityUtils"
  **/
-class EntityUtils
+class EntityUtil
 {
     /**
      * Is this entity a player?

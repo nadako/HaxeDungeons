@@ -1,11 +1,10 @@
 package dungeons.systems;
 
-import nme.geom.Rectangle;
 import nme.display.BitmapData;
-import nme.ObjectHash;
 
 import com.haxepunk.graphics.Image;
 
+import ash.ObjectHash;
 import ash.core.NodeList;
 import ash.core.Engine;
 import ash.core.System;
@@ -13,7 +12,8 @@ import ash.core.System;
 import dungeons.nodes.FOVNode;
 import dungeons.nodes.LightOccluderNode;
 import dungeons.components.Position;
-import dungeons.ShadowCaster;
+import dungeons.utils.ShadowCaster;
+import dungeons.utils.Grid;
 
 // TODO: hide non-memorable stuff when not lit
 class FOVSystem extends System, implements IShadowCasterDataProvider
@@ -39,7 +39,6 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         super();
         overlayData = new BitmapData(width, height, true, 0);
         overlayImage = new Image(overlayData);
-        overlayImage.scale = Constants.TILE_SIZE;
         overlayDirty = false;
         calculationDisabled = false;
         shadowCaster = new ShadowCaster(this);

@@ -1,15 +1,14 @@
 package dungeons.systems;
 
-import flash.Lib;
-import nme.ObjectHash;
-
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
+import ash.ObjectHash;
 
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
-using dungeons.EntityUtils;
+
+using dungeons.utils.EntityUtil;
 
 class FightSystem extends ListIteratingSystem<FighterNode>
 {

@@ -12,7 +12,7 @@ import dungeons.components.Actor;
 import dungeons.components.Door;
 import dungeons.components.Position;
 import dungeons.nodes.PlayerActorNode;
-import dungeons.Dungeon;
+import dungeons.utils.Direction;
 
 class PlayerControlSystem extends System
 {
@@ -40,16 +40,23 @@ class PlayerControlSystem extends System
     {
         var action:Action = switch (Input.lastKey)
         {
-
-            case Key.UP:
+            case Key.UP, Key.NUMPAD_8:
                 Move(North);
-            case Key.DOWN:
+            case Key.NUMPAD_7:
+                Move(NorthWest);
+            case Key.NUMPAD_9:
+                Move(NorthEast);
+            case Key.DOWN, Key.NUMPAD_2:
                 Move(South);
-            case Key.LEFT:
+            case Key.NUMPAD_1:
+                Move(SouthWest);
+            case Key.NUMPAD_3:
+                Move(SouthEast);
+            case Key.LEFT, Key.NUMPAD_4:
                 Move(West);
-            case Key.RIGHT:
+            case Key.RIGHT, Key.NUMPAD_6:
                 Move(East);
-            case Key.SPACE:
+            case Key.SPACE, Key.NUMPAD_5:
                 Wait;
             default:
                 null;

@@ -1,4 +1,4 @@
-package dungeons;
+package dungeons.utils;
 
 /**
  * Generic 2D fixed-size grid.

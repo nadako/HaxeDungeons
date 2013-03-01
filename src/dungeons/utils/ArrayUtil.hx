@@ -1,6 +1,6 @@
-package dungeons;
+package dungeons.utils;
 
-// enable these classes with "using"
+// enable these classes with "using ArrayUtil"
 
 class ArrayUtil
 {

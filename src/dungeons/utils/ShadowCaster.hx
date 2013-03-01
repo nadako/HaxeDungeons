@@ -1,5 +1,10 @@
-package dungeons;
+package dungeons.utils;
 
+/**
+ * Recursive shadow casting algorithm implementation.
+ *
+ * See http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting
+ **/
 class ShadowCaster implements IIntensityCalculator
 {
     private static var coordMultipliers:Array<Array<Int>>;
