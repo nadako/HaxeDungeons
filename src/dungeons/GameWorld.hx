@@ -43,6 +43,7 @@ import dungeons.components.DoorRenderable;
 import dungeons.components.Door;
 import dungeons.components.Fighter;
 import dungeons.components.Renderable;
+import dungeons.components.Item;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -81,6 +82,7 @@ class GameWorld extends World
         dungeon.generate();
 
         var levelBmp:BitmapData = Assets.getBitmapData("eight2empire/level assets.png");
+        var itemBmp:BitmapData = Assets.getBitmapData("eight2empire/item assets.png");
         var charBmp:BitmapData = Assets.getBitmapData("oryx_lofi/lofi_char.png");
 
         var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp);
@@ -147,6 +149,19 @@ class GameWorld extends World
                 monster.add(monsterAI);
                 monster.add(obstacle);
                 engine.addEntity(monster);
+            }
+
+            if (Math.random() < 0.3)
+            {
+                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
+                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
+                var gold:Entity = new Entity();
+                var quantity:Int = 1 + Std.random(30);
+                gold.add(new Item("gold", true, quantity));
+                gold.add(new Position(x, y));
+                gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
+                gold.add(new Description(Std.string(quantity) + " Gold"));
+                engine.addEntity(gold);
             }
 
             var decor:RoomDecor = RoomDecor.randomChoice();
