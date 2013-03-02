@@ -4,11 +4,12 @@
     <window width="1024" height="768" background="#000000" />
 
     <source path="src" />
-    <assets path="assets" rename="" />
 
     <haxelib name="nme"/>
     <haxelib name="HaxePunk" />
     <haxelib name="ash" />
 
     <ndll name="nme" haxelib="nme" />
+
+    <assets path="assets" rename="" />
 </project>

@@ -9,6 +9,7 @@ class Main extends Engine
     {
         super();
         HXP.screen.scale = 4;
+        HXP.console.enable();
         HXP.world = new GameWorld();
     }
 }
