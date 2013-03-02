@@ -59,7 +59,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         occluders.nodeAdded.add(occluderNodeAdded);
         occluders.nodeRemoved.add(occluderNodeRemoved);
 
-        var fovCasters = engine.getNodeList(FOVNode);
+        var fovCasters:NodeList<FOVNode> = engine.getNodeList(FOVNode);
         for (node in fovCasters)
             onFOVAdded(node);
         fovCasters.nodeAdded.add(onFOVAdded);
@@ -80,7 +80,7 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         occluderListeners = null;
         occludeMap.clear();
 
-        var fovCasters = engine.getNodeList(FOVNode);
+        var fovCasters:NodeList<FOVNode> = engine.getNodeList(FOVNode);
         fovCasters.nodeAdded.remove(onFOVAdded);
         fovCasters.nodeRemoved.remove(onFOVRemoved);
         fovCaster = null;
