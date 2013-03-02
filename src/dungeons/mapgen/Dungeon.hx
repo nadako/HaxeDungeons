@@ -36,6 +36,7 @@ class Dungeon
     public var rooms(default, null):Array<Room>;
 
     private var connectionDirections:Array<Direction>;
+    private var unusedConnections:Array<Connection>;
 
     public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
     {
@@ -48,6 +49,7 @@ class Dungeon
         this.openDoorChance = openDoorChance;
 
         connectionDirections = [North, West, South, East];
+        unusedConnections = [];
     }
 
     public function generate():Void
@@ -66,7 +68,8 @@ class Dungeon
             if (rooms.length == maxRooms)
                 break;
 
-            var connection:Connection = chooseConnection();
+            var connIdx:Int = Std.random(unusedConnections.length);
+            var connection:Connection = unusedConnections[connIdx];
             room = generateRoom();
 
             switch (connection.direction)
@@ -90,6 +93,7 @@ class Dungeon
             {
                 placeRoom(room, x, y);
                 connectRooms(connection);
+                unusedConnections.splice(connIdx, 1);
             }
             else
             {
@@ -166,34 +170,6 @@ class Dungeon
         return {grid: roomGrid, x: 0, y: 0};
     }
 
-    private function chooseConnection():Connection
-    {
-        var room:Room = rooms.randomChoice();
-        var direction:Direction = connectionDirections.randomChoice();
-
-        var x:Int;
-        var y:Int;
-
-        switch (direction)
-        {
-            case North:
-                x = room.x + 1 + Std.random(room.grid.width - 2);
-                y = room.y;
-            case South:
-                x = room.x + 1 + Std.random(room.grid.width - 2);
-                y = room.y + room.grid.height - 1;
-            case West:
-                x = room.x;
-                y = room.y + 1 + Std.random(room.grid.height - 2);
-            case East:
-                x = room.x + room.grid.width - 1;
-                y = room.y + 1 + Std.random(room.grid.height - 2);
-            default:
-                throw "invalid direction";
-        }
-        return {x: x, y: y, direction: direction};
-    }
-
     private function hasSpaceForRoom(room:Room, x:Int, y:Int):Bool
     {
         for (gridY in y...y + room.grid.height)
@@ -220,6 +196,15 @@ class Dungeon
                 var tile:Tile = room.grid.get(roomX, roomY);
                 if (tile != Empty)
                     grid.set(x + roomX, y + roomY, tile);
+
+                if (roomY == 0 && roomX > 0 && roomX < room.grid.width - 2)
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: North});
+                else if (roomY == room.grid.height - 1 && roomX > 0 && roomX < room.grid.width - 2)
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: South});
+                else if (roomX == 0 && roomY > 0 && roomY < room.grid.height - 2)
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: West});
+                else if (roomX == room.grid.width - 1 && roomY > 0 && roomY < room.grid.height - 2)
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: East});
             }
         }
     }
