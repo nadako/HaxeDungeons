@@ -94,7 +94,8 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         node.position.changed.add(listener);
         occluderListeners.set(node, listener);
 
-        calculateLightMap();
+        if (isInFOV(node.position.x, node.position.y))
+            calculateLightMap();
     }
 
     private function onOccluderPositionChange(node:LightOccluderNode, oldX:Int, oldY:Int):Void
@@ -102,7 +103,8 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         removeOccluder(oldX, oldY);
         addOccluder(node.position.x, node.position.y);
 
-        calculateLightMap();
+        if (isInFOV(oldX, oldY) || isInFOV(node.position.x, node.position.y))
+            calculateLightMap();
     }
 
     private function occluderNodeRemoved(node:LightOccluderNode):Void
@@ -112,18 +114,18 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         occluderListeners.remove(node);
         node.position.changed.remove(listener);
 
-        calculateLightMap();
+        if (isInFOV(node.position.x, node.position.y))
+            calculateLightMap();
     }
 
-    private function addOccluder(x:Int, y:Int):Void
+    private inline function addOccluder(x:Int, y:Int):Void
     {
         occludeMap.set(x, y, occludeMap.get(x, y) + 1);
     }
 
-    private function removeOccluder(x:Int, y:Int):Void
+    private inline function removeOccluder(x:Int, y:Int):Void
     {
-        var value:Int = occludeMap.get(x, y);
-        occludeMap.set(x, y, Std.int(Math.max(0, value - 1)));
+        occludeMap.set(x, y, occludeMap.get(x, y) - 1);
     }
 
     public function isBlocking(x:Int, y:Int):Bool
@@ -137,9 +139,9 @@ class FOVSystem extends System, implements IShadowCasterDataProvider
         memoryMap.set(x, y, true);
     }
 
-    public inline function getLight(x:Int, y:Int):Float
+    private inline function isInFOV(x:Int, y:Int):Bool
     {
-        return lightMap.get(x, y);
+        return lightMap.get(x, y) > 0;
     }
 
     public inline function inMemory(x:Int, y:Int):Bool
