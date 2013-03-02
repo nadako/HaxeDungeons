@@ -121,7 +121,7 @@ class GameWorld extends World
 
         var hero:Entity = new Entity();
         hero.name = "player";
-        hero.add(new Renderable(createTileImage(charBmp, 0, 0), RenderLayers.CHARACTER));
+        hero.add(new Renderable(createTileImage(charBmp, 1, 0), RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
         hero.add(new Actor(100));
         hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
