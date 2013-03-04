@@ -35,7 +35,7 @@ class MessageLogSystem extends System
         {
             textField.appendText(messages.shift() + "\n");
             while (textField.numLines > maxLines)
-                textField.text = textField.text.substr(textField.text.indexOf("\r") + 1);
+                textField.text = textField.text.substr(textField.getLineOffset(1));
         }
     }
 }
