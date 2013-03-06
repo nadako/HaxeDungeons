@@ -1,35 +1,41 @@
 package dungeons.utils;
 
+typedef LightCallback = Int -> Int -> Float -> Void;
+typedef IsOccludedCallback = Int -> Int -> Bool;
+typedef CalculateIntensityCallback = Int -> Int -> Float;
+
 /**
  * Recursive shadow casting algorithm implementation.
  *
  * See http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting
  **/
-class ShadowCaster implements IIntensityCalculator
+class ShadowCaster
 {
     private static var coordMultipliers:Array<Array<Int>>;
 
-    private var provider:IShadowCasterDataProvider;
-    private var intensityCalculator:IIntensityCalculator;
+    private var light:LightCallback;
+    private var isOccluded:IsOccludedCallback;
+    private var calculateIntensity:CalculateIntensityCallback;
 
-    public function new(provider:IShadowCasterDataProvider, intensityCalculator:IIntensityCalculator = null)
+    public function new(light:LightCallback, isOccluded:IsOccludedCallback, calculateIntensity:CalculateIntensityCallback = null)
     {
         // coordinate multipliers for different octants
         if (coordMultipliers == null)
             coordMultipliers = [
-                [1,  0,  0, -1, -1,  0,  0,  1],
-                [0,  1, -1,  0,  0, -1,  1,  0],
-                [0,  1,  1,  0,  0, -1, -1,  0],
-                [1,  0,  0,  1, -1,  0,  0, -1]
+            [1, 0, 0, -1, -1, 0, 0, 1],
+            [0, 1, -1, 0, 0, -1, 1, 0],
+            [0, 1, 1, 0, 0, -1, -1, 0],
+            [1, 0, 0, 1, -1, 0, 0, -1]
             ];
 
-        this.provider = provider;
-        this.intensityCalculator = (intensityCalculator != null) ? intensityCalculator : this;
+        this.light = light;
+        this.isOccluded = isOccluded;
+        this.calculateIntensity = (calculateIntensity != null) ? calculateIntensity : defaultCalculateIntensity;
     }
 
     public function calculateLight(x:Int, y:Int, radius:Int):Void
     {
-        provider.light(x, y, 1);
+        light(x, y, 1);
 
         // call recursive checking for each octant
         for (octant in 0...8)
@@ -76,30 +82,30 @@ class ShadowCaster implements IIntensityCalculator
                 // our light beam is touching this square, so light it
                 if (distSquared < radiusSquared)
                 {
-                    var intensity = intensityCalculator.calculateIntensity(distSquared, radiusSquared);
-                    provider.light(mapX, mapY, intensity);
+                    var intensity:Float = calculateIntensity(distSquared, radiusSquared);
+                    light(mapX, mapY, intensity);
                 }
 
                 // if previous cell was blocking, we're scanning a section of blocking cells
                 if (blocked)
                 {
                     // if it's still blocking, store the new slope and skip cycle
-                    if (provider.isBlocking(mapX, mapY))
+                    if (isOccluded(mapX, mapY))
                     {
                         newStartSlope = rSlope;
                         continue;
                     }
-                    // if it's not blocking, set the start slope to last blocking one
+                        // if it's not blocking, set the start slope to last blocking one
                     else
                     {
                         blocked = false;
                         startSlope = newStartSlope;
                     }
                 }
-                // if previous cell was not blocking, check current
+                    // if previous cell was not blocking, check current
                 else
                 {
-                    if (j < radius && provider.isBlocking(mapX, mapY))
+                    if (j < radius && isOccluded(mapX, mapY))
                     {
                         // this is a blocking square, start a child scan
                         blocked = true;
@@ -116,19 +122,8 @@ class ShadowCaster implements IIntensityCalculator
         }
     }
 
-    public function calculateIntensity(distSquared:Int, radiusSquared:Int):Float
+    private function defaultCalculateIntensity(distSquared:Int, radiusSquared:Int):Float
     {
         return 1.0 - distSquared / radiusSquared;
     }
-}
-
-interface IShadowCasterDataProvider
-{
-    function isBlocking(x:Int, y:Int):Bool;
-    function light(x:Int, y:Int, intensity:Float):Void;
-}
-
-interface IIntensityCalculator
-{
-    function calculateIntensity(distSquared:Int, radiusSquared:Int):Float;
 }
