@@ -60,7 +60,7 @@ import dungeons.systems.DoorSystem;
 
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
-import dungeons.utils.Eight2Empire;
+import dungeons.utils.TransitionTileHelper;
 
 using dungeons.utils.ArrayUtil;
 
@@ -84,8 +84,9 @@ class GameWorld extends World
         var levelBmp:BitmapData = Assets.getBitmapData("eight2empire/level assets.png");
         var itemBmp:BitmapData = Assets.getBitmapData("eight2empire/item assets.png");
         var charBmp:BitmapData = Assets.getBitmapData("oryx_lofi/lofi_char.png");
+        var transitionHelper:TransitionTileHelper = new TransitionTileHelper("eight2empire_transitions.json");
 
-        var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp);
+        var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp, transitionHelper);
         var level:Entity = new Entity();
         level.add(new Renderable(levelGraphic, RenderLayers.DUNGEON));
         level.add(new Position());
@@ -230,7 +231,7 @@ class GameWorld extends World
         return new Image(bmp, new Rectangle(col * Constants.TILE_SIZE, row * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE));
     }
 
-    private static function renderDungeon(dungeon:Dungeon, tileset:BitmapData):Graphic
+    private static function renderDungeon(dungeon:Dungeon, tileset:BitmapData, transitionHelper:TransitionTileHelper):Graphic
     {
         var tilemapWidth:Int = dungeon.width * Constants.TILE_SIZE;
         var tilemapHeight:Int = dungeon.height * Constants.TILE_SIZE;
@@ -256,7 +257,7 @@ class GameWorld extends World
                     case Wall:
                         floorTilemap.setTile(x, y, floorTileIndex);
 
-                        var wallCol:Int = Eight2Empire.getTileNumber(dungeon.getWallTransition(x, y));
+                        var wallCol:Int = transitionHelper.getTileNumber(dungeon.getWallTransition(x, y));
                         wallTilemap.setTile(x, y, tilesetCols * wallRow + wallCol);
                     default:
                         continue;
