@@ -114,7 +114,8 @@ class GameWorld extends World
                         var door:Entity = new Entity();
                         door.add(new Position(x, y));
                         door.add(new dungeons.components.Door(open));
-                        door.add(new DoorRenderable(createTileImage(levelBmp, 2, 31), createTileImage(levelBmp, 2, 30)), Renderable);
+                        var col:Int = Std.random(11);
+                        door.add(new DoorRenderable(createTileImage(levelBmp, col, 31), createTileImage(levelBmp, col, 30)), Renderable);
                         engine.addEntity(door);
                     default:
                         continue;
@@ -163,6 +164,16 @@ class GameWorld extends World
                 gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
                 gold.add(new Description(Std.string(quantity) + " Gold"));
                 engine.addEntity(gold);
+            }
+
+            if (Math.random() < 0.3)
+            {
+                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
+                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
+                var blood:Entity = new Entity();
+                blood.add(new Position(x, y));
+                blood.add(new Renderable(createTileImage(levelBmp, Std.random(15), 37)));
+                engine.addEntity(blood);
             }
 
             var decor:RoomDecor = RoomDecor.randomChoice();
