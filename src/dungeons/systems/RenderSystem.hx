@@ -139,14 +139,7 @@ class RenderSystem extends System
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
         if (health != null)
-        {
-            var bar:HealthBar = new HealthBar(Constants.TILE_SIZE);
-            bar.setHealthPercent(health.currentHP / health.maxHP);
-            entity.addGraphic(bar);
-            health.updated.add(function():Void {
-                bar.setHealthPercent(health.currentHP / health.maxHP);
-            });
-        }
+            entity.addGraphic(new HealthBar(Constants.TILE_SIZE, health));
 
         entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
@@ -185,7 +178,9 @@ class RenderLayers
 
 private class HealthBar extends Canvas
 {
-    public function new(parentWidth:Int)
+    private var health:Health;
+
+    public function new(parentWidth:Int, health:Health)
     {
         var width:Int = Std.int(parentWidth * 1.5);
 
@@ -193,11 +188,16 @@ private class HealthBar extends Canvas
         x = -(width - parentWidth) / 2;
         y = -4;
         alpha = 0.5;
-        setHealthPercent(1);
+
+        this.health = health;
+        this.health.updated.add(updateHealth);
+        updateHealth();
     }
 
-    public function setHealthPercent(percent:Float):Void
+    private function updateHealth():Void
     {
+        var percent:Float = health.currentHP / health.maxHP;
+
         var rect:Rectangle = HXP.rect;
         rect.x = rect.y = 0;
         rect.width = width;
@@ -208,5 +208,11 @@ private class HealthBar extends Canvas
         rect.height = 1;
         rect.width = Std.int((width - 2) * percent);
         fill(rect, 0xFF0000);
+    }
+
+    public function dispose():Void
+    {
+        health.updated.remove(updateHealth);
+        health = null;
     }
 }
