@@ -1,5 +1,8 @@
 package dungeons.systems;
 
+import nme.display.BitmapData;
+
+import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.World;
@@ -11,18 +14,31 @@ import ash.core.System;
 
 import dungeons.nodes.RenderNode;
 import dungeons.components.Position.PositionChangeListener;
+import dungeons.utils.Grid;
 
+// TODO: hide non-"memorable" entities that are not in FOV
 class RenderSystem extends System
 {
+    private var width:Int;
+    private var height:Int;
+
     private var nodeList:NodeList<RenderNode>;
     private var positionListeners:ObjectHash<RenderNode, PositionChangeListener>;
     private var worldEntities:ObjectHash<RenderNode, com.haxepunk.Entity>;
     private var world:World;
 
-    public function new(world:World)
+    private var fovSystem:FOVSystem;
+    private var fovOverlayData:BitmapData;
+    private var fovOverlayImage:Image;
+    private var fovOverlayEntity:com.haxepunk.Entity;
+    private var fovOverlayDirty:Bool;
+
+    public function new(world:World, width:Int, height:Int)
     {
         super();
         this.world = world;
+        this.width = width;
+        this.height = height;
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -36,10 +52,24 @@ class RenderSystem extends System
             onNodeAdded(node);
         nodeList.nodeAdded.add(onNodeAdded);
         nodeList.nodeRemoved.add(onNodeRemoved);
+
+        fovSystem = engine.getSystem(FOVSystem);
+        fovSystem.updated.add(onFOVUpdated);
+
+        fovOverlayData = new BitmapData(width, height, true, 0xFF000000);
+
+        fovOverlayImage = new Image(fovOverlayData);
+        fovOverlayImage.scale = Constants.TILE_SIZE;
+        fovOverlayEntity = world.addGraphic(fovOverlayImage, RenderLayers.FOV);
+
+        fovOverlayDirty = true;
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
+        fovSystem.updated.remove(onFOVUpdated);
+        world.remove(fovOverlayEntity);
+
         nodeList.nodeAdded.remove(onNodeAdded);
         nodeList.nodeRemoved.remove(onNodeRemoved);
         nodeList = null;
@@ -51,6 +81,46 @@ class RenderSystem extends System
         for (node in positionListeners.keys())
             node.position.changed.remove(positionListeners.get(node));
         positionListeners = null;
+    }
+
+    private function onFOVUpdated():Void
+    {
+        fovOverlayDirty = true;
+    }
+
+    private function redrawFOVOverlay():Void
+    {
+        fovOverlayData.lock();
+        var lightMap:Grid<Float> = fovSystem.lightMap;
+        for (y in 0...lightMap.height)
+        {
+            for (x in 0...lightMap.width)
+            {
+                var intensity:Float = 0;
+
+                var light:Float = lightMap.get(x, y);
+                if (light > 0)
+                    intensity = 0.3 + 0.7 * light;
+                else if (fovSystem.inMemory(x, y))
+                    intensity = 0.3;
+
+                var color:Int = 0;
+                if (intensity >= 1)
+                    color = 0;
+                else if (intensity == 0)
+                    color = 0xFF000000;
+                else
+                    color = Std.int((1 - intensity) * 255) << 24;
+
+                // uncomment the following to see overlay in red for debugging purposes
+                // color |= 0x00FF0000;
+
+                fovOverlayData.setPixel32(x, y, color);
+            }
+        }
+        fovOverlayData.unlock();
+        fovOverlayImage.updateBuffer();
+        fovOverlayDirty = false;
     }
 
     private function onNodeAdded(node:RenderNode):Void
@@ -81,6 +151,12 @@ class RenderSystem extends System
         entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
     }
+
+    override public function update(time:Float):Void
+    {
+        if (fovOverlayDirty)
+            redrawFOVOverlay();
+    }
 }
 
 class RenderLayers
@@ -88,4 +164,5 @@ class RenderLayers
     public static inline var DUNGEON:Int = HXP.BASELAYER;
     public static inline var OBJECT:Int = HXP.BASELAYER - 1;
     public static inline var CHARACTER:Int = HXP.BASELAYER - 2;
+    public static inline var FOV:Int = HXP.BASELAYER - 3;
 }

@@ -214,8 +214,7 @@ class GameWorld extends World
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
         engine.addSystem(new ObstacleSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
-
-        var fovSystem:FOVSystem = new FOVSystem(dungeon.width, dungeon.height);
+        engine.addSystem(new FOVSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
         engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
         engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
@@ -228,13 +227,8 @@ class GameWorld extends World
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(this), SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
-
-        // FOV overlay rendering happens on frame update
-        engine.addSystem(fovSystem, SystemPriorities.RENDER);
-        fovSystem.overlayImage.scale = Constants.TILE_SIZE;
-        addGraphic(fovSystem.overlayImage, 0);
     }
 
     private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image

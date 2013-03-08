@@ -8,6 +8,7 @@ import ash.ObjectHash;
 import ash.core.NodeList;
 import ash.core.Engine;
 import ash.core.System;
+import ash.signals.Signal0;
 
 import dungeons.nodes.FOVNode;
 import dungeons.nodes.LightOccluderNode;
@@ -15,17 +16,12 @@ import dungeons.components.Position;
 import dungeons.utils.ShadowCaster;
 import dungeons.utils.Grid;
 
-// TODO: hide non-memorable stuff when not lit
 class FOVSystem extends System
 {
-    private var overlayData:BitmapData;
-    private var overlayDirty:Bool;
-    public var overlayImage(default, null):Image;
-
     private var calculationDisabled:Bool;
     private var shadowCaster:ShadowCaster;
 
-    private var lightMap:Grid<Float>;
+    public var lightMap(default, null):Grid<Float>;
     private var memoryMap:Grid<Bool>;
 
     private var occluders:NodeList<LightOccluderNode>;
@@ -34,17 +30,17 @@ class FOVSystem extends System
 
     private var fovCaster:FOVNode;
 
+    public var updated(default, null):Signal0;
+
     public function new(width:Int, height:Int)
     {
         super();
-        overlayData = new BitmapData(width, height, true, 0);
-        overlayImage = new Image(overlayData);
-        overlayDirty = false;
         calculationDisabled = false;
         lightMap = new Grid(width, height);
         occludeMap = new OccludeMap(width, height);
         memoryMap = new Grid(width, height);
         shadowCaster = new ShadowCaster(light, occludeMap.isOccluded);
+        updated = new Signal0();
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -67,7 +63,6 @@ class FOVSystem extends System
 
         calculationDisabled = false;
         calculateLightMap();
-        redrawOverlay();
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -149,41 +144,7 @@ class FOVSystem extends System
         if (fovCaster != null)
             shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
 
-        overlayDirty = true;
-    }
-
-    private function redrawOverlay():Void
-    {
-        overlayData.lock();
-        for (y in 0...lightMap.height)
-        {
-            for (x in 0...lightMap.width)
-            {
-                var intensity:Float = 0;
-
-                var light:Float = lightMap.get(x, y);
-                if (light > 0)
-                    intensity = 0.3 + 0.7 * light;
-                else if (memoryMap.get(x, y))
-                    intensity = 0.3;
-
-                var color:Int = 0;
-                if (intensity >= 1)
-                    color = 0;
-                else if (intensity == 0)
-                    color = 0xFF000000;
-                else
-                    color = Std.int((1 - intensity) * 255) << 24;
-
-                // uncomment the following to see overlay in red for debugging purposes
-                // color |= 0x00FF0000;
-
-                overlayData.setPixel32(x, y, color);
-            }
-        }
-        overlayData.unlock();
-        overlayImage.updateBuffer();
-        overlayDirty = false;
+        updated.dispatch();
     }
 
     private function onFOVAdded(node:FOVNode):Void
@@ -209,12 +170,6 @@ class FOVSystem extends System
             fovCaster = null;
 
         calculateLightMap();
-    }
-
-    override public function update(time:Float):Void
-    {
-        if (overlayDirty)
-            redrawOverlay();
     }
 }
 
