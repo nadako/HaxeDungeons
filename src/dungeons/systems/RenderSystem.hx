@@ -1,7 +1,9 @@
 package dungeons.systems;
 
+import nme.geom.Rectangle;
 import nme.display.BitmapData;
 
+import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
@@ -14,6 +16,8 @@ import ash.core.System;
 
 import dungeons.nodes.RenderNode;
 import dungeons.components.Position.PositionChangeListener;
+import dungeons.components.Health;
+import dungeons.components.Fighter;
 import dungeons.utils.Grid;
 
 // TODO: hide non-"memorable" entities that are not in FOV
@@ -132,6 +136,18 @@ class RenderSystem extends System
         var entity:com.haxepunk.Entity = world.addGraphic(node.renderable.graphic, node.renderable.layer);
         worldEntities.set(node, entity);
 
+        // TODO: hackity hack. refactor this to the health manager
+        var health:Health = node.entity.get(Health);
+        if (health != null)
+        {
+            var bar:HealthBar = new HealthBar(Constants.TILE_SIZE);
+            bar.setHealthPercent(health.currentHP / health.maxHP);
+            entity.addGraphic(bar);
+            health.updated.add(function():Void {
+                bar.setHealthPercent(health.currentHP / health.maxHP);
+            });
+        }
+
         entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
     }
@@ -165,4 +181,32 @@ class RenderLayers
     public static inline var OBJECT:Int = HXP.BASELAYER - 1;
     public static inline var CHARACTER:Int = HXP.BASELAYER - 2;
     public static inline var FOV:Int = HXP.BASELAYER - 3;
+}
+
+private class HealthBar extends Canvas
+{
+    public function new(parentWidth:Int)
+    {
+        var width:Int = Std.int(parentWidth * 1.5);
+
+        super(width, 3);
+        x = -(width - parentWidth) / 2;
+        y = -4;
+        alpha = 0.5;
+        setHealthPercent(1);
+    }
+
+    public function setHealthPercent(percent:Float):Void
+    {
+        var rect:Rectangle = HXP.rect;
+        rect.x = rect.y = 0;
+        rect.width = width;
+        rect.height = height;
+        fill(rect);
+
+        rect.x = rect.y = 1;
+        rect.height = 1;
+        rect.width = Std.int((width - 2) * percent);
+        fill(rect, 0xFF0000);
+    }
 }

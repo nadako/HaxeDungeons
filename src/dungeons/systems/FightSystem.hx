@@ -43,28 +43,27 @@ class FightSystem extends ListIteratingSystem<FighterNode>
         node.fighter.attackRequested.add(listener);
     }
 
-    private function onNodeAttackRequested(node:FighterNode, attacker:Entity):Void
+    private function onNodeAttackRequested(defender:FighterNode, attacker:Entity):Void
     {
-        var defenderFighter:Fighter = node.fighter;
         var attackerFighter:Fighter = attacker.get(Fighter);
-        var damage:Int = attackerFighter.power - defenderFighter.defense;
+        var damage:Int = attackerFighter.power - defender.fighter.defense;
         if (damage > 0)
         {
-            defenderFighter.currentHP -= damage;
+            defender.health.currentHP -= damage;
 
             if (attacker.isPlayer())
-                MessageLogSystem.message("You hit " + node.entity.getName() + " for " + damage + " HP.");
-            else if (node.entity.isPlayer())
+                MessageLogSystem.message("You hit " + defender.entity.getName() + " for " + damage + " HP.");
+            else if (defender.entity.isPlayer())
                 MessageLogSystem.message(attacker.getName() + " hits you for " + damage + " HP.");
 
-            if (defenderFighter.currentHP <= 0)
+            if (defender.health.currentHP <= 0)
             {
-                engine.removeEntity(node.entity);
+                engine.removeEntity(defender.entity);
 
-                if (node.entity.isPlayer())
+                if (defender.entity.isPlayer())
                     MessageLogSystem.message("You die...");
                 else
-                    MessageLogSystem.message(node.entity.getName() + " dies.");
+                    MessageLogSystem.message(defender.entity.getName() + " dies.");
             }
         }
     }

@@ -30,6 +30,7 @@ import ash.core.Engine;
 import ash.core.Entity;
 import ash.ObjectHash;
 
+import dungeons.components.Health;
 import dungeons.components.Description;
 import dungeons.components.MonsterAI;
 import dungeons.components.Obstacle;
@@ -131,7 +132,8 @@ class GameWorld extends World
         hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
         hero.add(new CameraFocus());
         hero.add(new FOV(10));
-        hero.add(new Fighter(10, 3, 2));
+        hero.add(new Health(10));
+        hero.add(new Fighter(3, 2));
         hero.add(obstacle);
         engine.addEntity(hero);
 
@@ -147,7 +149,8 @@ class GameWorld extends World
                 monster.add(new Renderable(createTileImage(charBmp, monsterDef.tileCol, monsterDef.tileRow), RenderLayers.CHARACTER));
                 monster.add(new Position(room.x + Std.int(room.grid.width / 2), room.y + Std.int(room.grid.height / 2)));
                 monster.add(new Actor(100));
-                monster.add(new Fighter(monsterDef.hp, monsterDef.power, monsterDef.defense));
+                monster.add(new Health(monsterDef.hp));
+                monster.add(new Fighter(monsterDef.power, monsterDef.defense));
                 monster.add(monsterAI);
                 monster.add(obstacle);
                 engine.addEntity(monster);
