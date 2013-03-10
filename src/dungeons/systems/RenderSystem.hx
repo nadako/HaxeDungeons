@@ -135,13 +135,13 @@ class RenderSystem extends System
 
         var entity:com.haxepunk.Entity = world.addGraphic(node.renderable.graphic, node.renderable.layer);
         worldEntities.set(node, entity);
-
+		
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
         if (health != null)
             entity.addGraphic(new HealthBar(Constants.TILE_SIZE, health));
-
-        entity.x = node.position.x * Constants.TILE_SIZE;
+			
+		entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
     }
 
@@ -184,10 +184,10 @@ private class HealthBar extends Canvas
     {
         var width:Int = Std.int(parentWidth * 1.5);
 
-        super(width, 3);
+        super(width, 6);
         x = -(width - parentWidth) / 2;
-        y = -4;
-        alpha = 0.5;
+        y = -8;
+        alpha = 0.75;
 
         this.health = health;
         this.health.updated.add(updateHealth);
@@ -204,9 +204,9 @@ private class HealthBar extends Canvas
         rect.height = height;
         fill(rect);
 
-        rect.x = rect.y = 1;
-        rect.height = 1;
-        rect.width = Std.int((width - 2) * percent);
+        rect.x = rect.y = 2;
+        rect.height = 2;
+        rect.width = Std.int((width - 4) * percent);
         fill(rect, 0xFF0000);
     }
 

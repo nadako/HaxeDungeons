@@ -82,9 +82,9 @@ class GameWorld extends World
         var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 15, y: 15});
         dungeon.generate();
 
-        var levelBmp:BitmapData = Assets.getBitmapData("eight2empire/level assets.png");
-        var itemBmp:BitmapData = Assets.getBitmapData("eight2empire/item assets.png");
-        var charBmp:BitmapData = Assets.getBitmapData("oryx_lofi/lofi_char.png");
+        var levelBmp:BitmapData = getScaledBitmapData("eight2empire/level assets.png");
+        var itemBmp:BitmapData = getScaledBitmapData("eight2empire/item assets.png");
+        var charBmp:BitmapData = getScaledBitmapData("oryx_lofi/lofi_char.png");
         var transitionHelper:TransitionTileHelper = new TransitionTileHelper("eight2empire_transitions.json");
 
         var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp, transitionHelper);
@@ -233,6 +233,16 @@ class GameWorld extends World
         engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
+	
+	private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
+	{
+		var orig:BitmapData = Assets.getBitmapData(path);
+		var m:Matrix = new Matrix();
+		m.scale(scale, scale);
+		var result:BitmapData = new BitmapData(orig.width * scale, orig.height * scale, true, 0);
+		result.draw(orig, m, null, null, null, false);
+		return result;
+	}
 
     private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
     {
