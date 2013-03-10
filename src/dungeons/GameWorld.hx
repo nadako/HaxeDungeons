@@ -2,6 +2,7 @@ package dungeons;
 
 import com.haxepunk.graphics.Image;
 import com.haxepunk.graphics.Graphiclist;
+import com.haxepunk.graphics.Spritemap;
 import com.haxepunk.graphics.Tilemap;
 import com.haxepunk.Graphic;
 import com.haxepunk.HXP;
@@ -210,8 +211,14 @@ class GameWorld extends World
                     var fountain:Entity = new Entity();
                     fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     fountain.add(obstacle);
-                    fountain.add(new Renderable(createTileImage(levelBmp, 15, 28), RenderLayers.OBJECT));
+                    fountain.add(new Renderable(createAnimation(levelBmp, [[15, 28], [16, 28]], RenderLayers.OBJECT)));
                     engine.addEntity(fountain);
+                case Light:
+                    var light:Entity = new Entity();
+                    light.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
+                    light.add(obstacle);
+                    light.add(new Renderable(createAnimation(levelBmp, [[17, 28], [18, 28]], RenderLayers.OBJECT)));
+                    engine.addEntity(light);
                 default:
             }
         }
@@ -246,9 +253,21 @@ class GameWorld extends World
         return result;
     }
 
-    private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
+    private static inline function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
     {
         return new Image(bmp, new Rectangle(col * Constants.TILE_SIZE, row * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE));
+    }
+
+    private static inline function createAnimation(bmp:BitmapData, frames:Array<Array<Int>>, frameRate:Float = 1):Image
+    {
+        var cols:Int = Std.int(bmp.width / Constants.TILE_SIZE);
+        var spritemap:Spritemap = new Spritemap(bmp, Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var animFrames:Array<Int> = [];
+        for (pair in frames)
+            animFrames.push(pair[1] * cols + pair[0]);
+        spritemap.add("", animFrames, frameRate);
+        spritemap.play();
+        return spritemap;
     }
 
     private static function renderDungeon(dungeon:Dungeon, tileset:BitmapData, transitionHelper:TransitionTileHelper):Graphic
