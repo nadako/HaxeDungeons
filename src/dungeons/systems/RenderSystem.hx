@@ -3,6 +3,7 @@ package dungeons.systems;
 import nme.geom.Rectangle;
 import nme.display.BitmapData;
 
+import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
@@ -178,41 +179,84 @@ class RenderLayers
 
 private class HealthBar extends Canvas
 {
+    private static inline var WIDTH_PERCENT:Float = 1.2;
+    private static inline var HEIGHT:Int = 2;
+    private static inline var BORDER:Int = 1;
+    private static inline var BORDER_COLOR:Int = 0x363636;
+    private static inline var MARGIN:Int = 2;
+    private static inline var ALPHA:Float = 1;// 0.8;
+    private static inline var FILL_COLOR:Int = 0xFF0000;
+    private static inline var EMPTY_COLOR:Int = 0x000000;
+    private static inline var TWEEN_DURATION:Float = 0.25;
+    
     private var health:Health;
+    private var tween:NumTween;
 
     public function new(parentWidth:Int, health:Health)
     {
-        var width:Int = Std.int(parentWidth * 1.5);
-
-        super(width, 6);
+        var width:Int = Std.int(parentWidth * WIDTH_PERCENT) + BORDER * 2;
+        super(width, HEIGHT + BORDER * 2);
         x = -(width - parentWidth) / 2;
-        y = -8;
-        alpha = 0.75;
+        y = -(height + MARGIN);
+        alpha = ALPHA;
 
         this.health = health;
-        this.health.updated.add(updateHealth);
-        updateHealth();
+        this.health.updated.add(onHealthUpdate);
+
+        active = true;
+        tween = new NumTween();
+        tween.value = health.currentHP / health.maxHP;
+        HXP.world.addTween(tween);
+
+        redraw();
+    }
+    
+    private function onHealthUpdate():Void 
+    {
+        tween.tween(tween.value, health.currentHP / health.maxHP, TWEEN_DURATION);
     }
 
-    private function updateHealth():Void
+    private function redraw():Void
     {
-        var percent:Float = health.currentHP / health.maxHP;
-
+        var percent:Float = tween.value;
         var rect:Rectangle = HXP.rect;
-        rect.x = rect.y = 0;
-        rect.width = width;
-        rect.height = height;
-        fill(rect);
 
-        rect.x = rect.y = 2;
-        rect.height = 2;
-        rect.width = Std.int((width - 4) * percent);
-        fill(rect, 0xFF0000);
+        // draw border, if any
+        if (BORDER > 0)
+        {
+            rect.x = rect.y = 0;
+            rect.width = width;
+            rect.height = height;
+            fill(rect, BORDER_COLOR);
+        }
+
+        // fill health bar
+        var w:Int = Std.int((width - BORDER * 2) * percent);
+        rect.x = rect.y = BORDER;
+        rect.height = HEIGHT;
+        rect.width = w;
+        fill(rect, FILL_COLOR);
+
+        // draw empty bar part (if health is not full)
+        if (percent < 1)
+        {
+            rect.x += rect.width;
+            rect.width = Math.ceil((width - BORDER * 2) * (1 - percent));
+            fill(rect, EMPTY_COLOR);
+        }
+    }
+    
+    override public function update():Void 
+    {
+        if (tween.active)
+            redraw();
     }
 
     public function dispose():Void
     {
-        health.updated.remove(updateHealth);
+        HXP.world.removeTween(tween);
+
+        health.updated.remove(onHealthUpdate);
         health = null;
     }
 }
