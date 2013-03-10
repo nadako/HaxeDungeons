@@ -1,5 +1,5 @@
 package dungeons.systems;
-
+rz
 import ash.core.Engine;
 import ash.tools.ComponentPool;
 import ash.tools.ListIteratingSystem;
@@ -9,20 +9,21 @@ import dungeons.components.Position;
 import dungeons.nodes.PositionNode;
 import dungeons.utils.Direction;
 import dungeons.utils.Vector;
+import dungeons.utils.Map;
 
-class MoveSystem extends ListIteratingSystem<PositionNode>
+class PositionSystem extends ListIteratingSystem<PositionNode>
 {
-    private var obstacleSystem:ObstacleSystem;
     private var moveListeners:ObjectHash<PositionNode, MoveRequestListener>;
-
-    public function new()
+    private var map:Map;
+    
+    public function new(map:Map)
     {
         super(PositionNode, null, nodeAdded, nodeRemoved);
+        this.map = map;
     }
 
     override public function addToEngine(engine:Engine):Void
     {
-        obstacleSystem = engine.getSystem(ObstacleSystem);
         moveListeners = new ObjectHash();
         super.addToEngine(engine);
     }
@@ -33,11 +34,12 @@ class MoveSystem extends ListIteratingSystem<PositionNode>
         for (node in moveListeners.keys())
             node.position.moveRequested.remove(moveListeners.get(node));
         moveListeners = null;
-        obstacleSystem = null;
     }
 
     private function nodeAdded(node:PositionNode):Void
     {
+        map.get(node.position.x, node.position.y).entities.push(node.entity);
+        
         var listener = callback(onNodeMoveRequessted, node);
         moveListeners.set(node, listener);
         node.position.moveRequested.add(listener);
@@ -47,12 +49,18 @@ class MoveSystem extends ListIteratingSystem<PositionNode>
     {
         var position:Position = node.position;
         var target:Vector = position.getAdjacentTile(direction);
-        if (!obstacleSystem.isBlocked(target.x, target.y))
+        if (map.get(target.x, target.y).numObstacles == 0)
+        {
+            map.get(position.x, position.y).entities.remove(node.entity);
+            map.get(target.x, target.y).entities.push(node.entity);
             position.moveTo(target.x, target.y);
+        }
     }
 
     private function nodeRemoved(node:PositionNode):Void
     {
+        map.get(node.position.x, node.position.y).entities.remove(node.entity);
+
         var listener = moveListeners.get(node);
         moveListeners.remove(node);
         node.position.moveRequested.remove(listener);

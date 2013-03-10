@@ -1,5 +1,6 @@
 package dungeons.systems;
 
+import dungeons.utils.Map;
 import nme.display.BitmapData;
 
 import com.haxepunk.graphics.Image;
@@ -21,25 +22,23 @@ class FOVSystem extends System
     private var calculationDisabled:Bool;
     private var shadowCaster:ShadowCaster;
 
+    private var map:Map;
+    
     public var lightMap(default, null):Grid<Float>;
-    private var memoryMap:Grid<Bool>;
-
+    
     private var occluders:NodeList<LightOccluderNode>;
     private var occluderListeners:ObjectHash<LightOccluderNode, PositionChangeListener>;
-    private var occludeMap:OccludeMap;
-
+    
     private var fovCaster:FOVNode;
 
     public var updated(default, null):Signal0;
 
-    public function new(width:Int, height:Int)
+    public function new(map:Map)
     {
         super();
-        calculationDisabled = false;
-        lightMap = new Grid(width, height);
-        occludeMap = new OccludeMap(width, height);
-        memoryMap = new Grid(width, height);
-        shadowCaster = new ShadowCaster(light, occludeMap.isOccluded);
+        this.map = map;
+        lightMap = new Grid(map.width, map.height);
+        shadowCaster = new ShadowCaster(light, isOccluded);
         updated = new Signal0();
     }
 
@@ -68,12 +67,10 @@ class FOVSystem extends System
     override public function removeFromEngine(engine:Engine):Void
     {
         lightMap.clear();
-        memoryMap.clear();
 
         for (node in occluderListeners.keys())
             node.position.changed.remove(occluderListeners.get(node));
         occluderListeners = null;
-        occludeMap.clear(0);
 
         var fovCasters:NodeList<FOVNode> = engine.getNodeList(FOVNode);
         fovCasters.nodeAdded.remove(onFOVAdded);
@@ -83,7 +80,7 @@ class FOVSystem extends System
 
     private function occluderNodeAdded(node:LightOccluderNode):Void
     {
-        occludeMap.add(node.position.x, node.position.y);
+        map.get(node.position.x, node.position.y).numOccluders++;
 
         var listener = callback(onOccluderPositionChange, node);
         node.position.changed.add(listener);
@@ -95,8 +92,8 @@ class FOVSystem extends System
 
     private function onOccluderPositionChange(node:LightOccluderNode, oldX:Int, oldY:Int):Void
     {
-        occludeMap.remove(oldX, oldY);
-        occludeMap.add(node.position.x, node.position.y);
+        map.get(oldX, oldY).numOccluders--;
+        map.get(node.position.x, node.position.y).numOccluders++;
 
         if (isInFOV(oldX, oldY) || isInFOV(node.position.x, node.position.y))
             calculateLightMap();
@@ -104,7 +101,7 @@ class FOVSystem extends System
 
     private function occluderNodeRemoved(node:LightOccluderNode):Void
     {
-        occludeMap.remove(node.position.x, node.position.y);
+        map.get(node.position.x, node.position.y).numOccluders--;
 
         var listener = occluderListeners.get(node);
         occluderListeners.remove(node);
@@ -119,9 +116,13 @@ class FOVSystem extends System
     private function light(x:Int, y:Int, intensity:Float):Void
     {
         lightMap.set(x, y, intensity);
-        memoryMap.set(x, y, true);
+        map.get(x, y).inMemory = true;
     }
 
+    private function isOccluded(x:Int, y:Int):Bool
+    {
+        return map.get(x, y).numOccluders > 0;
+    }
 
     private inline function isInFOV(x:Int, y:Int):Bool
     {
@@ -130,7 +131,7 @@ class FOVSystem extends System
 
     public inline function inMemory(x:Int, y:Int):Bool
     {
-        return memoryMap.get(x, y);
+        return map.get(x, y).inMemory;
     }
 
     private function calculateLightMap():Void
@@ -170,28 +171,5 @@ class FOVSystem extends System
             fovCaster = null;
 
         calculateLightMap();
-    }
-}
-
-private class OccludeMap extends Grid<Int>
-{
-    public function new(width:Int, height:Int)
-    {
-        super(width, height, 0);
-    }
-
-    public inline function add(x:Int, y:Int):Void
-    {
-        content[y * width + x]++;
-    }
-
-    public inline function remove(x:Int, y:Int):Void
-    {
-        content[y * width + x]--;
-    }
-
-    public inline function isOccluded(x:Int, y:Int):Bool
-    {
-        return content[y * width + x] > 0;
     }
 }

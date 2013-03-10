@@ -1,23 +1,22 @@
 package dungeons.systems;
 
-import ash.core.Entity;
-import ash.core.Engine;
 import ash.ObjectHash;
+import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
 
-import dungeons.components.Position;
+import dungeons.components.Position.PositionChangeListener;
 import dungeons.nodes.ObstacleNode;
-import dungeons.utils.Grid;
+import dungeons.utils.Map;
 
 class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 {
-    private var obstacleMap:Grid<Array<ObstacleNode>>;
+    private var map:Map;
     private var listeners:ObjectHash<ObstacleNode, PositionChangeListener>;
 
-    public function new(width:Int, height:Int)
+    public function new(map:Map)
     {
-        obstacleMap = new Grid(width, height);
         super(ObstacleNode, null, addNode, removeNode);
+        this.map = map;
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -32,45 +31,22 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
         for (node in listeners.keys())
             node.position.changed.remove(listeners.get(node));
         listeners = null;
-        obstacleMap.clear();
     }
 
-    public function isBlocked(x:Int, y:Int):Bool
+    private inline function addObstacle(node:ObstacleNode):Void
     {
-        var array:Array<ObstacleNode> = obstacleMap.get(x, y);
-        return array != null && array.length > 0;
+        map.get(node.position.x, node.position.y).numObstacles++;
     }
 
-    public function getBlocker(x:Int, y:Int):Entity
+    private inline function removeObstacle(node:ObstacleNode, x:Int, y:Int):Void
     {
-        var array:Array<ObstacleNode> = obstacleMap.get(x, y);
-        if (array != null && array.length > 0)
-            return array[0].entity;
-        else
-            return null;
-    }
-
-    private function addObstacle(node:ObstacleNode):Void
-    {
-        var x:Int = node.position.x;
-        var y:Int = node.position.y;
-        var array:Array<ObstacleNode> = obstacleMap.get(x, y);
-        if (array == null)
-        {
-            array = [];
-            obstacleMap.set(x, y, array);
-        }
-        array.push(node);
-    }
-
-    private function removeObstacle(node:ObstacleNode, x:Int, y:Int):Void
-    {
-        obstacleMap.get(x, y).remove(node);
+        map.get(x, y).numObstacles--;
     }
 
     private function addNode(node:ObstacleNode):Void
     {
         addObstacle(node);
+
         var listener = callback(onNodePositionChanged, node);
         node.position.changed.add(listener);
         listeners.set(node, listener);
@@ -84,9 +60,10 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 
     private function removeNode(node:ObstacleNode):Void
     {
+        removeObstacle(node, node.position.x, node.position.y);
+
         var listener = listeners.get(node);
         listeners.remove(node);
         node.position.changed.remove(listener);
-        removeObstacle(node, node.position.x, node.position.y);
     }
 }

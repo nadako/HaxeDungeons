@@ -11,31 +11,32 @@ import ash.core.System;
 import dungeons.components.Actor;
 import dungeons.components.Door;
 import dungeons.components.Position;
+import dungeons.components.Obstacle;
 import dungeons.nodes.PlayerActorNode;
 import dungeons.utils.Direction;
+import dungeons.utils.Map;
 
 class PlayerControlSystem extends System
 {
-    private var obstacleSystem:ObstacleSystem;
+    private var map:Map;
     private var nodeList:NodeList<PlayerActorNode>;
     private var inputHandler:IInputHandler;
 
-    public function new()
+    public function new(map:Map)
     {
         super();
+        this.map = map;
     }
 
     override public function addToEngine(engine:Engine):Void
     {
         nodeList = engine.getNodeList(PlayerActorNode);
-        obstacleSystem = engine.getSystem(ObstacleSystem);
         inputHandler = new MainInputHandler();
         inputHandler.enter();
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
-        obstacleSystem = null;
         nodeList = null;
         inputHandler.exit();
         inputHandler = null;
@@ -58,7 +59,15 @@ class PlayerControlSystem extends System
         if (position != null)
         {
             var targetTile = position.getAdjacentTile(direction);
-            var blocker:Entity = obstacleSystem.getBlocker(targetTile.x, targetTile.y);
+            var blocker:Entity = null;
+            for (entity in map.get(targetTile.x, targetTile.y).entities)
+            {
+                if (entity.has(Obstacle))
+                {
+                    blocker = entity;
+                    break;
+                }
+            }
             if (blocker != null)
             {
                 if (blocker.has(dungeons.components.Door))

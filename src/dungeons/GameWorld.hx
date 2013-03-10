@@ -50,7 +50,7 @@ import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
 import dungeons.systems.MonsterAISystem;
 import dungeons.systems.SystemPriorities;
-import dungeons.systems.MoveSystem;
+import dungeons.systems.PositionSystem;
 import dungeons.systems.ActorSystem;
 import dungeons.systems.CameraSystem;
 import dungeons.systems.FOVSystem;
@@ -62,6 +62,7 @@ import dungeons.systems.DoorSystem;
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
 import dungeons.utils.TransitionTileHelper;
+import dungeons.utils.Map;
 
 using dungeons.utils.ArrayUtil;
 
@@ -82,6 +83,8 @@ class GameWorld extends World
         var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 15, y: 15});
         dungeon.generate();
 
+        var map:Map = new Map(dungeon.width, dungeon.height);
+        
         var levelBmp:BitmapData = getScaledBitmapData("eight2empire/level assets.png");
         var itemBmp:BitmapData = getScaledBitmapData("eight2empire/item assets.png");
         var charBmp:BitmapData = getScaledBitmapData("oryx_lofi/lofi_char.png");
@@ -216,15 +219,15 @@ class GameWorld extends World
 
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
-        engine.addSystem(new ObstacleSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
-        engine.addSystem(new FOVSystem(dungeon.width, dungeon.height), SystemPriorities.NONE);
-        engine.addSystem(new MoveSystem(), SystemPriorities.NONE);
+        engine.addSystem(new ObstacleSystem(map), SystemPriorities.NONE);
+        engine.addSystem(new FOVSystem(map), SystemPriorities.NONE);
+        engine.addSystem(new PositionSystem(map), SystemPriorities.NONE);
         engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(), SystemPriorities.NONE);
 
         // Input system runs first
-        engine.addSystem(new PlayerControlSystem(), SystemPriorities.INPUT);
+        engine.addSystem(new PlayerControlSystem(map), SystemPriorities.INPUT);
 
         // Then actors are processed, here other systems can run because of action processing
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
@@ -233,16 +236,16 @@ class GameWorld extends World
         engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
-	
-	private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
-	{
-		var orig:BitmapData = Assets.getBitmapData(path);
-		var m:Matrix = new Matrix();
-		m.scale(scale, scale);
-		var result:BitmapData = new BitmapData(orig.width * scale, orig.height * scale, true, 0);
-		result.draw(orig, m, null, null, null, false);
-		return result;
-	}
+    
+    private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
+    {
+        var orig:BitmapData = Assets.getBitmapData(path);
+        var m:Matrix = new Matrix();
+        m.scale(scale, scale);
+        var result:BitmapData = new BitmapData(orig.width * scale, orig.height * scale, true, 0);
+        result.draw(orig, m, null, null, null, false);
+        return result;
+    }
 
     private static function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
     {
