@@ -5,7 +5,7 @@ import nme.display.BitmapData;
 
 import com.haxepunk.graphics.Image;
 
-import ash.ObjectHash;
+import ash.ObjectMap;
 import ash.core.NodeList;
 import ash.core.Engine;
 import ash.core.System;
@@ -27,7 +27,7 @@ class FOVSystem extends System
     public var lightMap(default, null):Grid<Float>;
     
     private var occluders:NodeList<LightOccluderNode>;
-    private var occluderListeners:ObjectHash<LightOccluderNode, PositionChangeListener>;
+    private var occluderListeners:ObjectMap<LightOccluderNode, PositionChangeListener>;
     
     private var fovCaster:FOVNode;
 
@@ -44,7 +44,7 @@ class FOVSystem extends System
 
     override public function addToEngine(engine:Engine):Void
     {
-        occluderListeners = new ObjectHash();
+        occluderListeners = new ObjectMap();
 
         calculationDisabled = true;
 

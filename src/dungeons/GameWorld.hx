@@ -28,7 +28,6 @@ import nme.Lib;
 
 import ash.core.Engine;
 import ash.core.Entity;
-import ash.ObjectHash;
 
 import dungeons.components.Health;
 import dungeons.components.Description;

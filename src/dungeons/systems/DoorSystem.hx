@@ -3,7 +3,7 @@ package dungeons.systems;
 import dungeons.components.Renderable;
 import com.haxepunk.Graphic;
 
-import ash.ObjectHash;
+import ash.ObjectMap;
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
@@ -18,7 +18,7 @@ using dungeons.utils.EntityUtil;
 
 class DoorSystem extends ListIteratingSystem<DoorNode>
 {
-    private var doorListeners:ObjectHash<DoorNode, OpenRequestListener>;
+    private var doorListeners:ObjectMap<DoorNode, OpenRequestListener>;
     private var obstacle:Obstacle;
     private var lightOccluder:LightOccluder;
 
@@ -31,7 +31,7 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        doorListeners = new ObjectHash();
+        doorListeners = new ObjectMap();
         super.addToEngine(engine);
     }
 

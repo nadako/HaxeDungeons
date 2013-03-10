@@ -1,6 +1,6 @@
 package dungeons.systems;
 
-import ash.ObjectHash;
+import ash.ObjectMap;
 import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
 
@@ -11,7 +11,7 @@ import dungeons.utils.Map;
 class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 {
     private var map:Map;
-    private var listeners:ObjectHash<ObstacleNode, PositionChangeListener>;
+    private var listeners:ObjectMap<ObstacleNode, PositionChangeListener>;
 
     public function new(map:Map)
     {
@@ -21,7 +21,7 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        listeners = new ObjectHash();
+        listeners = new ObjectMap();
         super.addToEngine(engine);
     }
 

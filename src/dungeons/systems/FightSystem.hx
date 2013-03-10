@@ -3,7 +3,7 @@ package dungeons.systems;
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
-import ash.ObjectHash;
+import ash.ObjectMap;
 
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
@@ -12,7 +12,7 @@ using dungeons.utils.EntityUtil;
 
 class FightSystem extends ListIteratingSystem<FighterNode>
 {
-    private var attackListeners:ObjectHash<FighterNode, AttackRequestListener>;
+    private var attackListeners:ObjectMap<FighterNode, AttackRequestListener>;
     private var engine:Engine;
 
     public function new()
@@ -23,7 +23,7 @@ class FightSystem extends ListIteratingSystem<FighterNode>
     override public function addToEngine(engine:Engine):Void
     {
         this.engine = engine;
-        attackListeners = new ObjectHash();
+        attackListeners = new ObjectMap();
         super.addToEngine(engine);
     }
 

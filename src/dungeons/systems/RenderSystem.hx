@@ -9,7 +9,7 @@ import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.World;
 
-import ash.ObjectHash;
+import ash.ObjectMap;
 import ash.core.Engine;
 import ash.core.NodeList;
 import ash.core.System;
@@ -27,8 +27,8 @@ class RenderSystem extends System
     private var height:Int;
 
     private var nodeList:NodeList<RenderNode>;
-    private var positionListeners:ObjectHash<RenderNode, PositionChangeListener>;
-    private var worldEntities:ObjectHash<RenderNode, com.haxepunk.Entity>;
+    private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
+    private var worldEntities:ObjectMap<RenderNode, com.haxepunk.Entity>;
     private var world:World;
 
     private var fovSystem:FOVSystem;
@@ -47,9 +47,9 @@ class RenderSystem extends System
 
     override public function addToEngine(engine:Engine):Void
     {
-        positionListeners = new ObjectHash();
+        positionListeners = new ObjectMap();
 
-        worldEntities = new ObjectHash();
+        worldEntities = new ObjectMap();
 
         nodeList = engine.getNodeList(RenderNode);
         for (node in nodeList)

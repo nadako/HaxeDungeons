@@ -2,7 +2,7 @@ package dungeons.systems;
 
 import ash.core.System;
 import ash.core.Engine;
-import ash.ObjectHash;
+import ash.ObjectMap;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.MonsterActorNode;
@@ -12,7 +12,7 @@ using dungeons.utils.ArrayUtil;
 
 class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {
-    private var nodeListeners:ObjectHash<MonsterActorNode, Void->Void>;
+    private var nodeListeners:ObjectMap<MonsterActorNode, Void->Void>;
 
     public function new()
     {
@@ -21,7 +21,7 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        nodeListeners = new ObjectHash();
+        nodeListeners = new ObjectMap();
         super.addToEngine(engine);
     }
 
