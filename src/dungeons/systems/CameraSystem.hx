@@ -1,6 +1,7 @@
 package dungeons.systems;
 
 import com.haxepunk.HXP;
+import com.haxepunk.tweens.motion.LinearMotion;
 
 import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
@@ -10,6 +11,7 @@ import dungeons.nodes.CameraFocusNode;
 class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 {
     private var focus:CameraFocusNode;
+    private var cameraMotion:LinearMotion;
 
     public function new()
     {
@@ -21,6 +23,8 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         super.removeFromEngine(engine);
         if (focus != null)
             nodeRemoved(focus);
+        if (cameraMotion != null)
+            HXP.world.removeTween(cameraMotion);
     }
 
     private function nodeAdded(node:CameraFocusNode):Void
@@ -31,7 +35,8 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         focus = node;
         focus.position.changed.add(onFocusMove);
 
-        onFocusMove(0, 0);
+        HXP.camera.x = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth;
+        HXP.camera.y = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight;
     }
 
     private function nodeRemoved(node:CameraFocusNode):Void
@@ -41,7 +46,20 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 
     private function onFocusMove(oldX:Int, oldY:Int):Void
     {
-        HXP.camera.x = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth / HXP.screen.scale;
-        HXP.camera.y = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight / HXP.screen.scale;
+        if (cameraMotion == null)
+        {
+            cameraMotion = new LinearMotion();
+            HXP.world.addTween(cameraMotion);
+        }
+        cameraMotion.setMotion(HXP.camera.x, HXP.camera.y, focus.position.x * Constants.TILE_SIZE - HXP.halfWidth, focus.position.y * Constants.TILE_SIZE - HXP.halfHeight, 0.25);
+    }
+    
+    override public function update(dt:Float):Void 
+    {
+        if (cameraMotion != null && cameraMotion.active)
+        {
+            HXP.camera.x = Math.round(cameraMotion.x);
+            HXP.camera.y = Math.round(cameraMotion.y);
+        }
     }
 }
