@@ -145,6 +145,7 @@ class GameWorld extends World
 
         var monsterAI = new MonsterAI();
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
+        var weaponDefs:Array<WeaponDefinition> = cast Json.parse(Assets.getText("weapons.json"));
         for (room in dungeon.rooms)
         {
             if (room != startRoom)
@@ -173,6 +174,19 @@ class GameWorld extends World
                 gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
                 gold.add(new Description(Std.string(quantity) + " Gold"));
                 engine.addEntity(gold);
+            }
+
+            if (Math.random() < 0.3)
+            {
+                var weaponDef:WeaponDefinition = weaponDefs.randomChoice();
+                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
+                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
+                var weapon:Entity = new Entity();
+                weapon.add(new Item(weaponDef.name, false, 1));
+                weapon.add(new Position(x, y));
+                weapon.add(new Renderable(createTileImage(itemBmp, weaponDef.tileCol, weaponDef.tileRow)));
+                weapon.add(new Description(weaponDef.name));
+                engine.addEntity(weapon);
             }
 
             if (Math.random() < 0.3)
@@ -355,4 +369,11 @@ private typedef MonsterDefinition =
     var hp:Int;
     var power:Int;
     var defense:Int;
+}
+
+private typedef WeaponDefinition =
+{
+    var name:String;
+    var tileRow:Int;
+    var tileCol:Int;
 }
