@@ -12,7 +12,7 @@ using dungeons.utils.ArrayUtil;
 
 class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {
-    private var nodeListeners:ObjectMap<MonsterActorNode, Void->Void>;
+    private var nodeListeners:ObjectMap<MonsterActorNode, Void -> Void>;
 
     public function new()
     {

@@ -136,13 +136,13 @@ class RenderSystem extends System
 
         var entity:com.haxepunk.Entity = world.addGraphic(node.renderable.graphic, node.renderable.layer);
         worldEntities.set(node, entity);
-		
+
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
         if (health != null)
             entity.addGraphic(new HealthBar(Constants.TILE_SIZE, health));
-			
-		entity.x = node.position.x * Constants.TILE_SIZE;
+
+        entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
     }
 
@@ -188,7 +188,7 @@ private class HealthBar extends Canvas
     private static inline var FILL_COLOR:Int = 0xFF0000;
     private static inline var EMPTY_COLOR:Int = 0x000000;
     private static inline var TWEEN_DURATION:Float = 0.25;
-    
+
     private var health:Health;
     private var tween:NumTween;
 
@@ -210,8 +210,8 @@ private class HealthBar extends Canvas
 
         redraw();
     }
-    
-    private function onHealthUpdate():Void 
+
+    private function onHealthUpdate():Void
     {
         tween.tween(tween.value, health.currentHP / health.maxHP, TWEEN_DURATION);
     }
@@ -245,8 +245,8 @@ private class HealthBar extends Canvas
             fill(rect, EMPTY_COLOR);
         }
     }
-    
-    override public function update():Void 
+
+    override public function update():Void
     {
         if (tween.active)
             redraw();

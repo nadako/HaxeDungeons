@@ -53,8 +53,8 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         }
         cameraMotion.setMotion(HXP.camera.x, HXP.camera.y, focus.position.x * Constants.TILE_SIZE - HXP.halfWidth, focus.position.y * Constants.TILE_SIZE - HXP.halfHeight, 0.25);
     }
-    
-    override public function update(dt:Float):Void 
+
+    override public function update(dt:Float):Void
     {
         if (cameraMotion != null && cameraMotion.active)
         {

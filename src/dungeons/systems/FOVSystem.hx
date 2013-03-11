@@ -23,12 +23,12 @@ class FOVSystem extends System
     private var shadowCaster:ShadowCaster;
 
     private var map:Map;
-    
+
     public var lightMap(default, null):Grid<Float>;
-    
+
     private var occluders:NodeList<LightOccluderNode>;
     private var occluderListeners:ObjectMap<LightOccluderNode, PositionChangeListener>;
-    
+
     private var fovCaster:FOVNode;
 
     public var updated(default, null):Signal0;
@@ -113,6 +113,7 @@ class FOVSystem extends System
 
 
     // shadowcaster callback for marking cell as lit
+
     private function light(x:Int, y:Int, intensity:Float):Void
     {
         lightMap.set(x, y, intensity);

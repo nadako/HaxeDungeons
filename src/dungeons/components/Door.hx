@@ -20,4 +20,4 @@ class Door
     }
 }
 
-typedef OpenRequestListener = Entity->Void;
+typedef OpenRequestListener = Entity -> Void;

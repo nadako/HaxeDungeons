@@ -15,7 +15,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
 {
     private var moveListeners:ObjectMap<PositionNode, MoveRequestListener>;
     private var map:Map;
-    
+
     public function new(map:Map)
     {
         super(PositionNode, null, nodeAdded, nodeRemoved);
@@ -39,7 +39,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
     private function nodeAdded(node:PositionNode):Void
     {
         map.get(node.position.x, node.position.y).entities.push(node.entity);
-        
+
         var listener = callback(onNodeMoveRequessted, node);
         moveListeners.set(node, listener);
         node.position.moveRequested.add(listener);

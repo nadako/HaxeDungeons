@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
     <app file="Dungeons" main="dungeons.Main"/>
-    <window width="1024" height="768" background="#000000" />
+    <window width="1024" height="768" background="#000000"/>
 
-    <source path="src" />
+    <source path="src"/>
 
     <haxelib name="nme"/>
-    <haxelib name="HaxePunk" />
-    <haxelib name="ash" />
+    <haxelib name="HaxePunk"/>
+    <haxelib name="ash"/>
 
-    <ndll name="nme" haxelib="nme" />
+    <ndll name="nme" haxelib="nme"/>
 
-    <assets path="assets" rename="" />
+    <assets path="assets" rename=""/>
 </project>

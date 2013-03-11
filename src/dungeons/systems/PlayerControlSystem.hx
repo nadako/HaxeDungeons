@@ -114,15 +114,15 @@ class InputHandlerBase implements IInputHandler
 {
     private var next:IInputHandler;
     private var entity:Entity;
-    
-    public function bind(entity:Entity):Void 
+
+    public function bind(entity:Entity):Void
     {
         this.entity = entity;
         if (next != null)
             next.bind(entity);
     }
-    
-    public function unbind():Void 
+
+    public function unbind():Void
     {
         entity = null;
         if (next != null)
@@ -168,7 +168,7 @@ class InputHandlerBase implements IInputHandler
 class MainInputHandler extends InputHandlerBase
 {
     private var system:PlayerControlSystem;
-    
+
     public function new(system:PlayerControlSystem)
     {
         this.system = system;
@@ -229,7 +229,7 @@ class MainInputHandler extends InputHandlerBase
     }
 }
 
-typedef ChooseDirectionCallback = Direction->Action;
+typedef ChooseDirectionCallback = Direction -> Action;
 
 class ChooseDirectionHandler extends InputHandlerBase
 {

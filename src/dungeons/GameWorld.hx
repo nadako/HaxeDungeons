@@ -86,7 +86,7 @@ class GameWorld extends World
         dungeon.generate();
 
         var map:Map = new Map(dungeon.width, dungeon.height);
-        
+
         var levelBmp:BitmapData = getScaledBitmapData("eight2empire/level assets.png");
         var itemBmp:BitmapData = getScaledBitmapData("eight2empire/item assets.png");
         var charBmp:BitmapData = getScaledBitmapData("oryx_lofi/lofi_char.png");
@@ -246,7 +246,7 @@ class GameWorld extends World
         engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
-    
+
     private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
     {
         var orig:BitmapData = Assets.getBitmapData(path);
@@ -314,6 +314,7 @@ class GameWorld extends World
     /**
      * Create and add a textfield for displaying in-game messages
      **/
+
     private function createMessageField():TextField
     {
         var messageField:TextField = new TextField();
@@ -329,6 +330,7 @@ class GameWorld extends World
     /**
      * Update game entities and systems
      **/
+
     override public function update()
     {
         super.update();

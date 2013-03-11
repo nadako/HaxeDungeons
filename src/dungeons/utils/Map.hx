@@ -4,15 +4,15 @@ import ash.core.Entity;
 
 class Map extends Grid<MapCell>
 {
-    public function new(width:Int, height:Int) 
+    public function new(width:Int, height:Int)
     {
         super(width, height);
         for (i in 0...width * height)
             content[i] = {
-                entities: [],
-                numObstacles: 0,
-                numOccluders: 0,
-                inMemory: false
+            entities: [],
+            numObstacles: 0,
+            numOccluders: 0,
+            inMemory: false
             };
     }
 }

@@ -182,7 +182,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
 
             case Action.Pickup(item):
                 entity.get(Inventory).requestPickup(item);
-                
+
             case Action.Wait:
         }
     }

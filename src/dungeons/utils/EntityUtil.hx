@@ -21,6 +21,7 @@ class EntityUtil
     /**
      * Get a sensible name string for given entity.
      **/
+
     public static inline function getName(entity:Entity):String
     {
         var desc:Description = entity.get(Description);
