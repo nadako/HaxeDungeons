@@ -60,6 +60,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
     {
         var inventory:Inventory = node.inventory;
         var item:Item = itemEntity.get(Item);
+        var done:Bool = false;
 
         for (inventoryItemEntity in inventory.items)
         {
@@ -73,16 +74,21 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
             {
                 inventoryItem.quantity += item.quantity;
                 engine.removeEntity(itemEntity);
-                return;
+                done = true;
+                break;
             }
         }
 
         // if we still here, we need to add item to the inventory
+        if (!done)
+        {
+            // remove position, so it's removed from the spatial world
+            itemEntity.remove(Position);
 
-        // remove position, so it's removed from the spatial world
-        itemEntity.remove(Position);
+            // add to inventory
+            inventory.items.push(itemEntity);
+        }
 
-        // add to inventory
-        inventory.items.push(itemEntity);
+        inventory.updated.dispatch();
     }
 }

@@ -9,6 +9,8 @@ import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.World;
+import com.haxepunk.gui.MenuItem;
+import com.haxepunk.gui.MenuList;
 
 import ash.ObjectMap;
 import ash.core.Engine;
@@ -16,9 +18,12 @@ import ash.core.NodeList;
 import ash.core.System;
 
 import dungeons.nodes.RenderNode;
+import dungeons.components.Item;
+import dungeons.components.Inventory;
 import dungeons.components.Position.PositionChangeListener;
 import dungeons.components.Health;
 import dungeons.components.Fighter;
+import dungeons.nodes.PlayerInventoryNode;
 import dungeons.utils.Grid;
 
 // TODO: hide non-"memorable" entities that are not in FOV
@@ -37,6 +42,9 @@ class RenderSystem extends System
     private var fovOverlayImage:Image;
     private var fovOverlayEntity:com.haxepunk.Entity;
     private var fovOverlayDirty:Bool;
+
+    private var playerInventory:Inventory;
+    private var playerInventoryMenu:MenuList;
 
     public function new(world:World, width:Int, height:Int)
     {
@@ -68,6 +76,29 @@ class RenderSystem extends System
         fovOverlayEntity = world.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
+
+        playerInventoryMenu = world.add(new MenuList());
+        playerInventoryMenu.localX = HXP.halfWidth;
+        playerInventoryMenu.followCamera = true;
+        playerInventory = engine.getNodeList(PlayerInventoryNode).head.inventory;
+        playerInventory.updated.add(redrawPlayerInventory);
+        redrawPlayerInventory();
+    }
+
+    private function redrawPlayerInventory():Void
+    {
+        for (c in playerInventoryMenu.children)
+            playerInventoryMenu.removeControl(c);
+
+        playerInventoryMenu.visible = (playerInventory.items.length > 0);
+
+        for (itemEntity in playerInventory.items)
+        {
+            var item:Item = itemEntity.get(Item);
+
+            var menuItem:MenuItem = new MenuItem(item.type, null, item.quantity);
+            playerInventoryMenu.addControl(menuItem);
+        }
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -86,6 +117,9 @@ class RenderSystem extends System
         for (node in positionListeners.keys())
             node.position.changed.remove(positionListeners.get(node));
         positionListeners = null;
+
+        playerInventory.updated.remove(redrawPlayerInventory);
+        playerInventory = null;
     }
 
     private function onFOVUpdated():Void
@@ -175,6 +209,7 @@ class RenderLayers
     public static inline var OBJECT:Int = HXP.BASELAYER - 1;
     public static inline var CHARACTER:Int = HXP.BASELAYER - 2;
     public static inline var FOV:Int = HXP.BASELAYER - 3;
+    public static inline var UI:Int = HXP.BASELAYER - 4;
 }
 
 private class HealthBar extends Canvas

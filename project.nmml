@@ -7,6 +7,7 @@
 
     <haxelib name="nme"/>
     <haxelib name="HaxePunk"/>
+    <haxelib name="HaxePunk-gui"/>
     <haxelib name="ash"/>
 
     <ndll name="nme" haxelib="nme"/>
