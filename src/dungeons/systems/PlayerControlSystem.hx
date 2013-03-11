@@ -12,13 +12,14 @@ import dungeons.components.Actor;
 import dungeons.components.Door;
 import dungeons.components.Position;
 import dungeons.components.Obstacle;
+import dungeons.components.Item;
 import dungeons.nodes.PlayerActorNode;
 import dungeons.utils.Direction;
 import dungeons.utils.Map;
 
 class PlayerControlSystem extends System
 {
-    private var map:Map;
+    public var map(default, null):Map;
     private var nodeList:NodeList<PlayerActorNode>;
     private var inputHandler:IInputHandler;
 
@@ -31,7 +32,7 @@ class PlayerControlSystem extends System
     override public function addToEngine(engine:Engine):Void
     {
         nodeList = engine.getNodeList(PlayerActorNode);
-        inputHandler = new MainInputHandler();
+        inputHandler = new MainInputHandler(this);
         inputHandler.enter();
     }
 
@@ -44,10 +45,14 @@ class PlayerControlSystem extends System
 
     private function getAction(entity:Entity):Action
     {
+        inputHandler.bind(entity);
+
         var action:Action = inputHandler.processKey(Input.lastKey);
 
         if (action != null && Type.enumConstructor(action) == "Move")
             action = processMove(entity, action);
+
+        inputHandler.unbind();
 
         return action;
     }
@@ -100,12 +105,29 @@ interface IInputHandler
 {
     function enter():Void;
     function exit():Void;
+    function bind(entity:Entity):Void;
+    function unbind():Void;
     function processKey(key:Int):Action;
 }
 
 class InputHandlerBase implements IInputHandler
 {
     private var next:IInputHandler;
+    private var entity:Entity;
+    
+    public function bind(entity:Entity):Void 
+    {
+        this.entity = entity;
+        if (next != null)
+            next.bind(entity);
+    }
+    
+    public function unbind():Void 
+    {
+        entity = null;
+        if (next != null)
+            next.unbind();
+    }
 
     public function enter():Void
     {
@@ -145,8 +167,11 @@ class InputHandlerBase implements IInputHandler
 
 class MainInputHandler extends InputHandlerBase
 {
-    public function new()
+    private var system:PlayerControlSystem;
+    
+    public function new(system:PlayerControlSystem)
     {
+        this.system = system;
     }
 
     override private function handleKey(key:Int):Action
@@ -172,6 +197,16 @@ class MainInputHandler extends InputHandlerBase
                 action = Move(East);
             case Key.SPACE, Key.NUMPAD_5:
                 action = Wait;
+            case Key.G:
+                var pos:Position = entity.get(Position);
+                for (item in system.map.get(pos.x, pos.y).entities)
+                {
+                    if (item.has(Item))
+                    {
+                        action = Pickup(item);
+                        break;
+                    }
+                }
             case Key.C:
                 pushHandler(new ChooseDirectionHandler(testChooseDir));
         }

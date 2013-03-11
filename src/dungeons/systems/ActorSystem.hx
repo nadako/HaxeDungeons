@@ -9,6 +9,7 @@ import dungeons.components.Fighter;
 import dungeons.components.Position;
 import dungeons.components.Door;
 import dungeons.components.Actor;
+import dungeons.components.Inventory;
 
 /**
  * A system that processes all game actors.
@@ -179,6 +180,9 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
             case Action.Attack(defender):
                 defender.get(Fighter).requestAttack(entity);
 
+            case Action.Pickup(item):
+                entity.get(Inventory).requestPickup(item);
+                
             case Action.Wait:
         }
     }

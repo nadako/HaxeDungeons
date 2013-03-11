@@ -45,6 +45,7 @@ import dungeons.components.Door;
 import dungeons.components.Fighter;
 import dungeons.components.Renderable;
 import dungeons.components.Item;
+import dungeons.components.Inventory;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -58,6 +59,7 @@ import dungeons.systems.PlayerControlSystem;
 import dungeons.systems.RenderSystem;
 import dungeons.systems.ObstacleSystem;
 import dungeons.systems.DoorSystem;
+import dungeons.systems.InventorySystem;
 
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
@@ -137,6 +139,7 @@ class GameWorld extends World
         hero.add(new FOV(10));
         hero.add(new Health(10));
         hero.add(new Fighter(3, 2));
+        hero.add(new Inventory());
         hero.add(obstacle);
         engine.addEntity(hero);
 
@@ -231,6 +234,7 @@ class GameWorld extends World
         engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(), SystemPriorities.NONE);
+        engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
 
         // Input system runs first
         engine.addSystem(new PlayerControlSystem(map), SystemPriorities.INPUT);

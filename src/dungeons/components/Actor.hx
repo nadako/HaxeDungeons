@@ -11,6 +11,7 @@ enum Action
     Move(direction:Direction);
     OpenDoor(door:Entity);
     Attack(defender:Entity);
+    Pickup(item:Entity);
 }
 
 class Actor
