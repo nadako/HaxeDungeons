@@ -11,6 +11,7 @@ import com.haxepunk.Graphic;
 import com.haxepunk.World;
 import com.haxepunk.gui.MenuItem;
 import com.haxepunk.gui.MenuList;
+import com.haxepunk.gui.Control;
 
 import ash.ObjectMap;
 import ash.core.Engine;
@@ -87,7 +88,8 @@ class RenderSystem extends System
 
     private function redrawPlayerInventory():Void
     {
-        for (c in playerInventoryMenu.children)
+        var children:Array<Control> = Lambda.array(playerInventoryMenu.children);
+        for (c in children)
             playerInventoryMenu.removeControl(c);
 
         playerInventoryMenu.visible = (playerInventory.items.length > 0);
