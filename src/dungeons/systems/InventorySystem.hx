@@ -5,6 +5,7 @@ import ash.ObjectMap;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 
+import dungeons.components.Item;
 import dungeons.components.Position;
 import dungeons.components.Inventory;
 import dungeons.nodes.InventoryNode;
@@ -14,6 +15,7 @@ using dungeons.utils.EntityUtil;
 class InventorySystem extends ListIteratingSystem<InventoryNode>
 {
     private var pickupListeners:ObjectMap<InventoryNode, PickupListener>;
+    private var engine:Engine;
 
     public function new()
     {
@@ -23,6 +25,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
     override public function addToEngine(engine:Engine):Void
     {
         pickupListeners = new ObjectMap();
+        this.engine = engine;
         super.addToEngine(engine);
     }
 
@@ -36,6 +39,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
             pickupListeners.remove(node);
         }
         pickupListeners = null;
+        this.engine = null;
     }
 
     private function onNodeAdded(node:InventoryNode):Void
@@ -52,25 +56,33 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
         node.inventory.pickupRequested.remove(listener);
     }
 
-    private function onNodePickupRequested(node:InventoryNode, item:Entity):Void
+    private function onNodePickupRequested(node:InventoryNode, itemEntity:Entity):Void
     {
         var inventory:Inventory = node.inventory;
+        var item:Item = itemEntity.get(Item);
 
-        if (Lambda.indexOf(inventory.items, item) != -1)
-            return;
+        for (inventoryItemEntity in inventory.items)
+        {
+            // if it's already in inventory - wtf?
+            if (inventoryItemEntity == itemEntity)
+                throw "tried to pick up item that is already in inventory";
 
-        item.remove(Position);
-        inventory.items.push(item);
+            // if it stacks, increase quantity and remove item entity from the world
+            var inventoryItem:Item = inventoryItemEntity.get(Item);
+            if (inventoryItem.stacksWith(item))
+            {
+                inventoryItem.quantity += item.quantity;
+                engine.removeEntity(itemEntity);
+                return;
+            }
+        }
 
-        if (node.entity.isPlayer())
-            MessageLogSystem.message("You picked up " + item.getName());
+        // if we still here, we need to add item to the inventory
 
-        // debug print
-        var names:Array<String> = [];
-        for (item in inventory.items)
-            names.push(item.getName());
-        trace("Current inventory: " + names.join(", "));
+        // remove position, so it's removed from the spatial world
+        itemEntity.remove(Position);
+
+        // add to inventory
+        inventory.items.push(itemEntity);
     }
-
-
 }
