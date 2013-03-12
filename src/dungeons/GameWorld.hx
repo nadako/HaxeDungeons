@@ -65,6 +65,7 @@ import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
 import dungeons.utils.TransitionTileHelper;
 import dungeons.utils.Map;
+import dungeons.utils.Vector;
 
 using dungeons.utils.ArrayUtil;
 
@@ -129,12 +130,14 @@ class GameWorld extends World
             }
         }
 
+        var startPoint:Vector = getRandomRoomPoint(startRoom);
+
         var hero:Entity = new Entity();
         hero.name = "player";
         hero.add(new Renderable(createTileImage(charBmp, 1, 0), RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
         hero.add(new Actor(100));
-        hero.add(new Position(startRoom.x + Std.int(startRoom.grid.width / 2), startRoom.y + Std.int(startRoom.grid.height / 2)));
+        hero.add(new Position(startPoint.x, startPoint.y));
         hero.add(new CameraFocus());
         hero.add(new FOV(10));
         hero.add(new Health(10));
@@ -143,18 +146,26 @@ class GameWorld extends World
         hero.add(obstacle);
         engine.addEntity(hero);
 
+        var upStairs:Entity = new Entity();
+        upStairs.add(new Position(startPoint.x, startPoint.y));
+        upStairs.add(new Renderable(createTileImage(levelBmp, 21, 2), RenderLayers.OBJECT));
+        engine.addEntity(upStairs);
+
         var monsterAI = new MonsterAI();
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
         var weaponDefs:Array<WeaponDefinition> = cast Json.parse(Assets.getText("weapons.json"));
         for (room in dungeon.rooms)
         {
+            var randomPoint:Vector;
+
             if (room != startRoom)
             {
+                randomPoint = getRandomRoomPoint(room);
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
                 monster.add(new Description(monsterDef.name));
                 monster.add(new Renderable(createTileImage(charBmp, monsterDef.tileCol, monsterDef.tileRow), RenderLayers.CHARACTER));
-                monster.add(new Position(room.x + Std.int(room.grid.width / 2), room.y + Std.int(room.grid.height / 2)));
+                monster.add(new Position(randomPoint.x, randomPoint.y));
                 monster.add(new Actor(100));
                 monster.add(new Health(monsterDef.hp));
                 monster.add(new Fighter(monsterDef.power, monsterDef.defense));
@@ -165,12 +176,11 @@ class GameWorld extends World
 
             if (Math.random() < 0.3)
             {
-                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
-                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
+                randomPoint = getRandomRoomPoint(room);
                 var gold:Entity = new Entity();
                 var quantity:Int = 1 + Std.random(30);
                 gold.add(new Item("gold", true, quantity));
-                gold.add(new Position(x, y));
+                gold.add(new Position(randomPoint.x, randomPoint.y));
                 gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
                 gold.add(new Description(Std.string(quantity) + " Gold"));
                 engine.addEntity(gold);
@@ -178,12 +188,11 @@ class GameWorld extends World
 
             if (Math.random() < 0.3)
             {
+                randomPoint = getRandomRoomPoint(room);
                 var weaponDef:WeaponDefinition = weaponDefs.randomChoice();
-                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
-                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
                 var weapon:Entity = new Entity();
                 weapon.add(new Item(weaponDef.name, false, 1));
-                weapon.add(new Position(x, y));
+                weapon.add(new Position(randomPoint.x, randomPoint.y));
                 weapon.add(new Renderable(createTileImage(itemBmp, weaponDef.tileCol, weaponDef.tileRow)));
                 weapon.add(new Description(weaponDef.name));
                 engine.addEntity(weapon);
@@ -191,10 +200,9 @@ class GameWorld extends World
 
             if (Math.random() < 0.3)
             {
-                var x:Int = room.x + 1 + Std.random(room.grid.width - 2);
-                var y:Int = room.y + 1 + Std.random(room.grid.height - 2);
+                randomPoint = getRandomRoomPoint(room);
                 var blood:Entity = new Entity();
-                blood.add(new Position(x, y));
+                blood.add(new Position(randomPoint.x, randomPoint.y));
                 blood.add(new Renderable(createTileImage(levelBmp, Std.random(15), 37)));
                 engine.addEntity(blood);
             }
@@ -259,6 +267,14 @@ class GameWorld extends World
         // rendering comes last.
         engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
+    }
+
+    private static function getRandomRoomPoint(room:Room):Vector
+    {
+        return {
+            x: room.x + 1 + Std.random(room.grid.width - 2),
+            y: room.y + 1 + Std.random(room.grid.height - 2)
+        };
     }
 
     private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
