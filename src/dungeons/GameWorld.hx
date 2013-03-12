@@ -174,6 +174,7 @@ class GameWorld extends World
                 engine.addEntity(monster);
             }
 
+            var goldDesc:Description = new Description("Gold");
             if (Math.random() < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
@@ -182,7 +183,7 @@ class GameWorld extends World
                 gold.add(new Item("gold", true, quantity));
                 gold.add(new Position(randomPoint.x, randomPoint.y));
                 gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
-                gold.add(new Description(Std.string(quantity) + " Gold"));
+                gold.add(goldDesc);
                 engine.addEntity(gold);
             }
 

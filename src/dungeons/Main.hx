@@ -1,6 +1,7 @@
 package dungeons;
 
-import com.haxepunk.gui.Control;
+import com.bit101.components.Style;
+
 import com.haxepunk.Engine;
 import com.haxepunk.HXP;
 
@@ -14,7 +15,6 @@ class Main extends Engine
 //        HXP.console.enable();
         HXP.world = new GameWorld();
 
-        Control.useSkin("gfx/ui/blueMagda.png");
-        Control.defaultLayer = RenderLayers.UI;
+        Style.setStyle(Style.DARK);
     }
 }

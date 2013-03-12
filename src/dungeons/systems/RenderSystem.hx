@@ -2,6 +2,9 @@ package dungeons.systems;
 
 import nme.geom.Rectangle;
 import nme.display.BitmapData;
+import nme.Lib;
+
+import com.bit101.components.List;
 
 import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.graphics.Canvas;
@@ -9,9 +12,6 @@ import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.World;
-import com.haxepunk.gui.MenuItem;
-import com.haxepunk.gui.MenuList;
-import com.haxepunk.gui.Control;
 
 import ash.ObjectMap;
 import ash.core.Engine;
@@ -26,6 +26,8 @@ import dungeons.components.Health;
 import dungeons.components.Fighter;
 import dungeons.nodes.PlayerInventoryNode;
 import dungeons.utils.Grid;
+
+using dungeons.utils.EntityUtil;
 
 // TODO: hide non-"memorable" entities that are not in FOV
 class RenderSystem extends System
@@ -45,7 +47,7 @@ class RenderSystem extends System
     private var fovOverlayDirty:Bool;
 
     private var playerInventory:Inventory;
-    private var playerInventoryMenu:MenuList;
+    private var playerInventoryMenu:List;
 
     public function new(world:World, width:Int, height:Int)
     {
@@ -78,9 +80,9 @@ class RenderSystem extends System
 
         fovOverlayDirty = true;
 
-        playerInventoryMenu = world.add(new MenuList());
-        playerInventoryMenu.localX = HXP.halfWidth;
-        playerInventoryMenu.followCamera = true;
+        playerInventoryMenu = new List(Lib.current);
+        playerInventoryMenu.autoHideScrollBar = true;
+        playerInventoryMenu.x = HXP.width - playerInventoryMenu.width;
         playerInventory = engine.getNodeList(PlayerInventoryNode).head.inventory;
         playerInventory.updated.add(redrawPlayerInventory);
         redrawPlayerInventory();
@@ -88,18 +90,23 @@ class RenderSystem extends System
 
     private function redrawPlayerInventory():Void
     {
-        var children:Array<Control> = Lambda.array(playerInventoryMenu.children);
-        for (c in children)
-            playerInventoryMenu.removeControl(c);
+        if (playerInventory.items.length == 0)
+        {
+            playerInventoryMenu.visible = false;
+            return;
+        }
 
-        playerInventoryMenu.visible = (playerInventory.items.length > 0);
+        playerInventoryMenu.visible = true;
+
+        playerInventoryMenu.removeAll();
 
         for (itemEntity in playerInventory.items)
         {
+            var label:String = itemEntity.getName();
             var item:Item = itemEntity.get(Item);
-
-            var menuItem:MenuItem = new MenuItem(item.type, null, item.quantity);
-            playerInventoryMenu.addControl(menuItem);
+            if (item.quantity > 1)
+                label += " x" + item.quantity;
+            playerInventoryMenu.addItem(label);
         }
     }
 
