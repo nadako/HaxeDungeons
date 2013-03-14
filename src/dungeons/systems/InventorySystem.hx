@@ -68,7 +68,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
             if (inventoryItemEntity == itemEntity)
                 throw "tried to pick up item that is already in inventory";
 
-            // if it stacks, increase quantity and remove item entity from the world
+            // if it stacks, increase quantity and remove item entity from the game
             var inventoryItem:Item = inventoryItemEntity.get(Item);
             if (inventoryItem.stacksWith(item))
             {
@@ -82,7 +82,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
         // if we still here, we need to add item to the inventory
         if (!done)
         {
-            // remove position, so it's removed from the spatial world
+            // remove position, so it's removed from the scene
             itemEntity.remove(Position);
 
             // add to inventory

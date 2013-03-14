@@ -24,7 +24,7 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         if (focus != null)
             nodeRemoved(focus);
         if (cameraMotion != null)
-            HXP.world.removeTween(cameraMotion);
+            HXP.scene.removeTween(cameraMotion);
     }
 
     private function nodeAdded(node:CameraFocusNode):Void
@@ -49,7 +49,7 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         if (cameraMotion == null)
         {
             cameraMotion = new LinearMotion();
-            HXP.world.addTween(cameraMotion);
+            HXP.scene.addTween(cameraMotion);
         }
         cameraMotion.setMotion(HXP.camera.x, HXP.camera.y, focus.position.x * Constants.TILE_SIZE - HXP.halfWidth, focus.position.y * Constants.TILE_SIZE - HXP.halfHeight, 0.25);
     }

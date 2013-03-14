@@ -13,7 +13,7 @@ class Main extends Engine
     {
         super();
 //        HXP.console.enable();
-        HXP.world = new GameWorld();
+        HXP.scene = new GameScene();
 
         Style.setStyle(Style.DARK);
     }

@@ -11,7 +11,7 @@ import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
-import com.haxepunk.World;
+import com.haxepunk.Scene;
 
 import ash.ObjectMap;
 import ash.core.Engine;
@@ -37,8 +37,8 @@ class RenderSystem extends System
 
     private var nodeList:NodeList<RenderNode>;
     private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
-    private var worldEntities:ObjectMap<RenderNode, com.haxepunk.Entity>;
-    private var world:World;
+    private var sceneEntities:ObjectMap<RenderNode, com.haxepunk.Entity>;
+    private var scene:Scene;
 
     private var fovSystem:FOVSystem;
     private var fovOverlayData:BitmapData;
@@ -49,10 +49,10 @@ class RenderSystem extends System
     private var playerInventory:Inventory;
     private var playerInventoryMenu:List;
 
-    public function new(world:World, width:Int, height:Int)
+    public function new(scene:Scene, width:Int, height:Int)
     {
         super();
-        this.world = world;
+        this.scene = scene;
         this.width = width;
         this.height = height;
     }
@@ -61,7 +61,7 @@ class RenderSystem extends System
     {
         positionListeners = new ObjectMap();
 
-        worldEntities = new ObjectMap();
+        sceneEntities = new ObjectMap();
 
         nodeList = engine.getNodeList(RenderNode);
         for (node in nodeList)
@@ -76,7 +76,7 @@ class RenderSystem extends System
 
         fovOverlayImage = new Image(fovOverlayData);
         fovOverlayImage.scale = Constants.TILE_SIZE;
-        fovOverlayEntity = world.addGraphic(fovOverlayImage, RenderLayers.FOV);
+        fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
 
@@ -113,15 +113,15 @@ class RenderSystem extends System
     override public function removeFromEngine(engine:Engine):Void
     {
         fovSystem.updated.remove(onFOVUpdated);
-        world.remove(fovOverlayEntity);
+        scene.remove(fovOverlayEntity);
 
         nodeList.nodeAdded.remove(onNodeAdded);
         nodeList.nodeRemoved.remove(onNodeRemoved);
         nodeList = null;
 
-        for (node in worldEntities.keys())
-            world.remove(worldEntities.get(node));
-        worldEntities = null;
+        for (node in sceneEntities.keys())
+            scene.remove(sceneEntities.get(node));
+        sceneEntities = null;
 
         for (node in positionListeners.keys())
             node.position.changed.remove(positionListeners.get(node));
@@ -177,8 +177,8 @@ class RenderSystem extends System
         node.position.changed.add(listener);
         positionListeners.set(node, listener);
 
-        var entity:com.haxepunk.Entity = world.addGraphic(node.renderable.graphic, node.renderable.layer);
-        worldEntities.set(node, entity);
+        var entity:com.haxepunk.Entity = scene.addGraphic(node.renderable.graphic, node.renderable.layer);
+        sceneEntities.set(node, entity);
 
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
@@ -194,13 +194,13 @@ class RenderSystem extends System
         var listener:PositionChangeListener = positionListeners.get(node);
         node.position.changed.remove(listener);
 
-        world.remove(worldEntities.get(node));
-        worldEntities.remove(node);
+        scene.remove(sceneEntities.get(node));
+        sceneEntities.remove(node);
     }
 
     private function onNodePositionChanged(node:RenderNode, oldX:Int, oldY:Int):Void
     {
-        var entity:com.haxepunk.Entity = worldEntities.get(node);
+        var entity:com.haxepunk.Entity = sceneEntities.get(node);
         entity.x = node.position.x * Constants.TILE_SIZE;
         entity.y = node.position.y * Constants.TILE_SIZE;
     }
@@ -250,7 +250,7 @@ private class HealthBar extends Canvas
         active = true;
         tween = new NumTween();
         tween.value = health.currentHP / health.maxHP;
-        HXP.world.addTween(tween);
+        HXP.scene.addTween(tween);
 
         redraw();
     }
@@ -298,7 +298,7 @@ private class HealthBar extends Canvas
 
     public function dispose():Void
     {
-        HXP.world.removeTween(tween);
+        HXP.scene.removeTween(tween);
 
         health.updated.remove(onHealthUpdate);
         health = null;

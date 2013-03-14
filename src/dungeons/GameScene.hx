@@ -6,7 +6,7 @@ import com.haxepunk.graphics.Spritemap;
 import com.haxepunk.graphics.Tilemap;
 import com.haxepunk.Graphic;
 import com.haxepunk.HXP;
-import com.haxepunk.World;
+import com.haxepunk.Scene;
 
 import haxe.Json;
 
@@ -69,7 +69,7 @@ import dungeons.utils.Vector;
 
 using dungeons.utils.ArrayUtil;
 
-class GameWorld extends World
+class GameScene extends Scene
 {
     private var engine:Engine;
     private var renderSystem:RenderSystem;
