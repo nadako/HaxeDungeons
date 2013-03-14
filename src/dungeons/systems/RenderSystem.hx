@@ -25,7 +25,9 @@ import dungeons.components.Position.PositionChangeListener;
 import dungeons.components.Health;
 import dungeons.components.Fighter;
 import dungeons.nodes.PlayerInventoryNode;
+import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
+import dungeons.systems.ui.StatsPanel;
 
 using dungeons.utils.EntityUtil;
 
@@ -48,6 +50,9 @@ class RenderSystem extends System
 
     private var playerInventory:Inventory;
     private var playerInventoryMenu:List;
+
+    private var playerStats:StatsPanel;
+    private var playerStatsNodes:NodeList<PlayerStatsNode>;
 
     public function new(scene:Scene, width:Int, height:Int)
     {
@@ -80,9 +85,15 @@ class RenderSystem extends System
 
         fovOverlayDirty = true;
 
+        playerStatsNodes = engine.getNodeList(PlayerStatsNode);
+        playerStats = new StatsPanel();
+        playerStats.x = HXP.width - playerStats.width;
+        playerStats.addToDisplay(Lib.current.stage);
+
         playerInventoryMenu = new List(Lib.current);
         playerInventoryMenu.autoHideScrollBar = true;
         playerInventoryMenu.x = HXP.width - playerInventoryMenu.width;
+        playerInventoryMenu.y = playerStats.y + playerStats.height;
         playerInventory = engine.getNodeList(PlayerInventoryNode).head.inventory;
         playerInventory.updated.add(redrawPlayerInventory);
         redrawPlayerInventory();
@@ -209,6 +220,9 @@ class RenderSystem extends System
     {
         if (fovOverlayDirty)
             redrawFOVOverlay();
+
+        if (playerStatsNodes.head != null)
+            playerStats.update(playerStatsNodes.head.health, playerStatsNodes.head.fighter);
     }
 }
 
