@@ -1,6 +1,6 @@
 package dungeons;
 
-import com.bit101.components.Style;
+import ru.stablex.ui.UIBuilder;
 
 import com.haxepunk.Engine;
 import com.haxepunk.HXP;
@@ -15,6 +15,6 @@ class Main extends Engine
 //        HXP.console.enable();
         HXP.scene = new GameScene();
 
-        Style.setStyle(Style.DARK);
+        UIBuilder.init();
     }
 }

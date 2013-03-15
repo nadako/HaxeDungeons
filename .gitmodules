@@ -1,0 +1,3 @@
+[submodule "StablexUI"]
+	path = StablexUI
+	url = git://github.com/RealyUniqueName/StablexUI.git

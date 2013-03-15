@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HBox align="'top,left'" layout:Column-cols="[0.9, 0.1]">
+    <HBox layout:Column-fit="false">
+<!--
+        <Text id="'messageLog'" text="'Welcome!'" skin:Paint-color="0xFFFFFF"/>
+-->
+    </HBox>
+    <HBox align="'top,right'">
+        <VBox id="'statsPanel'" skin:Paint-color="0xFFFFFF" skin:Paint-border="2" skin:Paint-borderColor="0xCCCCCC" skin:Paint-corners="[6]" widthPt="100">
+            <Text id="'statsPanel.healthLabel'" />
+            <Text id="'statsPanel.fighterLabel'" />
+        </VBox>
+    </HBox>
+</HBox>

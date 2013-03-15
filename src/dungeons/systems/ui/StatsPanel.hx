@@ -1,24 +1,26 @@
 package dungeons.systems.ui;
 
+import nme.display.Sprite;
+
 import dungeons.components.Fighter;
 import dungeons.components.Health;
 
-import com.bit101.components.Panel;
-import com.bit101.components.Label;
-import com.bit101.components.VBox;
+import ru.stablex.ui.widgets.Text;
+import ru.stablex.ui.UIBuilder;
 
-class StatsPanel extends Panel
+class StatsPanel extends Sprite
 {
-    private var healthLabel:Label;
-    private var fighterLabel:Label;
+    private var healthLabel:Text;
+    private var fighterLabel:Text;
 
     public function new()
     {
         super();
-        var vbox:VBox = new VBox(this);
-        healthLabel = new Label(vbox);
-        fighterLabel = new Label(vbox);
-        setSize(75, 50);
+
+        mouseChildren = false;
+
+        healthLabel = UIBuilder.getAs("statsPanel.healthLabel", Text);
+        fighterLabel = UIBuilder.getAs("statsPanel.fighterLabel", Text);
     }
 
     public function update(health:Health, fighter:Fighter):Void

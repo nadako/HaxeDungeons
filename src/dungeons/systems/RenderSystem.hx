@@ -4,7 +4,7 @@ import nme.geom.Rectangle;
 import nme.display.BitmapData;
 import nme.Lib;
 
-import com.bit101.components.List;
+import ru.stablex.ui.UIBuilder;
 
 import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.graphics.Canvas;
@@ -49,7 +49,7 @@ class RenderSystem extends System
     private var fovOverlayDirty:Bool;
 
     private var playerInventory:Inventory;
-    private var playerInventoryMenu:List;
+//    private var playerInventoryMenu:List;
 
     private var playerStats:StatsPanel;
     private var playerStatsNodes:NodeList<PlayerStatsNode>;
@@ -87,13 +87,14 @@ class RenderSystem extends System
 
         playerStatsNodes = engine.getNodeList(PlayerStatsNode);
         playerStats = new StatsPanel();
-        playerStats.x = HXP.width - playerStats.width;
-        playerStats.addToDisplay(Lib.current.stage);
+//        playerStats.x = HXP.width - playerStats.width;
 
+/*
         playerInventoryMenu = new List(Lib.current);
         playerInventoryMenu.autoHideScrollBar = true;
         playerInventoryMenu.x = HXP.width - playerInventoryMenu.width;
         playerInventoryMenu.y = playerStats.y + playerStats.height;
+*/
         playerInventory = engine.getNodeList(PlayerInventoryNode).head.inventory;
         playerInventory.updated.add(redrawPlayerInventory);
         redrawPlayerInventory();
@@ -101,6 +102,7 @@ class RenderSystem extends System
 
     private function redrawPlayerInventory():Void
     {
+/*
         if (playerInventory.items.length == 0)
         {
             playerInventoryMenu.visible = false;
@@ -119,6 +121,7 @@ class RenderSystem extends System
                 label += " x" + item.quantity;
             playerInventoryMenu.addItem(label);
         }
+*/
     }
 
     override public function removeFromEngine(engine:Engine):Void
