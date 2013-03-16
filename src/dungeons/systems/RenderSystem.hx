@@ -4,8 +4,6 @@ import nme.geom.Rectangle;
 import nme.display.BitmapData;
 import nme.Lib;
 
-import ru.stablex.ui.UIBuilder;
-
 import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
@@ -27,7 +25,6 @@ import dungeons.components.Fighter;
 import dungeons.nodes.PlayerInventoryNode;
 import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
-import dungeons.systems.ui.StatsPanel;
 
 using dungeons.utils.EntityUtil;
 
@@ -47,12 +44,6 @@ class RenderSystem extends System
     private var fovOverlayImage:Image;
     private var fovOverlayEntity:com.haxepunk.Entity;
     private var fovOverlayDirty:Bool;
-
-    private var playerInventory:Inventory;
-//    private var playerInventoryMenu:List;
-
-    private var playerStats:StatsPanel;
-    private var playerStatsNodes:NodeList<PlayerStatsNode>;
 
     public function new(scene:Scene, width:Int, height:Int)
     {
@@ -84,44 +75,6 @@ class RenderSystem extends System
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
-
-        playerStatsNodes = engine.getNodeList(PlayerStatsNode);
-        playerStats = new StatsPanel();
-//        playerStats.x = HXP.width - playerStats.width;
-
-/*
-        playerInventoryMenu = new List(Lib.current);
-        playerInventoryMenu.autoHideScrollBar = true;
-        playerInventoryMenu.x = HXP.width - playerInventoryMenu.width;
-        playerInventoryMenu.y = playerStats.y + playerStats.height;
-*/
-        playerInventory = engine.getNodeList(PlayerInventoryNode).head.inventory;
-        playerInventory.updated.add(redrawPlayerInventory);
-        redrawPlayerInventory();
-    }
-
-    private function redrawPlayerInventory():Void
-    {
-/*
-        if (playerInventory.items.length == 0)
-        {
-            playerInventoryMenu.visible = false;
-            return;
-        }
-
-        playerInventoryMenu.visible = true;
-
-        playerInventoryMenu.removeAll();
-
-        for (itemEntity in playerInventory.items)
-        {
-            var label:String = itemEntity.getName();
-            var item:Item = itemEntity.get(Item);
-            if (item.quantity > 1)
-                label += " x" + item.quantity;
-            playerInventoryMenu.addItem(label);
-        }
-*/
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -140,9 +93,6 @@ class RenderSystem extends System
         for (node in positionListeners.keys())
             node.position.changed.remove(positionListeners.get(node));
         positionListeners = null;
-
-        playerInventory.updated.remove(redrawPlayerInventory);
-        playerInventory = null;
     }
 
     private function onFOVUpdated():Void
@@ -223,9 +173,6 @@ class RenderSystem extends System
     {
         if (fovOverlayDirty)
             redrawFOVOverlay();
-
-        if (playerStatsNodes.head != null)
-            playerStats.update(playerStatsNodes.head.health, playerStatsNodes.head.fighter);
     }
 }
 

@@ -27,10 +27,6 @@ import nme.text.TextFormat;
 import nme.text.TextField;
 import nme.Lib;
 
-import ru.stablex.ui.widgets.Widget;
-import ru.stablex.ui.widgets.Text;
-import ru.stablex.ui.UIBuilder;
-
 import ash.core.Engine;
 import ash.core.Entity;
 
@@ -268,10 +264,6 @@ class GameScene extends Scene
 
         // Then actors are processed, here other systems can run because of action processing
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
-
-        var hud:Widget = UIBuilder.buildFn("HUD.xml")();
-        hud.resize(HXP.width, HXP.height);
-        HXP.engine.addChild(hud);
 
         // rendering comes last.
         engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height), SystemPriorities.RENDER);

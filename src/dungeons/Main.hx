@@ -1,7 +1,5 @@
 package dungeons;
 
-import ru.stablex.ui.UIBuilder;
-
 import com.haxepunk.Engine;
 import com.haxepunk.HXP;
 
@@ -14,7 +12,5 @@ class Main extends Engine
         super();
 //        HXP.console.enable();
         HXP.scene = new GameScene();
-
-        UIBuilder.init();
     }
 }

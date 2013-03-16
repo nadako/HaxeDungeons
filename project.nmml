@@ -3,13 +3,11 @@
     <app file="Dungeons" main="dungeons.Main"/>
     <window width="1024" height="768" background="#000000"/>
 
-    <source path="StablexUI/src"/>
     <source path="src"/>
 
     <haxelib name="nme"/>
     <haxelib name="HaxePunk"/>
     <haxelib name="ash"/>
-    <haxelib name="actuate" />
 
     <ndll name="nme" haxelib="nme"/>
 
