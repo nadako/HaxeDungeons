@@ -5,8 +5,11 @@ import nme.display.BitmapData;
 import nme.Lib;
 
 import com.haxepunk.tweens.misc.NumTween;
+import com.haxepunk.tweens.TweenEvent;
+import com.haxepunk.tweens.motion.LinearMotion;
 import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
+import com.haxepunk.graphics.Text;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.Scene;
@@ -45,12 +48,13 @@ class RenderSystem extends System
     private var fovOverlayEntity:com.haxepunk.Entity;
     private var fovOverlayDirty:Bool;
 
-    public function new(scene:Scene, width:Int, height:Int)
+    public function new(scene:Scene, width:Int, height:Int, renderSignals:RenderSignals)
     {
         super();
         this.scene = scene;
         this.width = width;
         this.height = height;
+        renderSignals.hpChange.add(onHPChangeSignal);
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -174,6 +178,11 @@ class RenderSystem extends System
         if (fovOverlayDirty)
             redrawFOVOverlay();
     }
+
+    private function onHPChangeSignal(posX:Int, posY:Int, value:Int):Void
+    {
+        scene.add(new HealthChange(posX, posY, value));
+    }
 }
 
 class RenderLayers
@@ -183,6 +192,66 @@ class RenderLayers
     public static inline var CHARACTER:Int = HXP.BASELAYER - 2;
     public static inline var FOV:Int = HXP.BASELAYER - 3;
     public static inline var UI:Int = HXP.BASELAYER - 4;
+}
+
+private class HealthChange extends com.haxepunk.Entity
+{
+    private var tween:LinearMotion;
+
+    public function new(posX:Int, posY:Int, value:Int)
+    {
+        super();
+
+        var color:Int = 0xFF0000;
+        var text:String = Std.string(value);
+        if (value > 0)
+        {
+            text = ("+" + text);
+            color = 0x00FF00;
+        }
+
+        layer = RenderLayers.UI;
+
+        var textGraphic:Text = new Text(text, 0, 0, 0, 0, {color: color});
+        graphic = textGraphic;
+
+        var origX:Int = posX * Constants.TILE_SIZE + Std.int(Constants.TILE_SIZE * 0.5 - textGraphic.width * 0.5);
+        var origY:Int = posY * Constants.TILE_SIZE - textGraphic.height;
+
+        var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(Constants.TILE_SIZE * Math.random() * 0.5);
+        var targetY:Int = origY - Std.int(Constants.TILE_SIZE * (0.5 + Math.random() * 0.5));
+
+        tween = new LinearMotion();
+        tween.setMotion(origX, origY, targetX, targetY, 0.5);
+        tween.addEventListener(TweenEvent.FINISH, onTweenComplete);
+        addTween(tween);
+    }
+
+    private function onTweenComplete(event:TweenEvent):Void
+    {
+        tween.removeEventListener(TweenEvent.FINISH, onTweenComplete);
+        dispose();
+    }
+
+    override public function added():Void
+    {
+        tween.start();
+    }
+
+    override public function update():Void
+    {
+        if (!tween.active)
+            return;
+        x = tween.x;
+        y = tween.y;
+    }
+
+    public function dispose():Void
+    {
+        removeTween(tween);
+        if (scene != null)
+            scene.remove(this);
+    }
 }
 
 private class HealthBar extends Canvas

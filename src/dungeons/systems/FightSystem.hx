@@ -5,6 +5,7 @@ import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 import ash.ObjectMap;
 
+import dungeons.components.Position;
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
 
@@ -14,10 +15,12 @@ class FightSystem extends ListIteratingSystem<FighterNode>
 {
     private var attackListeners:ObjectMap<FighterNode, AttackRequestListener>;
     private var engine:Engine;
+    private var renderSignals:RenderSignals;
 
-    public function new()
+    public function new(renderSignals:RenderSignals)
     {
         super(FighterNode, null, onNodeAdded, onNodeRemoved);
+        this.renderSignals = renderSignals;
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -50,6 +53,10 @@ class FightSystem extends ListIteratingSystem<FighterNode>
         if (damage > 0)
         {
             defender.health.currentHP -= damage;
+
+            var pos:Position;
+            if ((pos = defender.entity.get(Position)) != null)
+                renderSignals.hpChange.dispatch(pos.x, pos.y, -damage);
 
             if (attacker.isPlayer())
                 MessageLogSystem.message("You hit " + defender.entity.getName() + " for " + damage + " HP.");
