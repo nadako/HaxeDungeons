@@ -136,12 +136,12 @@ class GameScene extends Scene
         hero.name = "player";
         hero.add(new Renderable(createTileImage(charBmp, 1, 0), RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
-        hero.add(new Actor(100));
+        hero.add(new Actor(150));
         hero.add(new Position(startPoint.x, startPoint.y));
         hero.add(new CameraFocus());
         hero.add(new FOV(10));
         hero.add(new Health(10));
-        hero.add(new Fighter(3, 2));
+        hero.add(new Fighter(3, 1));
         hero.add(new Inventory());
         hero.add(obstacle);
         engine.addEntity(hero);
@@ -151,7 +151,6 @@ class GameScene extends Scene
         upStairs.add(new Renderable(createTileImage(levelBmp, 21, 2), RenderLayers.OBJECT));
         engine.addEntity(upStairs);
 
-        var monsterAI = new MonsterAI();
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
         var weaponDefs:Array<WeaponDefinition> = cast Json.parse(Assets.getText("weapons.json"));
         for (room in dungeon.rooms)
@@ -169,8 +168,8 @@ class GameScene extends Scene
                 monster.add(new Actor(100));
                 monster.add(new Health(monsterDef.hp));
                 monster.add(new Fighter(monsterDef.power, monsterDef.defense));
-                monster.add(monsterAI);
                 monster.add(obstacle);
+                monster.add(new MonsterAI());
                 engine.addEntity(monster);
             }
 
@@ -250,7 +249,7 @@ class GameScene extends Scene
         }
 
         // These systems don't do anything on ticks, instead they react on signals
-        engine.addSystem(new MonsterAISystem(), SystemPriorities.NONE);
+        engine.addSystem(new MonsterAISystem(map), SystemPriorities.NONE);
         engine.addSystem(new ObstacleSystem(map), SystemPriorities.NONE);
         engine.addSystem(new FOVSystem(map), SystemPriorities.NONE);
         engine.addSystem(new PositionSystem(map), SystemPriorities.NONE);

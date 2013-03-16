@@ -15,6 +15,11 @@ class Map extends Grid<MapCell>
             inMemory: false
             };
     }
+
+    public inline function isBlocked(x:Int, y:Int):Bool
+    {
+        return get(x, y).numObstacles > 0;
+    }
 }
 
 typedef MapCell =

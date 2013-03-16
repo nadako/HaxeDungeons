@@ -14,6 +14,41 @@ enum Direction
 
 class DirectionUtil
 {
+    public static inline function fromOffset(dx:Int, dy:Int):Direction
+    {
+        if (dx == 0)
+        {
+            if (dy < 0)
+                return North;
+            else if (dy > 0)
+                return South;
+        }
+        else if (dy == 0)
+        {
+            if (dx < 0)
+                return West;
+            else if (dx > 0)
+                return East;
+        }
+        else if (dy < 0 && dx < 0)
+        {
+            return NorthWest;
+        }
+        else if (dy < 0 && dx > 0)
+        {
+            return NorthEast;
+        }
+        else if (dy > 0 && dx < 0)
+        {
+            return SouthWest;
+        }
+        else if (dy > 0 && dx > 0)
+        {
+            return SouthEast;
+        }
+        throw "unknown direction for offset " + dx + "x" + dy;
+    }
+
     public static inline function offset(dir:Direction):Vector
     {
         var x:Int = 0;
