@@ -189,12 +189,17 @@ class RenderSystem extends System
             text = ("+" + text);
             color = 0x00FF00;
         }
-        scene.add(new FloatingText(posX, posY, text, color));
+        addFloatingText(text, color, posX, posY);
     }
 
     private function onMissSignal(posX:Int, posY:Int):Void
     {
-        scene.add(new FloatingText(posX, posY, "Miss!", 0xFF0000));
+        addFloatingText("Miss!", 0xFF0000, posX, posY);
+    }
+
+    private inline function addFloatingText(text:String, color:Int, posX:Int, posY:Int):Void
+    {
+        scene.create(FloatingText).init(text, color, posX, posY);
     }
 }
 
@@ -213,17 +218,24 @@ private class FloatingText extends com.haxepunk.Entity
 
     public function new(posX:Int, posY:Int, text:String, color:Int)
     {
+        super();
+        layer = RenderLayers.UI;
+        tween = new LinearMotion();
+    }
+
+    public function init(text:String, color:Int, posX:Int, posY:Int):Void
+    {
         var textGraphic:Text = new Text(text, 0, 0, 0, 0, {color: color});
+        graphic = textGraphic;
+
         var origX:Int = posX * Constants.TILE_SIZE + Std.int(Constants.TILE_SIZE * 0.5 - textGraphic.width * 0.5);
         var origY:Int = posY * Constants.TILE_SIZE - textGraphic.height;
-
-        super(origX, origY, textGraphic);
-        layer = RenderLayers.UI;
-
         var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(Constants.TILE_SIZE * Math.random() * 0.5);
         var targetY:Int = origY - Std.int(Constants.TILE_SIZE * (0.5 + Math.random() * 0.5));
 
-        tween = new LinearMotion();
+        x = origX;
+        y = origY;
+
         tween.setMotion(origX, origY, targetX, targetY, 0.5);
         tween.addEventListener(TweenEvent.FINISH, onTweenComplete);
         addTween(tween);
@@ -232,27 +244,17 @@ private class FloatingText extends com.haxepunk.Entity
     private function onTweenComplete(event:TweenEvent):Void
     {
         tween.removeEventListener(TweenEvent.FINISH, onTweenComplete);
-        dispose();
-    }
-
-    override public function added():Void
-    {
-        tween.start();
+        removeTween(tween);
+        scene.recycle(this);
     }
 
     override public function update():Void
     {
-        if (!tween.active)
-            return;
-        x = tween.x;
-        y = tween.y;
-    }
-
-    public function dispose():Void
-    {
-        removeTween(tween);
-        if (scene != null)
-            scene.remove(this);
+        if (tween.active)
+        {
+            x = tween.x;
+            y = tween.y;
+        }
     }
 }
 
