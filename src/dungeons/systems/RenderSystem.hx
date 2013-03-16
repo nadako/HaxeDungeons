@@ -55,6 +55,7 @@ class RenderSystem extends System
         this.width = width;
         this.height = height;
         renderSignals.hpChange.add(onHPChangeSignal);
+        renderSignals.miss.add(onMissSignal);
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -181,7 +182,19 @@ class RenderSystem extends System
 
     private function onHPChangeSignal(posX:Int, posY:Int, value:Int):Void
     {
-        scene.add(new HealthChange(posX, posY, value));
+        var color:Int = 0xFF0000;
+        var text:String = Std.string(value);
+        if (value > 0)
+        {
+            text = ("+" + text);
+            color = 0x00FF00;
+        }
+        scene.add(new FloatingText(posX, posY, text, color));
+    }
+
+    private function onMissSignal(posX:Int, posY:Int):Void
+    {
+        scene.add(new FloatingText(posX, posY, "Miss!", 0xFF0000));
     }
 }
 
@@ -194,29 +207,18 @@ class RenderLayers
     public static inline var UI:Int = HXP.BASELAYER - 4;
 }
 
-private class HealthChange extends com.haxepunk.Entity
+private class FloatingText extends com.haxepunk.Entity
 {
     private var tween:LinearMotion;
 
-    public function new(posX:Int, posY:Int, value:Int)
+    public function new(posX:Int, posY:Int, text:String, color:Int)
     {
-        super();
-
-        var color:Int = 0xFF0000;
-        var text:String = Std.string(value);
-        if (value > 0)
-        {
-            text = ("+" + text);
-            color = 0x00FF00;
-        }
-
-        layer = RenderLayers.UI;
-
         var textGraphic:Text = new Text(text, 0, 0, 0, 0, {color: color});
-        graphic = textGraphic;
-
         var origX:Int = posX * Constants.TILE_SIZE + Std.int(Constants.TILE_SIZE * 0.5 - textGraphic.width * 0.5);
         var origY:Int = posY * Constants.TILE_SIZE - textGraphic.height;
+
+        super(origX, origY, textGraphic);
+        layer = RenderLayers.UI;
 
         var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(Constants.TILE_SIZE * Math.random() * 0.5);
         var targetY:Int = origY - Std.int(Constants.TILE_SIZE * (0.5 + Math.random() * 0.5));

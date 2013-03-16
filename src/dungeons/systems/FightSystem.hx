@@ -49,29 +49,51 @@ class FightSystem extends ListIteratingSystem<FighterNode>
     private function onNodeAttackRequested(defender:FighterNode, attacker:Entity):Void
     {
         var attackerFighter:Fighter = attacker.get(Fighter);
-        var damage:Int = attackerFighter.power - defender.fighter.defense;
-        if (damage > 0)
-        {
-            defender.health.currentHP -= damage;
+        var defenderFighter:Fighter = defender.fighter;
+        var defenderPos:Position = defender.entity.get(Position);
 
-            var pos:Position;
-            if ((pos = defender.entity.get(Position)) != null)
-                renderSignals.hpChange.dispatch(pos.x, pos.y, -damage);
+        var hit:Bool = Math.random() < attackerFighter.power / (attackerFighter.power + defenderFighter.defense);
+        if (hit)
+        {
+            var damage:Int = Std.int(attackerFighter.power / (defender.fighter.defense > 0 ? defender.fighter.defense : 1));
+
+            if (damage > 0)
+            {
+                defender.health.currentHP -= damage;
+
+                if (defenderPos != null)
+                    renderSignals.hpChange.dispatch(defenderPos.x, defenderPos.y, -damage);
+
+                if (defender.health.currentHP <= 0)
+                {
+                    engine.removeEntity(defender.entity);
+
+                    if (defender.entity.isPlayer())
+                        MessageLogSystem.message("You die...");
+                    else
+                        MessageLogSystem.message(defender.entity.getName() + " dies.");
+                }
+            }
+            else
+            {
+                if (defenderPos != null)
+                    renderSignals.hpChange.dispatch(defenderPos.x, defenderPos.y, 0);
+            }
 
             if (attacker.isPlayer())
                 MessageLogSystem.message("You hit " + defender.entity.getName() + " for " + damage + " HP.");
             else if (defender.entity.isPlayer())
                 MessageLogSystem.message(attacker.getName() + " hits you for " + damage + " HP.");
+        }
+        else
+        {
+            if (attacker.isPlayer())
+                MessageLogSystem.message("You miss " + defender.entity.getName() + ".");
+            else if (defender.entity.isPlayer())
+                MessageLogSystem.message(attacker.getName() + " misses you.");
 
-            if (defender.health.currentHP <= 0)
-            {
-                engine.removeEntity(defender.entity);
-
-                if (defender.entity.isPlayer())
-                    MessageLogSystem.message("You die...");
-                else
-                    MessageLogSystem.message(defender.entity.getName() + " dies.");
-            }
+            if (defenderPos != null)
+                renderSignals.miss.dispatch(defenderPos.x, defenderPos.y);
         }
     }
 
