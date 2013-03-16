@@ -141,8 +141,8 @@ class GameScene extends Scene
         hero.add(new Position(startPoint.x, startPoint.y));
         hero.add(new CameraFocus());
         hero.add(new FOV(10));
-        hero.add(new Health(10));
-        hero.add(new Fighter(3, 1));
+        hero.add(new Health(50));
+        hero.add(new Fighter(5, 1));
         hero.add(new Inventory());
         hero.add(obstacle);
         engine.addEntity(hero);
