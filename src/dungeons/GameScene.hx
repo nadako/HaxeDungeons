@@ -89,12 +89,10 @@ class GameScene extends Scene
 
         var map:Map = new Map(dungeon.width, dungeon.height);
 
-        var levelBmp:BitmapData = getScaledBitmapData("eight2empire/level assets.png");
-        var itemBmp:BitmapData = getScaledBitmapData("eight2empire/item assets.png");
-        var charBmp:BitmapData = getScaledBitmapData("oryx_lofi/lofi_char.png");
         var transitionHelper:TransitionTileHelper = new TransitionTileHelper("eight2empire_transitions.json");
+        var assetFactory:AssetFactory = new AssetFactory("tileset.json");
 
-        var levelGraphic:Graphic = renderDungeon(dungeon, levelBmp, transitionHelper);
+        var levelGraphic:Graphic = renderDungeon(dungeon, assetFactory, transitionHelper);
         var level:Entity = new Entity();
         level.add(new Renderable(levelGraphic, RenderLayers.DUNGEON));
         level.add(new Position());
@@ -103,6 +101,8 @@ class GameScene extends Scene
         // marker components can easily be a reusable single instance
         var lightOccluder:LightOccluder = new LightOccluder();
         var obstacle:Obstacle = new Obstacle();
+
+        var doorTypes:Array<String> = "curtain,shabby,simple,peephole,square,braced,iron,iron_peephole,grated,gold,gold_peephole".split(",");
 
         var startRoom:Room = dungeon.rooms.randomChoice();
 
@@ -122,8 +122,8 @@ class GameScene extends Scene
                         var door:Entity = new Entity();
                         door.add(new Position(x, y));
                         door.add(new dungeons.components.Door(open));
-                        var col:Int = Std.random(11);
-                        door.add(new DoorRenderable(createTileImage(levelBmp, col, 31), createTileImage(levelBmp, col, 30)), Renderable);
+                        var type:String = doorTypes.randomChoice();
+                        door.add(new DoorRenderable(assetFactory.createTileImage("door_"+type+"_open"), assetFactory.createTileImage("door_"+type+"_closed")), Renderable);
                         engine.addEntity(door);
                     default:
                         continue;
@@ -135,7 +135,7 @@ class GameScene extends Scene
 
         var hero:Entity = new Entity();
         hero.name = "player";
-        hero.add(new Renderable(createTileImage(charBmp, 1, 0), RenderLayers.CHARACTER));
+        hero.add(new Renderable(assetFactory.createTileImage("player")));
         hero.add(new PlayerControls());
         hero.add(new Actor(150));
         hero.add(new Position(startPoint.x, startPoint.y));
@@ -149,7 +149,7 @@ class GameScene extends Scene
 
         var upStairs:Entity = new Entity();
         upStairs.add(new Position(startPoint.x, startPoint.y));
-        upStairs.add(new Renderable(createTileImage(levelBmp, 21, 2), RenderLayers.OBJECT));
+        upStairs.add(new Renderable(assetFactory.createTileImage("stair_up"), RenderLayers.OBJECT));
         engine.addEntity(upStairs);
 
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
@@ -164,7 +164,7 @@ class GameScene extends Scene
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
                 monster.add(new Description(monsterDef.name));
-                monster.add(new Renderable(createTileImage(charBmp, monsterDef.tileCol, monsterDef.tileRow), RenderLayers.CHARACTER));
+                monster.add(new Renderable(assetFactory.createTileImage(monsterDef.tile), RenderLayers.CHARACTER));
                 monster.add(new Position(randomPoint.x, randomPoint.y));
                 monster.add(new Actor(100));
                 monster.add(new Health(monsterDef.hp));
@@ -182,7 +182,7 @@ class GameScene extends Scene
                 var quantity:Int = 1 + Std.random(30);
                 gold.add(new Item("gold", true, quantity));
                 gold.add(new Position(randomPoint.x, randomPoint.y));
-                gold.add(new Renderable(createTileImage(itemBmp, Std.random(15), 8)));
+                gold.add(new Renderable(assetFactory.createTileImage("gold" + (1 + Std.random(15)))));
                 gold.add(goldDesc);
                 engine.addEntity(gold);
             }
@@ -194,7 +194,7 @@ class GameScene extends Scene
                 var weapon:Entity = new Entity();
                 weapon.add(new Item(weaponDef.name, false, 1));
                 weapon.add(new Position(randomPoint.x, randomPoint.y));
-                weapon.add(new Renderable(createTileImage(itemBmp, weaponDef.tileCol, weaponDef.tileRow)));
+                weapon.add(new Renderable(assetFactory.createTileImage(weaponDef.tile)));
                 weapon.add(new Description(weaponDef.name));
                 engine.addEntity(weapon);
             }
@@ -204,7 +204,7 @@ class GameScene extends Scene
                 randomPoint = getRandomRoomPoint(room);
                 var blood:Entity = new Entity();
                 blood.add(new Position(randomPoint.x, randomPoint.y));
-                blood.add(new Renderable(createTileImage(levelBmp, Std.random(15), 37)));
+                blood.add(new Renderable(assetFactory.createTileImage("blood" + Std.random(15))));
                 engine.addEntity(blood);
             }
 
@@ -230,20 +230,22 @@ class GameScene extends Scene
                         var shelf:Entity = new Entity();
                         shelf.add(new Position(x, y));
                         shelf.add(obstacle);
-                        shelf.add(new Renderable(createTileImage(levelBmp, 14 + Std.random(6), 22), RenderLayers.OBJECT));
+                        var type:String = Math.random() < 0.5 ? "bookshelf_ransacked" : "bookshelf";
+                        var variant:Int = Std.random(3);
+                        shelf.add(new Renderable(assetFactory.createTileImage(type+variant), RenderLayers.OBJECT));
                         engine.addEntity(shelf);
                     }
                 case Fountain:
                     var fountain:Entity = new Entity();
                     fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     fountain.add(obstacle);
-                    fountain.add(new Renderable(createAnimation(levelBmp, [[15, 28], [16, 28]], RenderLayers.OBJECT)));
+                    fountain.add(new Renderable(assetFactory.createTileImage("waterbowl"), RenderLayers.OBJECT));
                     engine.addEntity(fountain);
                 case Light:
                     var light:Entity = new Entity();
                     light.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     light.add(obstacle);
-                    light.add(new Renderable(createAnimation(levelBmp, [[17, 28], [18, 28]], RenderLayers.OBJECT)));
+                    light.add(new Renderable(assetFactory.createTileImage("firebowl"), RenderLayers.OBJECT));
                     engine.addEntity(light);
                 default:
             }
@@ -280,41 +282,15 @@ class GameScene extends Scene
         };
     }
 
-    private static function getScaledBitmapData(path:String, scale:Int = 4):BitmapData
+    private static function renderDungeon(dungeon:Dungeon, assetFactory:AssetFactory, transitionHelper:TransitionTileHelper):Graphic
     {
-        var orig:BitmapData = Assets.getBitmapData(path);
-        var m:Matrix = new Matrix();
-        m.scale(scale, scale);
-        var result:BitmapData = new BitmapData(orig.width * scale, orig.height * scale, true, 0);
-        result.draw(orig, m, null, null, null, false);
-        return result;
-    }
+        var tilemapWidth:Int = dungeon.width * assetFactory.tileSize;
+        var tilemapHeight:Int = dungeon.height * assetFactory.tileSize;
+        var bmp:BitmapData = assetFactory.getImage("eight2empire/level assets.png");
 
-    private static inline function createTileImage(bmp:BitmapData, col:Int, row:Int):Image
-    {
-        return new Image(bmp, new Rectangle(col * Constants.TILE_SIZE, row * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE));
-    }
-
-    private static inline function createAnimation(bmp:BitmapData, frames:Array<Array<Int>>, frameRate:Float = 1):Image
-    {
-        var cols:Int = Std.int(bmp.width / Constants.TILE_SIZE);
-        var spritemap:Spritemap = new Spritemap(bmp, Constants.TILE_SIZE, Constants.TILE_SIZE);
-        var animFrames:Array<Int> = [];
-        for (pair in frames)
-            animFrames.push(pair[1] * cols + pair[0]);
-        spritemap.add("", animFrames, frameRate);
-        spritemap.play();
-        return spritemap;
-    }
-
-    private static function renderDungeon(dungeon:Dungeon, tileset:BitmapData, transitionHelper:TransitionTileHelper):Graphic
-    {
-        var tilemapWidth:Int = dungeon.width * Constants.TILE_SIZE;
-        var tilemapHeight:Int = dungeon.height * Constants.TILE_SIZE;
-
-        var tilesetCols:Int = Math.floor(tileset.width / Constants.TILE_SIZE);
-        var floorTilemap:Tilemap = new Tilemap(tileset, tilemapWidth, tilemapHeight, Constants.TILE_SIZE, Constants.TILE_SIZE);
-        var wallTilemap:Tilemap = new Tilemap(tileset, tilemapWidth, tilemapHeight, Constants.TILE_SIZE, Constants.TILE_SIZE);
+        var tilesetCols:Int = Math.floor(bmp.width / assetFactory.tileSize);
+        var floorTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
+        var wallTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
 
         var floorCol:Int = 4;
         var floorRow:Int = 0;
@@ -383,8 +359,7 @@ enum RoomDecor
 private typedef MonsterDefinition =
 {
     var name:String;
-    var tileRow:Int;
-    var tileCol:Int;
+    var tile:String;
     var hp:Int;
     var power:Int;
     var defense:Int;
@@ -393,6 +368,5 @@ private typedef MonsterDefinition =
 private typedef WeaponDefinition =
 {
     var name:String;
-    var tileRow:Int;
-    var tileCol:Int;
+    var tile:String;
 }

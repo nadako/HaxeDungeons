@@ -1,0 +1,113 @@
+{
+    "tileSize": 8,
+    "scale": 4,
+    "tiles": {
+        "player": "oryx_lofi/lofi_char.png:1,0",
+
+        "skeleton": "oryx_lofi/lofi_char.png:0,6",
+        "skeleton_warrior": "oryx_lofi/lofi_char.png:1,6",
+        "skeleton_knight": "oryx_lofi/lofi_char.png:2,6",
+        "skeleton_mystic": "oryx_lofi/lofi_char.png:3,6",
+
+        "gold1": "eight2empire/item assets.png:0,8",
+        "gold2": "eight2empire/item assets.png:1,8",
+        "gold3": "eight2empire/item assets.png:2,8",
+        "gold4": "eight2empire/item assets.png:3,8",
+        "gold5": "eight2empire/item assets.png:4,8",
+        "gold6": "eight2empire/item assets.png:5,8",
+        "gold7": "eight2empire/item assets.png:6,8",
+        "gold8": "eight2empire/item assets.png:7,8",
+        "gold9": "eight2empire/item assets.png:8,8",
+        "gold10": "eight2empire/item assets.png:9,8",
+        "gold11": "eight2empire/item assets.png:10,8",
+        "gold12": "eight2empire/item assets.png:11,8",
+        "gold13": "eight2empire/item assets.png:12,8",
+        "gold14": "eight2empire/item assets.png:13,8",
+        "gold15": "eight2empire/item assets.png:14,8",
+
+        "wpn_club": "eight2empire/item assets.png:0,1",
+        "wpn_staff": "eight2empire/item assets.png:1,1",
+        "wpn_spear": "eight2empire/item assets.png:2,1",
+        "wpn_knife": "eight2empire/item assets.png:3,1",
+        "wpn_cleaver": "eight2empire/item assets.png:4,1",
+        "wpn_axe": "eight2empire/item assets.png:5,1",
+        "wpn_sword": "eight2empire/item assets.png:6,1",
+        "wpn_hammer": "eight2empire/item assets.png:7,1",
+        "wpn_mace": "eight2empire/item assets.png:8,1",
+        "wpn_flail": "eight2empire/item assets.png:9,1",
+        "wpn_whip": "eight2empire/item assets.png:10,1",
+
+        "door_curtain_closed": "eight2empire/level assets.png:0,30",
+        "door_curtain_open": "eight2empire/level assets.png:0,31",
+        "door_curtain_destroyed": "eight2empire/level assets.png:0,32",
+
+        "door_shabby_closed": "eight2empire/level assets.png:1,30",
+        "door_shabby_open": "eight2empire/level assets.png:1,31",
+        "door_shabby_destroyed": "eight2empire/level assets.png:1,32",
+
+        "door_simple_closed": "eight2empire/level assets.png:2,30",
+        "door_simple_open": "eight2empire/level assets.png:2,31",
+        "door_simple_destroyed": "eight2empire/level assets.png:2,32",
+
+        "door_peephole_closed": "eight2empire/level assets.png:3,30",
+        "door_peephole_open": "eight2empire/level assets.png:3,31",
+        "door_peephole_destroyed": "eight2empire/level assets.png:3,32",
+
+        "door_square_closed": "eight2empire/level assets.png:4,30",
+        "door_square_open": "eight2empire/level assets.png:4,31",
+        "door_square_destroyed": "eight2empire/level assets.png:4,32",
+
+        "door_braced_closed": "eight2empire/level assets.png:5,30",
+        "door_braced_open": "eight2empire/level assets.png:5,31",
+        "door_braced_destroyed": "eight2empire/level assets.png:5,32",
+
+        "door_iron_closed": "eight2empire/level assets.png:6,30",
+        "door_iron_open": "eight2empire/level assets.png:6,31",
+        "door_iron_destroyed": "eight2empire/level assets.png:6,32",
+
+        "door_iron_peephole_closed": "eight2empire/level assets.png:7,30",
+        "door_iron_peephole_open": "eight2empire/level assets.png:7,31",
+        "door_iron_peephole_destroyed": "eight2empire/level assets.png:7,32",
+
+        "door_grated_closed": "eight2empire/level assets.png:8,30",
+        "door_grated_open": "eight2empire/level assets.png:8,31",
+        "door_grated_destroyed": "eight2empire/level assets.png:8,32",
+
+        "door_gold_closed": "eight2empire/level assets.png:9,30",
+        "door_gold_open": "eight2empire/level assets.png:9,31",
+        "door_gold_destroyed": "eight2empire/level assets.png:9,32",
+
+        "door_gold_peephole_closed": "eight2empire/level assets.png:10,30",
+        "door_gold_peephole_open": "eight2empire/level assets.png:10,31",
+        "door_gold_peephole_destroyed": "eight2empire/level assets.png:10,32",
+
+        "stair_up": "eight2empire/level assets.png:21,2",
+
+        "blood0": "eight2empire/level assets.png:0,37",
+        "blood1": "eight2empire/level assets.png:1,37",
+        "blood2": "eight2empire/level assets.png:2,37",
+        "blood3": "eight2empire/level assets.png:3,37",
+        "blood4": "eight2empire/level assets.png:4,37",
+        "blood5": "eight2empire/level assets.png:5,37",
+        "blood6": "eight2empire/level assets.png:6,37",
+        "blood7": "eight2empire/level assets.png:7,37",
+        "blood8": "eight2empire/level assets.png:8,37",
+        "blood9": "eight2empire/level assets.png:9,37",
+        "blood10": "eight2empire/level assets.png:10,37",
+        "blood11": "eight2empire/level assets.png:11,37",
+        "blood12": "eight2empire/level assets.png:12,37",
+        "blood13": "eight2empire/level assets.png:13,37",
+        "blood14": "eight2empire/level assets.png:14,37",
+
+        "bookshelf0": "eight2empire/level assets.png:14,22",
+        "bookshelf1": "eight2empire/level assets.png:15,22",
+        "bookshelf2": "eight2empire/level assets.png:16,22",
+
+        "bookshelf_ransacked0": "eight2empire/level assets.png:17,22",
+        "bookshelf_ransacked1": "eight2empire/level assets.png:18,22",
+        "bookshelf_ransacked2": "eight2empire/level assets.png:19,22",
+
+        "waterbowl": "eight2empire/level assets.png:15,28:16,28",
+        "firebowl": "eight2empire/level assets.png:17,28:18,28"
+    }
+}

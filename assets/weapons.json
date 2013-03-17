@@ -1,57 +1,46 @@
 [
     {
         "name": "Club",
-        "tileRow": 1,
-        "tileCol": 0
+        "tile": "wpn_club"
     },
     {
         "name": "Staff",
-        "tileRow": 1,
-        "tileCol": 1
+        "tile": "wpn_staff"
     },
     {
         "name": "Spear",
-        "tileRow": 1,
-        "tileCol": 2
+        "tile": "wpn_spear"
     },
     {
         "name": "Knife",
-        "tileRow": 1,
-        "tileCol": 3
+        "tile": "wpn_knife"
     },
     {
         "name": "Cleaver",
-        "tileRow": 1,
-        "tileCol": 4
+        "tile": "wpn_cleaver"
     },
     {
         "name": "Axe",
-        "tileRow": 1,
-        "tileCol": 5
+        "tile": "wpn_axe"
     },
     {
         "name": "Sword",
-        "tileRow": 1,
-        "tileCol": 6
+        "tile": "wpn_sword"
     },
     {
         "name": "Hammer",
-        "tileRow": 1,
-        "tileCol": 7
+        "tile": "wpn_hammer"
     },
     {
         "name": "Mace",
-        "tileRow": 1,
-        "tileCol": 8
+        "tile": "wpn_mace"
     },
     {
         "name": "Flail",
-        "tileRow": 1,
-        "tileCol": 9
+        "tile": "wpn_flail"
     },
     {
         "name": "Whip",
-        "tileRow": 1,
-        "tileCol": 10
+        "tile": "wpn_whip"
     }
 ]

@@ -1,32 +1,28 @@
 [
     {
         "name": "Skeleton",
-        "tileRow": 6,
-        "tileCol": 0,
+        "tile": "skeleton",
         "hp": 10,
         "power": 1,
         "defense": 0
     },
     {
         "name": "Skeleton Warrior",
-        "tileRow": 6,
-        "tileCol": 1,
+        "tile": "skeleton_warrior",
         "hp": 15,
         "power": 1,
         "defense": 1
     },
     {
         "name": "Skeleton Knight",
-        "tileRow": 6,
-        "tileCol": 2,
+        "tile": "skeleton_knight",
         "hp": 15,
         "power": 2,
         "defense": 2
     },
     {
         "name": "Skeleton Mystic",
-        "tileRow": 6,
-        "tileCol": 3,
+        "tile": "skeleton_mystic",
         "hp": 10,
         "power": 2,
         "defense": 1
