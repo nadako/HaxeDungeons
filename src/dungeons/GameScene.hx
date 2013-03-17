@@ -366,8 +366,8 @@ class GameScene extends Scene
 
     override public function update()
     {
-        super.update();
         engine.update(HXP.elapsed);
+        super.update();
     }
 }
 

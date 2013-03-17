@@ -14,6 +14,9 @@ import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.Scene;
 
+import com.haxepunk.gui.MenuItem;
+import com.haxepunk.gui.MenuList;
+
 import ash.ObjectMap;
 import ash.core.Engine;
 import ash.core.NodeList;
@@ -48,6 +51,8 @@ class RenderSystem extends System
     private var fovOverlayEntity:com.haxepunk.Entity;
     private var fovOverlayDirty:Bool;
 
+    private var playerInventory:PlayerInventory;
+
     public function new(scene:Scene, width:Int, height:Int, renderSignals:RenderSignals)
     {
         super();
@@ -80,6 +85,9 @@ class RenderSystem extends System
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
+
+        playerInventory = new PlayerInventory(engine.getNodeList(PlayerInventoryNode).head.inventory);
+        scene.add(playerInventory);
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -339,5 +347,50 @@ private class HealthBar extends Canvas
 
         health.updated.remove(onHealthUpdate);
         health = null;
+    }
+}
+
+private class PlayerInventory extends MenuList
+{
+    private static inline var WIDTH:Int = 100;
+
+    private var inventory:Inventory;
+
+    public function new(inventory:Inventory)
+    {
+        super(HXP.width - WIDTH - MenuList.defaultPadding * 2, 0, WIDTH);
+        followCamera = true;
+        enabled = false;
+        addControl(new MenuItem("Inventory", null, 0, 0, 0, WIDTH));
+
+        this.inventory = inventory;
+        inventory.updated.add(redraw);
+        redraw();
+    }
+
+    private function redraw():Void
+    {
+        if (inventory.items.length > 0)
+        {
+            show();
+
+            var len:Int = children.length;
+            while (len > 1)
+            {
+                len--;
+                removeControl(children[len]);
+            }
+
+            for (entity in inventory.items)
+            {
+                var name:String = entity.getName();
+                var item:Item = entity.get(Item);
+                addControl(new MenuItem(name, null, item.quantity > 1 ? item.quantity : 0, 0, 0, WIDTH));
+            }
+        }
+        else
+        {
+            hide();
+        }
     }
 }
