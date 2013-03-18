@@ -164,7 +164,7 @@ class GameScene extends Scene
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
                 monster.add(new Description(monsterDef.name));
-                monster.add(new Renderable(assetFactory.createTileImage(monsterDef.tile), RenderLayers.CHARACTER));
+                monster.add(new Renderable(assetFactory.createTileImage(monsterDef.tile), RenderLayers.CHARACTER, false));
                 monster.add(new Position(randomPoint.x, randomPoint.y));
                 monster.add(new Actor(100));
                 monster.add(new Health(monsterDef.hp));

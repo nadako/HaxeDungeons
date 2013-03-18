@@ -36,7 +36,6 @@ import dungeons.utils.Map;
 
 using dungeons.utils.EntityUtil;
 
-// TODO: render "memory" tiles instead of simply hiding objects
 class RenderSystem extends System
 {
     private var map:Map;
@@ -53,6 +52,8 @@ class RenderSystem extends System
     private var fovOverlayImage:Image;
     private var fovOverlayEntity:com.haxepunk.Entity;
     private var fovOverlayDirty:Bool;
+
+    private var memoryCanvas:Canvas;
 
     private var playerInventory:PlayerInventory;
 
@@ -88,6 +89,9 @@ class RenderSystem extends System
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
+
+        memoryCanvas = new Canvas(map.width * assetFactory.tileSize, map.height * assetFactory.tileSize);
+        scene.addGraphic(memoryCanvas, RenderLayers.MEMORY);
 
         playerInventory = new PlayerInventory(engine.getNodeList(PlayerInventoryNode).head.inventory);
         scene.add(playerInventory);
@@ -154,13 +158,32 @@ class RenderSystem extends System
                 fovOverlayData.setPixel32(x, y, color);
 
                 var wasVisible:Bool = prevLightMap.get(x, y) > 0;
-                if (wasVisible && !visible)
+
+                // show/hide sprite and update memory only if tile visibility has changed
+                if ((wasVisible && !visible) || (!wasVisible && visible))
                 {
-                    setEntitiesVisible(x, y, false);
-                }
-                else if (!wasVisible && visible)
-                {
-                    setEntitiesVisible(x, y, true);
+                    var rect:Rectangle = new Rectangle(x * assetFactory.tileSize, y * assetFactory.tileSize, assetFactory.tileSize, assetFactory.tileSize);
+
+                    // if it became visible - clear memory tile
+                    if (!wasVisible)
+                        memoryCanvas.fill(rect, 0, 0);
+
+                    // for every renderable entity in this tile
+                    for (e in map.get(x, y).entities)
+                    {
+                        var renderable:Renderable = e.get(Renderable);
+                        if (renderable == null)
+                            continue;
+
+                        var sceneEntity:com.haxepunk.Entity = sceneEntities.get(renderable);
+
+                        // update sprite visibility
+                        sceneEntity.visible = visible;
+
+                        // if tile has just been hidden, draw memorable sprites to memory
+                        if (wasVisible && renderable.memorable)
+                            memoryCanvas.drawGraphic(Std.int(rect.x), Std.int(rect.y), renderable.graphic);
+                    }
                 }
             }
         }
@@ -248,10 +271,11 @@ class RenderSystem extends System
 class RenderLayers
 {
     public static inline var DUNGEON:Int = HXP.BASELAYER;
-    public static inline var OBJECT:Int = HXP.BASELAYER - 1;
-    public static inline var CHARACTER:Int = HXP.BASELAYER - 2;
-    public static inline var FOV:Int = HXP.BASELAYER - 3;
-    public static inline var UI:Int = HXP.BASELAYER - 4;
+    public static inline var MEMORY:Int = HXP.BASELAYER - 1;
+    public static inline var OBJECT:Int = HXP.BASELAYER - 2;
+    public static inline var CHARACTER:Int = HXP.BASELAYER - 3;
+    public static inline var FOV:Int = HXP.BASELAYER - 4;
+    public static inline var UI:Int = HXP.BASELAYER - 5;
 }
 
 private class FloatingText extends com.haxepunk.Entity
