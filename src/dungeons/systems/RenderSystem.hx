@@ -28,21 +28,22 @@ import dungeons.components.Inventory;
 import dungeons.components.Position.PositionChangeListener;
 import dungeons.components.Health;
 import dungeons.components.Fighter;
+import dungeons.components.Renderable;
 import dungeons.nodes.PlayerInventoryNode;
 import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
+import dungeons.utils.Map;
 
 using dungeons.utils.EntityUtil;
 
-// TODO: hide non-"memorable" entities that are not in FOV
+// TODO: render "memory" tiles instead of simply hiding objects
 class RenderSystem extends System
 {
-    private var width:Int;
-    private var height:Int;
+    private var map:Map;
 
     private var nodeList:NodeList<RenderNode>;
     private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
-    private var sceneEntities:ObjectMap<RenderNode, com.haxepunk.Entity>;
+    private var sceneEntities:ObjectMap<Renderable, com.haxepunk.Entity>;
     private var scene:Scene;
 
     private var assetFactory:AssetFactory;
@@ -55,12 +56,11 @@ class RenderSystem extends System
 
     private var playerInventory:PlayerInventory;
 
-    public function new(scene:Scene, width:Int, height:Int, assetFactory:AssetFactory, renderSignals:RenderSignals)
+    public function new(scene:Scene, map:Map, assetFactory:AssetFactory, renderSignals:RenderSignals)
     {
         super();
         this.scene = scene;
-        this.width = width;
-        this.height = height;
+        this.map = map;
         this.assetFactory = assetFactory;
         renderSignals.hpChange.add(onHPChangeSignal);
         renderSignals.miss.add(onMissSignal);
@@ -81,7 +81,7 @@ class RenderSystem extends System
         fovSystem = engine.getSystem(FOVSystem);
         fovSystem.updated.add(onFOVUpdated);
 
-        fovOverlayData = new BitmapData(width, height, true, 0xFF000000);
+        fovOverlayData = new BitmapData(map.width, map.height, true, 0xFF000000);
 
         fovOverlayImage = new Image(fovOverlayData);
         fovOverlayImage.scale = assetFactory.tileSize;
@@ -118,19 +118,27 @@ class RenderSystem extends System
 
     private function redrawFOVOverlay():Void
     {
+        var prevLightMap:Grid<Float> = fovSystem.prevLightMap;
+
         fovOverlayData.lock();
-        var lightMap:Grid<Float> = fovSystem.lightMap;
+        var lightMap:Grid<Float> = fovSystem.currentLightMap;
         for (y in 0...lightMap.height)
         {
             for (x in 0...lightMap.width)
             {
                 var intensity:Float = 0;
 
+                var visible:Bool = false;
                 var light:Float = lightMap.get(x, y);
                 if (light > 0)
+                {
                     intensity = 0.3 + 0.7 * light;
+                    visible = true;
+                }
                 else if (fovSystem.inMemory(x, y))
+                {
                     intensity = 0.3;
+                }
 
                 var color:Int = 0;
                 if (intensity >= 1)
@@ -144,11 +152,33 @@ class RenderSystem extends System
                 // color |= 0x00FF0000;
 
                 fovOverlayData.setPixel32(x, y, color);
+
+                var wasVisible:Bool = prevLightMap.get(x, y) > 0;
+                if (wasVisible && !visible)
+                {
+                    setEntitiesVisible(x, y, false);
+                }
+                else if (!wasVisible && visible)
+                {
+                    setEntitiesVisible(x, y, true);
+                }
             }
         }
         fovOverlayData.unlock();
         fovOverlayImage.updateBuffer();
         fovOverlayDirty = false;
+    }
+
+    private inline function setEntitiesVisible(x:Int, y:Int, value:Bool):Void
+    {
+        for (e in map.get(x, y).entities)
+        {
+            var renderable:Renderable = e.get(Renderable);
+            if (renderable == null)
+                continue;
+            var sceneEntity:com.haxepunk.Entity = sceneEntities.get(renderable);
+            sceneEntity.visible = value;
+        }
     }
 
     private function onNodeAdded(node:RenderNode):Void
@@ -158,7 +188,7 @@ class RenderSystem extends System
         positionListeners.set(node, listener);
 
         var entity:com.haxepunk.Entity = scene.addGraphic(node.renderable.graphic, node.renderable.layer);
-        sceneEntities.set(node, entity);
+        sceneEntities.set(node.renderable, entity);
 
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
@@ -174,15 +204,16 @@ class RenderSystem extends System
         var listener:PositionChangeListener = positionListeners.get(node);
         node.position.changed.remove(listener);
 
-        scene.remove(sceneEntities.get(node));
-        sceneEntities.remove(node);
+        scene.remove(sceneEntities.get(node.renderable));
+        sceneEntities.remove(node.renderable);
     }
 
     private function onNodePositionChanged(node:RenderNode, oldX:Int, oldY:Int):Void
     {
-        var entity:com.haxepunk.Entity = sceneEntities.get(node);
+        var entity:com.haxepunk.Entity = sceneEntities.get(node.renderable);
         entity.x = node.position.x * assetFactory.tileSize;
         entity.y = node.position.y * assetFactory.tileSize;
+        entity.visible = fovSystem.currentLightMap.get(node.position.x, node.position.y) > 0;
     }
 
     override public function update(time:Float):Void

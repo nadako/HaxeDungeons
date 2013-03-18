@@ -270,7 +270,7 @@ class GameScene extends Scene
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height, assetFactory, renderSignals), SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this, map, assetFactory, renderSignals), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
 

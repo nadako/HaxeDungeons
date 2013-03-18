@@ -24,7 +24,8 @@ class FOVSystem extends System
 
     private var map:Map;
 
-    public var lightMap(default, null):Grid<Float>;
+    public var prevLightMap(default, null):Grid<Float>;
+    public var currentLightMap(default, null):Grid<Float>;
 
     private var occluders:NodeList<LightOccluderNode>;
     private var occluderListeners:ObjectMap<LightOccluderNode, PositionChangeListener>;
@@ -37,7 +38,8 @@ class FOVSystem extends System
     {
         super();
         this.map = map;
-        lightMap = new Grid(map.width, map.height);
+        prevLightMap = new Grid(map.width, map.height);
+        currentLightMap = new Grid(map.width, map.height);
         shadowCaster = new ShadowCaster(light, isOccluded);
         updated = new Signal0();
     }
@@ -66,7 +68,8 @@ class FOVSystem extends System
 
     override public function removeFromEngine(engine:Engine):Void
     {
-        lightMap.clear();
+        prevLightMap.clear();
+        currentLightMap.clear();
 
         for (node in occluderListeners.keys())
             node.position.changed.remove(occluderListeners.get(node));
@@ -116,7 +119,7 @@ class FOVSystem extends System
 
     private function light(x:Int, y:Int, intensity:Float):Void
     {
-        lightMap.set(x, y, intensity);
+        currentLightMap.set(x, y, intensity);
         map.get(x, y).inMemory = true;
     }
 
@@ -127,7 +130,7 @@ class FOVSystem extends System
 
     private inline function isInFOV(x:Int, y:Int):Bool
     {
-        return lightMap.get(x, y) > 0;
+        return currentLightMap.get(x, y) > 0;
     }
 
     public inline function inMemory(x:Int, y:Int):Bool
@@ -141,7 +144,10 @@ class FOVSystem extends System
         if (calculationDisabled)
             return;
 
-        lightMap.clear();
+        var lm = prevLightMap;
+        prevLightMap = currentLightMap;
+        currentLightMap = lm;
+        currentLightMap.clear();
 
         if (fovCaster != null)
             shadowCaster.calculateLight(fovCaster.position.x, fovCaster.position.y, fovCaster.fov.radius);
