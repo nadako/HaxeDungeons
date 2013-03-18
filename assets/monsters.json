@@ -1,30 +1,94 @@
 [
     {
-        "name": "Skeleton",
-        "tile": "skeleton",
-        "hp": 10,
+        "name": "Rat",
+        "tile": "mon_rat",
+        "hp": 3,
         "power": 1,
         "defense": 0
     },
     {
-        "name": "Skeleton Warrior",
-        "tile": "skeleton_warrior",
-        "hp": 15,
-        "power": 1,
+        "name": "Giant rat",
+        "tile": "mon_giant_rat",
+        "hp": 9,
+        "power": 3,
         "defense": 1
     },
     {
-        "name": "Skeleton Knight",
-        "tile": "skeleton_knight",
-        "hp": 15,
+        "name": "Bat",
+        "tile": "mon_bat",
+        "hp": 3,
+        "power": 2,
+        "defense": 3
+    },
+
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin",
+        "hp": 5,
+        "power": 3,
+        "defense": 3
+    },
+    {
+        "name": "Goblin Witch",
+        "tile": "mon_goblin_witch",
+        "hp": 4,
         "power": 2,
         "defense": 2
     },
     {
-        "name": "Skeleton Mystic",
-        "tile": "skeleton_mystic",
-        "hp": 10,
+        "name": "Goblin Hag",
+        "tile": "mon_goblin_hag",
+        "hp": 4,
         "power": 2,
-        "defense": 1
+        "defense": 2
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_pike",
+        "hp": 5,
+        "power": 4,
+        "defense": 2
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_mace",
+        "hp": 5,
+        "power": 4,
+        "defense": 2
+    },
+    {
+        "name": "Goblin Archer",
+        "tile": "mon_goblin_archer",
+        "hp": 4,
+        "power": 5,
+        "defense": 2
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_knife",
+        "hp": 5,
+        "power": 4,
+        "defense": 4
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_sword",
+        "hp": 5,
+        "power": 4,
+        "defense": 2
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_knife_shield",
+        "hp": 6,
+        "power": 4,
+        "defense": 5
+    },
+    {
+        "name": "Goblin",
+        "tile": "mon_goblin_axe",
+        "hp": 5,
+        "power": 4,
+        "defense": 2
     }
 ]

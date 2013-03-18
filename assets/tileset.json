@@ -2,12 +2,22 @@
     "tileSize": 8,
     "scale": 4,
     "tiles": {
-        "player": "oryx_lofi/lofi_char.png:1,0",
+        "player": "eight2empire/monster assets.png:2,0",
 
-        "skeleton": "oryx_lofi/lofi_char.png:0,6",
-        "skeleton_warrior": "oryx_lofi/lofi_char.png:1,6",
-        "skeleton_knight": "oryx_lofi/lofi_char.png:2,6",
-        "skeleton_mystic": "oryx_lofi/lofi_char.png:3,6",
+        "mon_rat": "eight2empire/monster assets.png:1,7",
+        "mon_giant_rat": "eight2empire/monster assets.png:2,7",
+        "mon_bat": "eight2empire/monster assets.png:18,7",
+
+        "mon_goblin_pike": "eight2empire/monster assets.png:0,17",
+        "mon_goblin_mace": "eight2empire/monster assets.png:1,17",
+        "mon_goblin_witch": "eight2empire/monster assets.png:2,17",
+        "mon_goblin": "eight2empire/monster assets.png:3,17",
+        "mon_goblin_hag": "eight2empire/monster assets.png:4,17",
+        "mon_goblin_archer": "eight2empire/monster assets.png:5,17",
+        "mon_goblin_knife": "eight2empire/monster assets.png:6,17",
+        "mon_goblin_sword": "eight2empire/monster assets.png:7,17",
+        "mon_goblin_knife_shield": "eight2empire/monster assets.png:8,17",
+        "mon_goblin_axe": "eight2empire/monster assets.png:9,17",
 
         "gold1": "eight2empire/item assets.png:0,8",
         "gold2": "eight2empire/item assets.png:1,8",
