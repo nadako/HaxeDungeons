@@ -258,7 +258,7 @@ class GameScene extends Scene
         engine.addSystem(new ObstacleSystem(map), SystemPriorities.NONE);
         engine.addSystem(new FOVSystem(map), SystemPriorities.NONE);
         engine.addSystem(new PositionSystem(map), SystemPriorities.NONE);
-        engine.addSystem(new CameraSystem(), SystemPriorities.NONE);
+        engine.addSystem(new CameraSystem(assetFactory.tileSize), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
@@ -270,7 +270,7 @@ class GameScene extends Scene
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height, renderSignals), SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this, dungeon.width, dungeon.height, assetFactory, renderSignals), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
 

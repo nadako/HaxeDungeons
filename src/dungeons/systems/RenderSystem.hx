@@ -45,6 +45,8 @@ class RenderSystem extends System
     private var sceneEntities:ObjectMap<RenderNode, com.haxepunk.Entity>;
     private var scene:Scene;
 
+    private var assetFactory:AssetFactory;
+
     private var fovSystem:FOVSystem;
     private var fovOverlayData:BitmapData;
     private var fovOverlayImage:Image;
@@ -53,12 +55,13 @@ class RenderSystem extends System
 
     private var playerInventory:PlayerInventory;
 
-    public function new(scene:Scene, width:Int, height:Int, renderSignals:RenderSignals)
+    public function new(scene:Scene, width:Int, height:Int, assetFactory:AssetFactory, renderSignals:RenderSignals)
     {
         super();
         this.scene = scene;
         this.width = width;
         this.height = height;
+        this.assetFactory = assetFactory;
         renderSignals.hpChange.add(onHPChangeSignal);
         renderSignals.miss.add(onMissSignal);
     }
@@ -81,7 +84,7 @@ class RenderSystem extends System
         fovOverlayData = new BitmapData(width, height, true, 0xFF000000);
 
         fovOverlayImage = new Image(fovOverlayData);
-        fovOverlayImage.scale = Constants.TILE_SIZE;
+        fovOverlayImage.scale = assetFactory.tileSize;
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
 
         fovOverlayDirty = true;
@@ -160,10 +163,10 @@ class RenderSystem extends System
         // TODO: hackity hack. refactor this to the health manager
         var health:Health = node.entity.get(Health);
         if (health != null)
-            entity.addGraphic(new HealthBar(Constants.TILE_SIZE, health));
+            entity.addGraphic(new HealthBar(assetFactory.tileSize, health));
 
-        entity.x = node.position.x * Constants.TILE_SIZE;
-        entity.y = node.position.y * Constants.TILE_SIZE;
+        entity.x = node.position.x * assetFactory.tileSize;
+        entity.y = node.position.y * assetFactory.tileSize;
     }
 
     private function onNodeRemoved(node:RenderNode):Void
@@ -178,8 +181,8 @@ class RenderSystem extends System
     private function onNodePositionChanged(node:RenderNode, oldX:Int, oldY:Int):Void
     {
         var entity:com.haxepunk.Entity = sceneEntities.get(node);
-        entity.x = node.position.x * Constants.TILE_SIZE;
-        entity.y = node.position.y * Constants.TILE_SIZE;
+        entity.x = node.position.x * assetFactory.tileSize;
+        entity.y = node.position.y * assetFactory.tileSize;
     }
 
     override public function update(time:Float):Void
@@ -207,7 +210,7 @@ class RenderSystem extends System
 
     private inline function addFloatingText(text:String, color:Int, posX:Int, posY:Int):Void
     {
-        scene.create(FloatingText).init(text, color, posX, posY);
+        scene.create(FloatingText).init(assetFactory.tileSize, text, color, posX, posY);
     }
 }
 
@@ -224,22 +227,22 @@ private class FloatingText extends com.haxepunk.Entity
 {
     private var tween:LinearMotion;
 
-    public function new(posX:Int, posY:Int, text:String, color:Int)
+    public function new()
     {
         super();
         layer = RenderLayers.UI;
         tween = new LinearMotion();
     }
 
-    public function init(text:String, color:Int, posX:Int, posY:Int):Void
+    public function init(tileSize:Int, text:String, color:Int, posX:Int, posY:Int):Void
     {
         var textGraphic:Text = new Text(text, 0, 0, 0, 0, {color: color});
         graphic = textGraphic;
 
-        var origX:Int = posX * Constants.TILE_SIZE + Std.int(Constants.TILE_SIZE * 0.5 - textGraphic.width * 0.5);
-        var origY:Int = posY * Constants.TILE_SIZE - textGraphic.height;
-        var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(Constants.TILE_SIZE * Math.random() * 0.5);
-        var targetY:Int = origY - Std.int(Constants.TILE_SIZE * (0.5 + Math.random() * 0.5));
+        var origX:Int = posX * tileSize + Std.int(tileSize * 0.5 - textGraphic.width * 0.5);
+        var origY:Int = posY * tileSize - textGraphic.height;
+        var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(tileSize * Math.random() * 0.5);
+        var targetY:Int = origY - Std.int(tileSize * (0.5 + Math.random() * 0.5));
 
         x = origX;
         y = origY;

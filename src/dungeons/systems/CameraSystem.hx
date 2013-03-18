@@ -12,9 +12,11 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
 {
     private var focus:CameraFocusNode;
     private var cameraMotion:LinearMotion;
+    private var tileSize:Int;
 
-    public function new()
+    public function new(tileSize:Int)
     {
+        this.tileSize = tileSize;
         super(CameraFocusNode, null, nodeAdded, nodeRemoved);
     }
 
@@ -35,8 +37,8 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
         focus = node;
         focus.position.changed.add(onFocusMove);
 
-        HXP.camera.x = focus.position.x * Constants.TILE_SIZE - HXP.halfWidth;
-        HXP.camera.y = focus.position.y * Constants.TILE_SIZE - HXP.halfHeight;
+        HXP.camera.x = focus.position.x * tileSize - HXP.halfWidth;
+        HXP.camera.y = focus.position.y * tileSize - HXP.halfHeight;
     }
 
     private function nodeRemoved(node:CameraFocusNode):Void
@@ -51,7 +53,7 @@ class CameraSystem extends ListIteratingSystem<CameraFocusNode>
             cameraMotion = new LinearMotion();
             HXP.scene.addTween(cameraMotion);
         }
-        cameraMotion.setMotion(HXP.camera.x, HXP.camera.y, focus.position.x * Constants.TILE_SIZE - HXP.halfWidth, focus.position.y * Constants.TILE_SIZE - HXP.halfHeight, 0.25);
+        cameraMotion.setMotion(HXP.camera.x, HXP.camera.y, focus.position.x * tileSize - HXP.halfWidth, focus.position.y * tileSize - HXP.halfHeight, 0.25);
     }
 
     override public function update(dt:Float):Void
