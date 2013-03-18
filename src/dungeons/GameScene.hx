@@ -135,7 +135,7 @@ class GameScene extends Scene
 
         var hero:Entity = new Entity();
         hero.name = "player";
-        hero.add(new Renderable(assetFactory.createTileImage("player")));
+        hero.add(new Renderable(assetFactory.createTileImage("player"), RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
         hero.add(new Actor(150));
         hero.add(new Position(startPoint.x, startPoint.y));
