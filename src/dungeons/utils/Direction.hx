@@ -16,37 +16,40 @@ class DirectionUtil
 {
     public static inline function fromOffset(dx:Int, dy:Int):Direction
     {
-        if (dx == 0)
+        return if (dx == 0)
         {
             if (dy < 0)
-                return North;
+                North;
             else if (dy > 0)
-                return South;
+                South;
         }
         else if (dy == 0)
         {
             if (dx < 0)
-                return West;
+                West;
             else if (dx > 0)
-                return East;
+                East;
         }
         else if (dy < 0 && dx < 0)
         {
-            return NorthWest;
+            NorthWest;
         }
         else if (dy < 0 && dx > 0)
         {
-            return NorthEast;
+            NorthEast;
         }
         else if (dy > 0 && dx < 0)
         {
-            return SouthWest;
+            SouthWest;
         }
         else if (dy > 0 && dx > 0)
         {
-            return SouthEast;
+            SouthEast;
         }
-        throw "unknown direction for offset " + dx + "x" + dy;
+        else
+        {
+            throw "unknown direction for offset " + dx + "x" + dy;
+        }
     }
 
     public static inline function offset(dir:Direction):Vector
