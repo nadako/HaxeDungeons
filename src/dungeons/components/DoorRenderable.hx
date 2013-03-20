@@ -1,24 +1,21 @@
 package dungeons.components;
 
 import dungeons.systems.RenderSystem.RenderLayers;
-import com.haxepunk.graphics.Graphiclist;
-import com.haxepunk.Graphic;
 
 class DoorRenderable extends Renderable
 {
-    public var openGraphic:Graphic;
-    public var closedGraphic:Graphic;
+    public var openAssetName(default, null):String;
+    public var closedAssetName(default, null):String;
 
-    public function new(openGraphic:Graphic, closedGraphic:Graphic)
+    public function new(openAssetName:String, closedAssetName:String)
     {
-        this.openGraphic = openGraphic;
-        this.closedGraphic = closedGraphic;
-        super(new Graphiclist([openGraphic, closedGraphic]), RenderLayers.OBJECT);
+        this.openAssetName = openAssetName;
+        this.closedAssetName = closedAssetName;
+        super(closedAssetName, RenderLayers.OBJECT);
     }
 
     public function setOpen(value:Bool):Void
     {
-        openGraphic.visible = value;
-        closedGraphic.visible = !value;
+        assetName = value ? openAssetName : closedAssetName;
     }
 }

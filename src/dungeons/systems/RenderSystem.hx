@@ -7,6 +7,8 @@ import nme.Lib;
 import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.tweens.TweenEvent;
 import com.haxepunk.tweens.motion.LinearMotion;
+import com.haxepunk.graphics.Tilemap;
+import com.haxepunk.graphics.Graphiclist;
 import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
 import com.haxepunk.graphics.Text;
@@ -29,10 +31,12 @@ import dungeons.components.Position.PositionChangeListener;
 import dungeons.components.Health;
 import dungeons.components.Fighter;
 import dungeons.components.Renderable;
+import dungeons.mapgen.Dungeon;
 import dungeons.nodes.PlayerInventoryNode;
 import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
 import dungeons.utils.Map;
+import dungeons.utils.TransitionTileHelper;
 
 using dungeons.utils.EntityUtil;
 
@@ -42,7 +46,7 @@ class RenderSystem extends System
 
     private var nodeList:NodeList<RenderNode>;
     private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
-    private var sceneEntities:ObjectMap<Renderable, com.haxepunk.Entity>;
+    private var sceneEntities:ObjectMap<Renderable, RenderableEntity>;
     private var scene:Scene;
 
     private var assetFactory:AssetFactory;
@@ -57,7 +61,7 @@ class RenderSystem extends System
 
     private var playerInventory:PlayerInventory;
 
-    public function new(scene:Scene, map:Map, assetFactory:AssetFactory, renderSignals:RenderSignals)
+    public function new(scene:Scene, map:Map, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals)
     {
         super();
         this.scene = scene;
@@ -65,6 +69,8 @@ class RenderSystem extends System
         this.assetFactory = assetFactory;
         renderSignals.hpChange.add(onHPChangeSignal);
         renderSignals.miss.add(onMissSignal);
+
+        scene.addGraphic(renderDungeon(dungeon), RenderLayers.DUNGEON);
     }
 
     override public function addToEngine(engine:Engine):Void
@@ -182,7 +188,7 @@ class RenderSystem extends System
 
                         // if tile has just been hidden, draw memorable sprites to memory
                         if (wasVisible && renderable.memorable)
-                            memoryCanvas.drawGraphic(Std.int(rect.x), Std.int(rect.y), renderable.graphic);
+                            memoryCanvas.drawGraphic(Std.int(rect.x), Std.int(rect.y), sceneEntity.graphic);
                     }
                 }
             }
@@ -210,7 +216,7 @@ class RenderSystem extends System
         node.position.changed.add(listener);
         positionListeners.set(node, listener);
 
-        var entity:com.haxepunk.Entity = scene.addGraphic(node.renderable.graphic, node.renderable.layer);
+        var entity:RenderableEntity = scene.add(new RenderableEntity(node.renderable, assetFactory));
         sceneEntities.set(node.renderable, entity);
 
         // TODO: hackity hack. refactor this to the health manager
@@ -266,6 +272,46 @@ class RenderSystem extends System
     {
         scene.create(FloatingText).init(assetFactory.tileSize, text, color, posX, posY);
     }
+
+    private function renderDungeon(dungeon:Dungeon):Graphic
+    {
+        var transitionHelper:TransitionTileHelper = new TransitionTileHelper("eight2empire_transitions.json");
+
+        var tilemapWidth:Int = dungeon.width * assetFactory.tileSize;
+        var tilemapHeight:Int = dungeon.height * assetFactory.tileSize;
+        var bmp:BitmapData = assetFactory.getImage("eight2empire/level assets.png");
+
+        var tilesetCols:Int = Math.floor(bmp.width / assetFactory.tileSize);
+        var floorTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
+        var wallTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
+
+        var floorCol:Int = 4;
+        var floorRow:Int = 0;
+        var floorTileIndex:Int = tilesetCols * floorRow + floorCol;
+        var wallRow:Int = 2;
+
+        for (y in 0...dungeon.height)
+        {
+            for (x in 0...dungeon.width)
+            {
+                switch (dungeon.grid.get(x, y))
+                {
+                    case Floor, Door(_):
+                        floorTilemap.setTile(x, y, floorTileIndex);
+
+                    case Wall:
+                        floorTilemap.setTile(x, y, floorTileIndex);
+
+                        var wallCol:Int = transitionHelper.getTileNumber(dungeon.getWallTransition(x, y));
+                        wallTilemap.setTile(x, y, tilesetCols * wallRow + wallCol);
+                    default:
+                        continue;
+                }
+            }
+        }
+
+        return new Graphiclist([floorTilemap, wallTilemap]);
+    }
 }
 
 class RenderLayers
@@ -276,6 +322,38 @@ class RenderLayers
     public static inline var CHARACTER:Int = HXP.BASELAYER - 3;
     public static inline var FOV:Int = HXP.BASELAYER - 4;
     public static inline var UI:Int = HXP.BASELAYER - 5;
+}
+
+private class RenderableEntity extends com.haxepunk.Entity
+{
+    private var renderable:Renderable;
+    private var assetFactory:AssetFactory;
+    private var mainGraphic:Graphic;
+
+    public function new(renderable:Renderable, assetFactory:AssetFactory)
+    {
+        super();
+        graphic = new Graphiclist();
+        layer = renderable.layer;
+        this.renderable = renderable;
+        this.assetFactory = assetFactory;
+    }
+
+    override public function update():Void
+    {
+        if (renderable.assetInvalid)
+        {
+            var gList:Graphiclist = cast graphic;
+
+            if (mainGraphic != null)
+                gList.remove(mainGraphic);
+
+            mainGraphic = assetFactory.createTileImage(renderable.assetName);
+            gList.add(mainGraphic);
+
+            renderable.assetInvalid = false;
+        }
+    }
 }
 
 private class FloatingText extends com.haxepunk.Entity

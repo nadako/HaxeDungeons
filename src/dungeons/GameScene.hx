@@ -89,14 +89,7 @@ class GameScene extends Scene
 
         var map:Map = new Map(dungeon.width, dungeon.height);
 
-        var transitionHelper:TransitionTileHelper = new TransitionTileHelper("eight2empire_transitions.json");
         var assetFactory:AssetFactory = new AssetFactory("tileset.json");
-
-        var levelGraphic:Graphic = renderDungeon(dungeon, assetFactory, transitionHelper);
-        var level:Entity = new Entity();
-        level.add(new Renderable(levelGraphic, RenderLayers.DUNGEON));
-        level.add(new Position());
-        engine.addEntity(level);
 
         // marker components can easily be a reusable single instance
         var lightOccluder:LightOccluder = new LightOccluder();
@@ -123,7 +116,7 @@ class GameScene extends Scene
                         door.add(new Position(x, y));
                         door.add(new dungeons.components.Door(open));
                         var type:String = doorTypes.randomChoice();
-                        door.add(new DoorRenderable(assetFactory.createTileImage("door_"+type+"_open"), assetFactory.createTileImage("door_"+type+"_closed")), Renderable);
+                        door.add(new DoorRenderable("door_"+type+"_open", "door_"+type+"_closed"), Renderable);
                         engine.addEntity(door);
                     default:
                         continue;
@@ -135,7 +128,7 @@ class GameScene extends Scene
 
         var hero:Entity = new Entity();
         hero.name = "player";
-        hero.add(new Renderable(assetFactory.createTileImage("player"), RenderLayers.CHARACTER));
+        hero.add(new Renderable("player", RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
         hero.add(new Actor(150));
         hero.add(new Position(startPoint.x, startPoint.y));
@@ -149,7 +142,7 @@ class GameScene extends Scene
 
         var upStairs:Entity = new Entity();
         upStairs.add(new Position(startPoint.x, startPoint.y));
-        upStairs.add(new Renderable(assetFactory.createTileImage("stair_up"), RenderLayers.OBJECT));
+        upStairs.add(new Renderable("stair_up", RenderLayers.OBJECT));
         engine.addEntity(upStairs);
 
         var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
@@ -164,7 +157,7 @@ class GameScene extends Scene
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
                 var monster:Entity = new Entity();
                 monster.add(new Description(monsterDef.name));
-                monster.add(new Renderable(assetFactory.createTileImage(monsterDef.tile), RenderLayers.CHARACTER, false));
+                monster.add(new Renderable(monsterDef.tile, RenderLayers.CHARACTER, false));
                 monster.add(new Position(randomPoint.x, randomPoint.y));
                 monster.add(new Actor(100));
                 monster.add(new Health(monsterDef.hp));
@@ -182,7 +175,7 @@ class GameScene extends Scene
                 var quantity:Int = 1 + Std.random(30);
                 gold.add(new Item("gold", true, quantity));
                 gold.add(new Position(randomPoint.x, randomPoint.y));
-                gold.add(new Renderable(assetFactory.createTileImage("gold" + (1 + Std.random(15)))));
+                gold.add(new Renderable("gold" + (1 + Std.random(15))));
                 gold.add(goldDesc);
                 engine.addEntity(gold);
             }
@@ -194,7 +187,7 @@ class GameScene extends Scene
                 var weapon:Entity = new Entity();
                 weapon.add(new Item(weaponDef.name, false, 1));
                 weapon.add(new Position(randomPoint.x, randomPoint.y));
-                weapon.add(new Renderable(assetFactory.createTileImage(weaponDef.tile)));
+                weapon.add(new Renderable(weaponDef.tile));
                 weapon.add(new Description(weaponDef.name));
                 engine.addEntity(weapon);
             }
@@ -204,7 +197,7 @@ class GameScene extends Scene
                 randomPoint = getRandomRoomPoint(room);
                 var blood:Entity = new Entity();
                 blood.add(new Position(randomPoint.x, randomPoint.y));
-                blood.add(new Renderable(assetFactory.createTileImage("blood" + Std.random(15))));
+                blood.add(new Renderable("blood" + Std.random(15)));
                 engine.addEntity(blood);
             }
 
@@ -232,20 +225,20 @@ class GameScene extends Scene
                         shelf.add(obstacle);
                         var type:String = Math.random() < 0.5 ? "bookshelf_ransacked" : "bookshelf";
                         var variant:Int = Std.random(3);
-                        shelf.add(new Renderable(assetFactory.createTileImage(type+variant), RenderLayers.OBJECT));
+                        shelf.add(new Renderable(type+variant, RenderLayers.OBJECT));
                         engine.addEntity(shelf);
                     }
                 case Fountain:
                     var fountain:Entity = new Entity();
                     fountain.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     fountain.add(obstacle);
-                    fountain.add(new Renderable(assetFactory.createTileImage("waterbowl"), RenderLayers.OBJECT));
+                    fountain.add(new Renderable("waterbowl", RenderLayers.OBJECT));
                     engine.addEntity(fountain);
                 case Light:
                     var light:Entity = new Entity();
                     light.add(new Position(room.x + Std.int(room.grid.width / 2), Std.int(room.y + room.grid.height / 2)));
                     light.add(obstacle);
-                    light.add(new Renderable(assetFactory.createTileImage("firebowl"), RenderLayers.OBJECT));
+                    light.add(new Renderable("firebowl", RenderLayers.OBJECT));
                     engine.addEntity(light);
                 default:
             }
@@ -270,7 +263,7 @@ class GameScene extends Scene
         engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(this, map, assetFactory, renderSignals), SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this, map, dungeon, assetFactory, renderSignals), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
 
@@ -280,44 +273,6 @@ class GameScene extends Scene
             x: room.x + 1 + Std.random(room.grid.width - 2),
             y: room.y + 1 + Std.random(room.grid.height - 2)
         };
-    }
-
-    private static function renderDungeon(dungeon:Dungeon, assetFactory:AssetFactory, transitionHelper:TransitionTileHelper):Graphic
-    {
-        var tilemapWidth:Int = dungeon.width * assetFactory.tileSize;
-        var tilemapHeight:Int = dungeon.height * assetFactory.tileSize;
-        var bmp:BitmapData = assetFactory.getImage("eight2empire/level assets.png");
-
-        var tilesetCols:Int = Math.floor(bmp.width / assetFactory.tileSize);
-        var floorTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
-        var wallTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
-
-        var floorCol:Int = 4;
-        var floorRow:Int = 0;
-        var floorTileIndex:Int = tilesetCols * floorRow + floorCol;
-        var wallRow:Int = 2;
-
-        for (y in 0...dungeon.height)
-        {
-            for (x in 0...dungeon.width)
-            {
-                switch (dungeon.grid.get(x, y))
-                {
-                    case Floor, Door(_):
-                        floorTilemap.setTile(x, y, floorTileIndex);
-
-                    case Wall:
-                        floorTilemap.setTile(x, y, floorTileIndex);
-
-                        var wallCol:Int = transitionHelper.getTileNumber(dungeon.getWallTransition(x, y));
-                        wallTilemap.setTile(x, y, tilesetCols * wallRow + wallCol);
-                    default:
-                        continue;
-                }
-            }
-        }
-
-        return new Graphiclist([floorTilemap, wallTilemap]);
     }
 
     /**
