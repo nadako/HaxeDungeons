@@ -39,6 +39,7 @@ import dungeons.utils.Map;
 import dungeons.utils.TransitionTileHelper;
 
 using dungeons.utils.EntityUtil;
+using dungeons.utils.ArrayUtil;
 
 class RenderSystem extends System
 {
@@ -285,10 +286,10 @@ class RenderSystem extends System
         var floorTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
         var wallTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
 
-        var floorCol:Int = 4;
+        var wallRow:Int = 2 + Std.random(5) * 2;
+        var floorCol:Int = Std.random(15);
         var floorRow:Int = 0;
         var floorTileIndex:Int = tilesetCols * floorRow + floorCol;
-        var wallRow:Int = 2;
 
         for (y in 0...dungeon.height)
         {
