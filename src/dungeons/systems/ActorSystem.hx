@@ -30,6 +30,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
     private var actors:List<ActorNode>;
     private var processingActor:Actor;
     private var processingActorRemoved:Bool;
+    private var lockCount:Int;
 
     public function new(actionEnergyCost:Int = 100, maxActorsPerUpdate:Int = 100)
     {
@@ -39,8 +40,27 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
         this.maxActorsPerUpdate = maxActorsPerUpdate;
 
         actors = new List<ActorNode>();
+        lockCount = 0;
         processingActor = null;
         processingActorRemoved = false;
+    }
+
+    public inline function lock():Void
+    {
+        lockCount++;
+    }
+
+    public inline function unlock():Void
+    {
+        if (!isLocked)
+            throw "Trying to unlock not-locked actor system";
+        lockCount--;
+    }
+
+    private var isLocked(get_isLocked, never):Bool;
+    private inline function get_isLocked():Bool
+    {
+        return lockCount > 0;
     }
 
     private function nodeAdded(node:ActorNode):Void
@@ -69,6 +89,10 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
 
     override public function update(time:Float):Void
     {
+        // we're locked by ui or whatever - no processing
+        if (isLocked)
+            return;
+
         // process only a portion of actors in queue per tick
         for (i in 0...maxActorsPerUpdate)
         {
@@ -91,15 +115,15 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
                 processActor(node);
 
             // if the actor was removed as a result of processing action,
-            // clear the flag, move on to the next actor
+            // clear the flag, move on to the next actor (or return if locked)
             if (processingActorRemoved)
             {
                 processingActorRemoved = false;
-                continue;
+                if (isLocked) return else continue;
             }
 
             // if it's still there and has energy, try to do more actions
-            while (actor.energy > 0)
+            while (!isLocked && actor.energy > 0)
             {
                 // request new action
                 actor.requestAction();
@@ -114,20 +138,24 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
                     // else process the action
                     processActor(node);
 
-                    // if the actor was removed as a result of processing action,
-                    // break the loop early
-                    if (processingActorRemoved)
+                    // if system was locked or the actor was removed as a result
+                    // of processing action, break the loop early
+                    if (isLocked || processingActorRemoved)
                         break;
                 }
             }
 
             // if the actor was removed as a result of processing actions,
-            // clear the flag, move on to the next actor
+            // clear the flag, move on to the next actor (or return if locked)
             if (processingActorRemoved)
             {
                 processingActorRemoved = false;
-                continue;
+                if (isLocked) return else continue;
             }
+
+            // if actor wasn't removed but the system was locked, return
+            if (isLocked)
+                return;
 
             // actor is still there, we processed all actions and it has no energy,
             // add some energy to it and push it back to queue so others can do stuff
