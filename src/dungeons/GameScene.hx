@@ -63,12 +63,14 @@ import dungeons.systems.DoorSystem;
 import dungeons.systems.InventorySystem;
 import dungeons.systems.RenderSignals;
 import dungeons.systems.TimeSystem;
+import dungeons.systems.ScheduleSystem;
 
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
 import dungeons.utils.TransitionTileHelper;
 import dungeons.utils.Map;
 import dungeons.utils.Vector;
+import dungeons.utils.Scheduler;
 
 using dungeons.utils.ArrayUtil;
 
@@ -253,6 +255,8 @@ class GameScene extends Scene
 
         var renderSignals:RenderSignals = new RenderSignals();
 
+        var scheduler:Scheduler = new Scheduler();
+
         // These systems don't do anything on ticks, instead they react on signals
         engine.addSystem(new MonsterAISystem(map), SystemPriorities.NONE);
         engine.addSystem(new ObstacleSystem(map), SystemPriorities.NONE);
@@ -263,12 +267,14 @@ class GameScene extends Scene
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
         engine.addSystem(new TimeSystem(), SystemPriorities.NONE);
+        engine.addSystem(new ActorSystem(scheduler), SystemPriorities.NONE);
 
         // Input system runs first
         engine.addSystem(new PlayerControlSystem(map), SystemPriorities.INPUT);
 
-        // Then actors are processed, here other systems can run because of action processing
-        engine.addSystem(new ActorSystem(), SystemPriorities.ACTOR);
+        // Then action scheduling/processing is performed. This is where
+        // other systems are called through signals.
+        engine.addSystem(new ScheduleSystem(scheduler), SystemPriorities.ACTIONS);
 
         // rendering comes last.
         engine.addSystem(new RenderSystem(this, map, dungeon, assetFactory, renderSignals), SystemPriorities.RENDER);
