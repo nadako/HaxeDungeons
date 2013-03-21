@@ -1,37 +1,27 @@
 package dungeons.systems;
 
-import ash.ObjectMap;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.TimeTickerNode;
+import dungeons.utils.Scheduler;
 
 class TimeSystem extends ListIteratingSystem<TimeTickerNode>
 {
-    private var listeners:ObjectMap<TimeTickerNode, Void -> Void>;
+    private var scheduler:Scheduler;
 
-    public function new()
+    public function new(scheduler:Scheduler)
     {
         super(TimeTickerNode, null, onNodeAdded, onNodeRemoved);
-        listeners = new ObjectMap();
+        this.scheduler = scheduler;
     }
 
     private function onNodeAdded(node:TimeTickerNode):Void
     {
-        var listener = callback(onTickActionRequested, node);
-        node.actor.actionRequested.add(listener);
-        listeners.set(node, listener);
+        scheduler.addActor(node.ticker);
     }
 
     private function onNodeRemoved(node:TimeTickerNode):Void
     {
-        var listener = listeners.get(node);
-        listeners.remove(node);
-        node.actor.actionRequested.remove(listener);
-    }
-
-    private function onTickActionRequested(node:TimeTickerNode):Void
-    {
-        node.ticker.ticks++;
-        node.actor.setAction(Wait);
+        scheduler.removeActor(node.ticker);
     }
 }

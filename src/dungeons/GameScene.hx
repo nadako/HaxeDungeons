@@ -250,7 +250,6 @@ class GameScene extends Scene
 
         var timeTicker:Entity = new Entity();
         timeTicker.add(new TimeTicker());
-        timeTicker.add(new Actor(100));
         engine.addEntity(timeTicker);
 
         var renderSignals:RenderSignals = new RenderSignals();
@@ -266,7 +265,7 @@ class GameScene extends Scene
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
-        engine.addSystem(new TimeSystem(), SystemPriorities.NONE);
+        engine.addSystem(new TimeSystem(scheduler), SystemPriorities.NONE);
         engine.addSystem(new ActorSystem(scheduler), SystemPriorities.NONE);
 
         // Input system runs first
