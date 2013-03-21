@@ -46,6 +46,7 @@ import dungeons.components.Fighter;
 import dungeons.components.Renderable;
 import dungeons.components.Item;
 import dungeons.components.Inventory;
+import dungeons.components.TimeTicker;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -61,6 +62,7 @@ import dungeons.systems.ObstacleSystem;
 import dungeons.systems.DoorSystem;
 import dungeons.systems.InventorySystem;
 import dungeons.systems.RenderSignals;
+import dungeons.systems.TimeSystem;
 
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
@@ -244,6 +246,11 @@ class GameScene extends Scene
             }
         }
 
+        var timeTicker:Entity = new Entity();
+        timeTicker.add(new TimeTicker());
+        timeTicker.add(new Actor(100));
+        engine.addEntity(timeTicker);
+
         var renderSignals:RenderSignals = new RenderSignals();
 
         // These systems don't do anything on ticks, instead they react on signals
@@ -255,6 +262,7 @@ class GameScene extends Scene
         engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
+        engine.addSystem(new TimeSystem(), SystemPriorities.NONE);
 
         // Input system runs first
         engine.addSystem(new PlayerControlSystem(map), SystemPriorities.INPUT);

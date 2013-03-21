@@ -16,6 +16,7 @@ import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
 import com.haxepunk.Scene;
 
+import com.haxepunk.gui.Label;
 import com.haxepunk.gui.MenuItem;
 import com.haxepunk.gui.MenuList;
 
@@ -33,6 +34,7 @@ import dungeons.components.Fighter;
 import dungeons.components.Renderable;
 import dungeons.mapgen.Dungeon;
 import dungeons.nodes.PlayerInventoryNode;
+import dungeons.nodes.TimeTickerNode;
 import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
 import dungeons.utils.Map;
@@ -61,6 +63,9 @@ class RenderSystem extends System
     private var memoryCanvas:Canvas;
 
     private var playerInventory:PlayerInventory;
+
+    private var timeDisplay:Label;
+    private var timeNodes:NodeList<TimeTickerNode>;
 
     public function new(scene:Scene, map:Map, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals)
     {
@@ -102,6 +107,14 @@ class RenderSystem extends System
 
         playerInventory = new PlayerInventory(engine.getNodeList(PlayerInventoryNode).head.inventory);
         scene.add(playerInventory);
+
+        timeDisplay = new Label();
+        timeDisplay.followCamera = true;
+        timeDisplay.size = 16;
+        timeDisplay.localX = HXP.width / 2;
+        timeDisplay.color = 0xFFFFFF;
+        scene.add(timeDisplay);
+        timeNodes = engine.getNodeList(TimeTickerNode);
     }
 
     override public function removeFromEngine(engine:Engine):Void
@@ -120,6 +133,8 @@ class RenderSystem extends System
         for (node in positionListeners.keys())
             node.position.changed.remove(positionListeners.get(node));
         positionListeners = null;
+
+        timeNodes = null;
     }
 
     private function onFOVUpdated():Void
@@ -250,6 +265,9 @@ class RenderSystem extends System
     {
         if (fovOverlayDirty)
             redrawFOVOverlay();
+
+        if (timeNodes.head != null)
+            timeDisplay.text = Std.string(timeNodes.head.ticker.ticks);
     }
 
     private function onHPChangeSignal(posX:Int, posY:Int, value:Int):Void
