@@ -1,5 +1,6 @@
 package dungeons.systems;
 
+import ash.ObjectMap;
 import ash.core.Entity;
 import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
@@ -10,6 +11,7 @@ import dungeons.components.Position;
 import dungeons.components.Door;
 import dungeons.components.Actor;
 import dungeons.components.Inventory;
+import dungeons.utils.Scheduler;
 
 /**
  * A system that processes all game actors.
@@ -24,179 +26,63 @@ import dungeons.components.Inventory;
  **/
 class ActorSystem extends ListIteratingSystem<ActorNode>
 {
-    public var actionEnergyCost:Int;
     public var maxActorsPerUpdate:Int;
 
-    private var actors:List<ActorNode>;
-    private var processingActor:Actor;
-    private var processingActorRemoved:Bool;
-    private var lockCount:Int;
+    private var scheduler:Scheduler;
+    private var actionListeners:ObjectMap<ActorNode, Action->Void>;
 
-    public function new(actionEnergyCost:Int = 100, maxActorsPerUpdate:Int = 100)
+    public function new(maxActorsPerUpdate:Int = 100)
     {
         super(ActorNode, null, nodeAdded, nodeRemoved);
-
-        this.actionEnergyCost = actionEnergyCost;
         this.maxActorsPerUpdate = maxActorsPerUpdate;
-
-        actors = new List<ActorNode>();
-        lockCount = 0;
-        processingActor = null;
-        processingActorRemoved = false;
-    }
-
-    public inline function lock():Void
-    {
-        lockCount++;
-    }
-
-    public inline function unlock():Void
-    {
-        if (!isLocked)
-            throw "Trying to unlock not-locked actor system";
-        lockCount--;
-    }
-
-    private var isLocked(get_isLocked, never):Bool;
-    private inline function get_isLocked():Bool
-    {
-        return lockCount > 0;
+        scheduler = new Scheduler();
+        actionListeners = new ObjectMap();
     }
 
     private function nodeAdded(node:ActorNode):Void
     {
-        // actor is added to the back of the queue
-        actors.add(node);
+        var listener:Action->Void = callback(processNodeAction, node);
+        node.actor.actionReceived.add(listener);
+        actionListeners.set(node, listener);
+
+        scheduler.addActor(node.actor);
     }
 
     private function nodeRemoved(node:ActorNode):Void
     {
-        actors.remove(node);
+        scheduler.removeActor(node.actor);
 
-        // if it's the actor we're currently processing - mark that it's removed,
-        // so the update function can return early
-        if (processingActor != null && node.actor == processingActor)
-            processingActorRemoved = true;
+        var listener:Action->Void = actionListeners.get(node);
+        actionListeners.remove(node);
+        node.actor.actionReceived.remove(listener);
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
         super.removeFromEngine(engine);
-        actors.clear();
-        processingActor = null;
-        processingActorRemoved = false;
+        for (node in actionListeners.keys())
+            node.actor.actionReceived.remove(actionListeners.get(node));
+        actionListeners = null;
+        scheduler = null;
     }
 
     override public function update(time:Float):Void
     {
-        // we're locked by ui or whatever - no processing
-        if (isLocked)
-            return;
-
         // process only a portion of actors in queue per tick
         for (i in 0...maxActorsPerUpdate)
         {
-            // get first actor in queue
-            var node:ActorNode = actors.first();
-
-            // if queue is empty - nothing to do here
-            if (node == null)
-                return;
-
-            // we actually need actor component, not the node itself
-            var actor:Actor = node.actor;
-
-            // return if still waiting for action
-            if (actor.awaitingAction)
-                return;
-
-            // if we was waiting and now got the action
-            if (actor.resultAction != null)
-                processActor(node);
-
-            // if the actor was removed as a result of processing action,
-            // clear the flag, move on to the next actor (or return if locked)
-            if (processingActorRemoved)
-            {
-                processingActorRemoved = false;
-                if (isLocked) return else continue;
-            }
-
-            // if it's still there and has energy, try to do more actions
-            while (!isLocked && actor.energy > 0)
-            {
-                // request new action
-                actor.requestAction();
-
-                if (actor.awaitingAction)
-                {
-                    // if there was no immediate reaction, then we wait for it
-                    return;
-                }
-                else
-                {
-                    // else process the action
-                    processActor(node);
-
-                    // if system was locked or the actor was removed as a result
-                    // of processing action, break the loop early
-                    if (isLocked || processingActorRemoved)
-                        break;
-                }
-            }
-
-            // if the actor was removed as a result of processing actions,
-            // clear the flag, move on to the next actor (or return if locked)
-            if (processingActorRemoved)
-            {
-                processingActorRemoved = false;
-                if (isLocked) return else continue;
-            }
-
-            // if actor wasn't removed but the system was locked, return
-            if (isLocked)
-                return;
-
-            // actor is still there, we processed all actions and it has no energy,
-            // add some energy to it and push it back to queue so others can do stuff
-            actor.energy += actor.speed;
-            actors.add(actors.pop());
+            if (!scheduler.tick())
+                break;
         }
-    }
-
-    /**
-     * This function is actually a part of actor processing, it is factored
-     * out of it because this code need to be run it two places of update function
-     **/
-
-    private inline function processActor(node:ActorNode):Void
-    {
-        // get the action
-        var action:Action = node.actor.resultAction;
-
-        // clear it from actor
-        node.actor.clearAction();
-
-        // spend the energy
-        node.actor.energy -= actionEnergyCost;
-
-        // save actor to a field so we can check if it's removed as a result of action processing
-        processingActor = node.actor;
-
-        // actually process action
-        processAction(node.entity, action);
-
-        // clear current processing actor, because we're not interested in checking if it's removed
-        processingActor = null;
     }
 
     /**
      * This function does the actual work. It triggers relevant entity
      * components and systems based on action passed.
      **/
-
-    private function processAction(entity:Entity, action:Action):Void
+    private function processNodeAction(node:ActorNode, action:Action):Void
     {
+        var entity:Entity = node.entity;
         switch (action)
         {
             case Action.Move(direction):
