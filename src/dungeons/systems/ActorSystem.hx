@@ -77,6 +77,9 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
             case Action.OpenDoor(door):
                 door.get(Door).requestOpen(entity);
 
+            case Action.CloseDoor(door):
+                door.get(Door).requestClose(entity);
+
             case Action.Attack(defender):
                 defender.get(Fighter).requestAttack(entity);
 

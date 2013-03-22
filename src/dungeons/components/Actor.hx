@@ -12,6 +12,7 @@ enum Action
     Wait;
     Move(direction:Direction);
     OpenDoor(door:Entity);
+    CloseDoor(door:Entity);
     Attack(defender:Entity);
     Pickup(item:Entity);
 }

@@ -262,7 +262,7 @@ class GameScene extends Scene
         engine.addSystem(new FOVSystem(map), SystemPriorities.NONE);
         engine.addSystem(new PositionSystem(map), SystemPriorities.NONE);
         engine.addSystem(new CameraSystem(assetFactory.tileSize), SystemPriorities.NONE);
-        engine.addSystem(new DoorSystem(), SystemPriorities.NONE);
+        engine.addSystem(new DoorSystem(map), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
         engine.addSystem(new TimeSystem(scheduler), SystemPriorities.NONE);

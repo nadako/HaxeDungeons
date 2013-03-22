@@ -1,6 +1,5 @@
 package dungeons.systems;
 
-import dungeons.components.Renderable;
 import com.haxepunk.Graphic;
 
 import ash.ObjectMap;
@@ -10,21 +9,25 @@ import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Door;
 import dungeons.components.DoorRenderable;
+import dungeons.components.Renderable;
 import dungeons.components.LightOccluder;
 import dungeons.components.Obstacle;
 import dungeons.nodes.DoorNode;
+import dungeons.utils.Map;
 
 using dungeons.utils.EntityUtil;
 
 class DoorSystem extends ListIteratingSystem<DoorNode>
 {
-    private var doorListeners:ObjectMap<DoorNode, OpenRequestListener>;
+    private var doorListeners:ObjectMap<DoorNode, DoorListener>;
     private var obstacle:Obstacle;
     private var lightOccluder:LightOccluder;
+    private var map:Map;
 
-    public function new()
+    public function new(map:Map)
     {
         super(DoorNode, null, onNodeAdded, onNodeRemoved);
+        this.map = map;
         obstacle = new Obstacle();
         lightOccluder = new LightOccluder();
     }
@@ -39,15 +42,23 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
     {
         super.removeFromEngine(engine);
         for (node in doorListeners.keys())
-            node.door.openRequested.remove(doorListeners.get(node));
+        {
+            var listener:DoorListener = doorListeners.get(node);
+            node.door.openRequested.remove(listener.openListener);
+            node.door.closeRequested.remove(listener.closeListener);
+        }
         doorListeners = null;
     }
 
     private function onNodeAdded(node:DoorNode):Void
     {
-        var listener = callback(onNodeOpenRequested, node);
+        var listener:DoorListener = {
+            openListener: callback(onNodeOpenRequested, node),
+            closeListener: callback(onNodeCloseRequested, node)
+        };
         doorListeners.set(node, listener);
-        node.door.openRequested.add(listener);
+        node.door.openRequested.add(listener.openListener);
+        node.door.closeRequested.add(listener.closeListener);
         updateDoor(node);
     }
 
@@ -57,18 +68,28 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
 
         if (!node.door.open)
         {
-            // TODO: use friend typedef cast or haxe 2.11 ACL metadata
-            untyped node.door.open = true;
+            node.door.open = true;
             updateDoor(node);
             MessageLogSystem.message(who.isPlayer() ? "You open the door." : "Door opens...");
         }
     }
 
+    private function onNodeCloseRequested(node:DoorNode, who:Entity):Void
+    {
+        if (node.door.open && !map.isBlocked(node.position.x, node.position.y))
+        {
+            node.door.open = false;
+            updateDoor(node);
+            MessageLogSystem.message(who.isPlayer() ? "You close the door." : "Door closes...");
+        }
+    }
+
     private function onNodeRemoved(node:DoorNode):Void
     {
-        var listener = doorListeners.get(node);
+        var listener:DoorListener = doorListeners.get(node);
         doorListeners.remove(node);
-        node.door.openRequested.remove(listener);
+        node.door.openRequested.remove(listener.openListener);
+        node.door.closeRequested.remove(listener.closeListener);
     }
 
     private function updateDoor(node:DoorNode):Void
@@ -87,4 +108,10 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
             renderable.setOpen(false);
         }
     }
+}
+
+private typedef DoorListener =
+{
+    var openListener:OpenRequestListener;
+    var closeListener:CloseRequestListener;
 }

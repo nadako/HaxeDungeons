@@ -13,9 +13,13 @@ import dungeons.components.Door;
 import dungeons.components.Position;
 import dungeons.components.Obstacle;
 import dungeons.components.Item;
+import dungeons.components.Position;
 import dungeons.nodes.PlayerActorNode;
 import dungeons.utils.Direction;
 import dungeons.utils.Map;
+import dungeons.utils.Vector;
+
+using dungeons.utils.Direction.DirectionUtil;
 
 class PlayerControlSystem extends System
 {
@@ -208,24 +212,27 @@ class MainInputHandler extends InputHandlerBase
                     }
                 }
             case Key.C:
-                pushHandler(new ChooseDirectionHandler(testChooseDir));
+                MessageLogSystem.message("Choose direction to close door.");
+                pushHandler(new ChooseDirectionHandler(closeDoor));
         }
         return action;
     }
 
-    private function testChooseDir(dir:Direction):Action
+    private function closeDoor(dir:Direction):Action
     {
         popHandler();
-        if (dir == null)
+        if (dir != null)
         {
-            trace("Direction choosing canceled");
-            return null;
+            var pos:Position = entity.get(Position);
+            var off:Vector = dir.offset();
+            for (e in system.map.get(pos.x + off.x, pos.y + off.y).entities)
+            {
+                var door:Door = e.get(Door);
+                if (door != null)
+                    return CloseDoor(e);
+            }
         }
-        else
-        {
-            trace("Moving to chosen direction " + dir);
-            return Move(dir);
-        }
+        return null;
     }
 }
 
@@ -242,12 +249,10 @@ class ChooseDirectionHandler extends InputHandlerBase
 
     override public function enter():Void
     {
-        trace("Choose a direction");
     }
 
     override public function exit():Void
     {
-        trace("Direction chosen!");
     }
 
     override private function handleKey(key:Int):Action
