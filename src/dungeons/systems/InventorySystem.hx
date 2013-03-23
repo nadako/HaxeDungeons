@@ -6,6 +6,7 @@ import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Item;
+import dungeons.components.Equipment;
 import dungeons.components.Position;
 import dungeons.components.Inventory;
 import dungeons.nodes.InventoryNode;
@@ -87,6 +88,20 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
 
             // add to inventory
             inventory.items.push(itemEntity);
+        }
+
+        var itemName:String = itemEntity.getName();
+
+        var cnt:String = "";
+        if (item.quantity > 1)
+            cnt += Std.string(item.quantity) + " ";
+        MessageLogSystem.message("You pickup " + cnt + itemName);
+
+        var equipment:Equipment = itemEntity.get(Equipment);
+        if (equipment != null && inventory.getEquippedInSlot(equipment.slot) == null)
+        {
+            inventory.equip(itemEntity);
+            MessageLogSystem.message("You equip " + itemName);
         }
 
         inventory.updated.dispatch();

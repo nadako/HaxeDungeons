@@ -47,6 +47,7 @@ import dungeons.components.Renderable;
 import dungeons.components.Item;
 import dungeons.components.Inventory;
 import dungeons.components.TimeTicker;
+import dungeons.components.Equipment;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -190,6 +191,7 @@ class GameScene extends Scene
                 var weaponDef:WeaponDefinition = weaponDefs.randomChoice();
                 var weapon:Entity = new Entity();
                 weapon.add(new Item(weaponDef.name, false, 1));
+                weapon.add(new Equipment(EquipSlot.Weapon, weaponDef.atk));
                 weapon.add(new Position(randomPoint.x, randomPoint.y));
                 weapon.add(new Renderable(weaponDef.tile));
                 weapon.add(new Description(weaponDef.name));
@@ -337,4 +339,5 @@ private typedef WeaponDefinition =
 {
     var name:String;
     var tile:String;
+    var atk:Int;
 }

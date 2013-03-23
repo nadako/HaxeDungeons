@@ -5,6 +5,8 @@ import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 import ash.ObjectMap;
 
+import dungeons.components.Equipment;
+import dungeons.components.Inventory;
 import dungeons.components.Position;
 import dungeons.components.Fighter;
 import dungeons.nodes.FighterNode;
@@ -52,10 +54,38 @@ class FightSystem extends ListIteratingSystem<FighterNode>
         var defenderFighter:Fighter = defender.fighter;
         var defenderPos:Position = defender.entity.get(Position);
 
-        var hit:Bool = Math.random() < attackerFighter.power / (attackerFighter.power + defenderFighter.defense);
+        // base attack power
+        var attackPower:Int = attackerFighter.power;
+
+        // bonuses from equipment
+        var attackerInv:Inventory = attacker.get(Inventory);
+        if (attackerInv != null)
+        {
+            for (item in attackerInv.getEquippedItems())
+            {
+                var equipment:Equipment = item.get(Equipment);
+                attackPower += equipment.attackBonus;
+            }
+        }
+
+        // base defense
+        var defense:Int = defenderFighter.defense;
+
+        // bonuses from equipment
+        var defenderInv:Inventory = defender.entity.get(Inventory);
+        if (defenderInv != null)
+        {
+            for (item in defenderInv.getEquippedItems())
+            {
+                var equipment:Equipment = item.get(Equipment);
+                defense += equipment.defenseBonus;
+            }
+        }
+
+        var hit:Bool = Math.random() < attackPower / (attackPower + defense);
         if (hit)
         {
-            var damage:Int = Std.int(attackerFighter.power / (defender.fighter.defense > 0 ? defender.fighter.defense : 1));
+            var damage:Int = Std.int(attackPower / (defense > 0 ? defense : 1));
 
             if (damage > 0)
             {

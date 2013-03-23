@@ -1,46 +1,57 @@
 [
     {
         "name": "Club",
-        "tile": "wpn_club"
+        "tile": "wpn_club",
+        "atk": 1
     },
     {
         "name": "Staff",
-        "tile": "wpn_staff"
+        "tile": "wpn_staff",
+        "atk": 1
     },
     {
         "name": "Spear",
-        "tile": "wpn_spear"
+        "tile": "wpn_spear",
+        "atk": 1
     },
     {
         "name": "Knife",
-        "tile": "wpn_knife"
+        "tile": "wpn_knife",
+        "atk": 1
     },
     {
         "name": "Cleaver",
-        "tile": "wpn_cleaver"
+        "tile": "wpn_cleaver",
+        "atk": 1
     },
     {
         "name": "Axe",
-        "tile": "wpn_axe"
+        "tile": "wpn_axe",
+        "atk": 1
     },
     {
         "name": "Sword",
-        "tile": "wpn_sword"
+        "tile": "wpn_sword",
+        "atk": 1
     },
     {
         "name": "Hammer",
-        "tile": "wpn_hammer"
+        "tile": "wpn_hammer",
+        "atk": 1
     },
     {
         "name": "Mace",
-        "tile": "wpn_mace"
+        "tile": "wpn_mace",
+        "atk": 1
     },
     {
         "name": "Flail",
-        "tile": "wpn_flail"
+        "tile": "wpn_flail",
+        "atk": 1
     },
     {
         "name": "Whip",
-        "tile": "wpn_whip"
+        "tile": "wpn_whip",
+        "atk": 1
     }
 ]
