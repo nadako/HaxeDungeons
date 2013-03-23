@@ -25,7 +25,7 @@ class PlayerControlSystem extends System
 {
     public var map(default, null):Map;
     private var nodeList:NodeList<PlayerActorNode>;
-    private var inputHandler:IInputHandler;
+    private var inputStates:List<IInputState>;
 
     public function new(map:Map)
     {
@@ -36,28 +36,37 @@ class PlayerControlSystem extends System
     override public function addToEngine(engine:Engine):Void
     {
         nodeList = engine.getNodeList(PlayerActorNode);
-        inputHandler = new MainInputHandler(this);
-        inputHandler.enter();
+        inputStates = new List();
+        pushState(new MainInputState());
     }
 
     override public function removeFromEngine(engine:Engine):Void
     {
         nodeList = null;
-        inputHandler.exit();
-        inputHandler = null;
+        inputStates = null;
+    }
+
+    public function pushState(state:IInputState):Void
+    {
+        var from:IInputState = inputStates.first();
+        inputStates.push(state);
+        state.enter(this, from);
+    }
+
+    public function popState():Void
+    {
+        var state:IInputState = inputStates.pop();
+        if (state == null)
+            throw "no input state to pop";
+        state.exit(this, inputStates.first());
     }
 
     private function getAction(entity:Entity):Action
     {
-        inputHandler.bind(entity);
-
-        var action:Action = inputHandler.processKey(Input.lastKey);
-
+        var state:IInputState = inputStates.first();
+        var action:Action = state.getAction(this, entity);
         if (action != null && Type.enumConstructor(action) == "Move")
             action = processMove(entity, action);
-
-        inputHandler.unbind();
-
         return action;
     }
 
@@ -90,97 +99,54 @@ class PlayerControlSystem extends System
 
     override public function update(time:Float):Void
     {
-        if (Input.pressed(Key.ANY))
+        for (node in nodeList)
         {
-            for (node in nodeList)
+            if (node.actor.awaitingAction)
             {
-                if (node.actor.awaitingAction)
-                {
-                    var action = getAction(node.entity);
-                    if (action != null)
-                        node.actor.setAction(action);
-                }
+                var action = getAction(node.entity);
+                if (action != null)
+                    node.actor.setAction(action);
             }
         }
     }
 }
 
-interface IInputHandler
+interface IInputState
 {
-    function enter():Void;
-    function exit():Void;
-    function bind(entity:Entity):Void;
-    function unbind():Void;
-    function processKey(key:Int):Action;
+    function enter(system:PlayerControlSystem, from:IInputState):Void;
+    function exit(system:PlayerControlSystem, to:IInputState):Void;
+    function getAction(system:PlayerControlSystem, entity:Entity):Action;
 }
 
-class InputHandlerBase implements IInputHandler
+class BaseInputState implements IInputState
 {
-    private var next:IInputHandler;
-    private var entity:Entity;
-
-    public function bind(entity:Entity):Void
-    {
-        this.entity = entity;
-        if (next != null)
-            next.bind(entity);
-    }
-
-    public function unbind():Void
-    {
-        entity = null;
-        if (next != null)
-            next.unbind();
-    }
-
-    public function enter():Void
+    public function new()
     {
     }
 
-    public function exit():Void
+    public function enter(system:PlayerControlSystem, from:IInputState):Void
     {
     }
 
-    public function processKey(key:Int):Action
+    public function exit(system:PlayerControlSystem, to:IInputState):Void
     {
-        if (next != null)
-            return next.processKey(key);
-        else
-            return handleKey(key);
     }
 
-    private function pushHandler(handler:IInputHandler):Void
-    {
-        if (next != null)
-            throw "Already have next handler " + handler;
-        next = handler;
-        next.enter();
-    }
-
-    private function popHandler():Void
-    {
-        next.exit();
-        next = null;
-    }
-
-    private function handleKey(key:Int):Action
+    public function getAction(system:PlayerControlSystem, entity:Entity):Action
     {
         return null;
     }
 }
 
-class MainInputHandler extends InputHandlerBase
+class MainInputState extends BaseInputState
 {
-    private var system:PlayerControlSystem;
-
-    public function new(system:PlayerControlSystem)
+    override public function getAction(system:PlayerControlSystem, entity:Entity):Action
     {
-        this.system = system;
-    }
+        if (!Input.pressed(Key.ANY))
+            return null;
 
-    override private function handleKey(key:Int):Action
-    {
         var action:Action = null;
+        var key:Int = Input.lastKey;
         switch (key)
         {
             case Key.UP, Key.NUMPAD_8:
@@ -213,14 +179,13 @@ class MainInputHandler extends InputHandlerBase
                 }
             case Key.C:
                 MessageLogSystem.message("Choose direction to close door.");
-                pushHandler(new ChooseDirectionHandler(closeDoor));
+                system.pushState(new ChooseDirectionState(closeDoor));
         }
         return action;
     }
 
-    private function closeDoor(dir:Direction):Action
+    private function closeDoor(system:PlayerControlSystem, entity:Entity, dir:Direction):Action
     {
-        popHandler();
         if (dir != null)
         {
             var pos:Position = entity.get(Position);
@@ -236,29 +201,30 @@ class MainInputHandler extends InputHandlerBase
     }
 }
 
-typedef ChooseDirectionCallback = Direction -> Action;
+typedef ChooseDirectionCallback = PlayerControlSystem -> Entity -> Direction -> Action;
 
-class ChooseDirectionHandler extends InputHandlerBase
+class ChooseDirectionState extends BaseInputState
 {
     private var cb:ChooseDirectionCallback;
 
     public function new(cb:ChooseDirectionCallback):Void
     {
+        super();
         this.cb = cb;
     }
 
-    override public function enter():Void
+    override public function getAction(system:PlayerControlSystem, entity:Entity):Action
     {
-    }
+        if (!Input.pressed(Key.ANY))
+            return null;
 
-    override public function exit():Void
-    {
-    }
+        var key:Int = Input.lastKey;
 
-    override private function handleKey(key:Int):Action
-    {
         if (key == Key.ESCAPE)
-            return cb(null);
+        {
+            system.popState();
+            return cb(system, entity, null);
+        }
 
         var dir:Direction = switch (key)
         {
@@ -282,7 +248,10 @@ class ChooseDirectionHandler extends InputHandlerBase
                 null;
         };
         if (dir != null)
-            return cb(dir);
+        {
+            system.popState();
+            return cb(system, entity, dir);
+        }
         else
             return null;
     }
