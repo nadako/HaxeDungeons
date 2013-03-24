@@ -156,7 +156,7 @@ class GameScene extends Scene
         {
             var randomPoint:Vector;
 
-            if (room != startRoom)
+            if (room != startRoom && Math.random() < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
