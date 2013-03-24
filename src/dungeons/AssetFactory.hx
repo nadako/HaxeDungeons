@@ -71,7 +71,7 @@ class AssetFactory
         {
             tileRect.x = frames[0].col * tileSize;
             tileRect.y = frames[0].row * tileSize;
-            return new Image(bmp, tileRect);
+            return new Image(bmp, tileRect.clone());
         }
     }
 

@@ -11,6 +11,7 @@ import com.haxepunk.graphics.Tilemap;
 import com.haxepunk.graphics.Graphiclist;
 import com.haxepunk.graphics.Canvas;
 import com.haxepunk.graphics.Image;
+import com.haxepunk.graphics.Spritemap;
 import com.haxepunk.graphics.Text;
 import com.haxepunk.HXP;
 import com.haxepunk.Graphic;
@@ -197,10 +198,13 @@ class RenderSystem extends System
                         if (renderable == null)
                             continue;
 
-                        var sceneEntity:com.haxepunk.Entity = sceneEntities.get(renderable);
+                        var sceneEntity:RenderableEntity = sceneEntities.get(renderable);
 
                         // update sprite visibility
-                        sceneEntity.visible = visible;
+                        if (visible)
+                            sceneEntity.show();
+                        else
+                            sceneEntity.hide();
 
                         // if tile has just been hidden, draw memorable sprites to memory
                         if (wasVisible && renderable.memorable)
@@ -212,18 +216,6 @@ class RenderSystem extends System
         fovOverlayData.unlock();
         fovOverlayImage.updateBuffer();
         fovOverlayDirty = false;
-    }
-
-    private inline function setEntitiesVisible(x:Int, y:Int, value:Bool):Void
-    {
-        for (e in map.get(x, y).entities)
-        {
-            var renderable:Renderable = e.get(Renderable);
-            if (renderable == null)
-                continue;
-            var sceneEntity:com.haxepunk.Entity = sceneEntities.get(renderable);
-            sceneEntity.visible = value;
-        }
     }
 
     private function onNodeAdded(node:RenderNode):Void
@@ -255,10 +247,14 @@ class RenderSystem extends System
 
     private function onNodePositionChanged(node:RenderNode, oldX:Int, oldY:Int):Void
     {
-        var entity:com.haxepunk.Entity = sceneEntities.get(node.renderable);
+        var entity:RenderableEntity = sceneEntities.get(node.renderable);
         entity.x = node.position.x * assetFactory.tileSize;
         entity.y = node.position.y * assetFactory.tileSize;
-        entity.visible = fovSystem.currentLightMap.get(node.position.x, node.position.y) > 0;
+
+        if (fovSystem.currentLightMap.get(node.position.x, node.position.y) > 0)
+            entity.show();
+        else
+            entity.hide();
     }
 
     override public function update(time:Float):Void
@@ -348,6 +344,7 @@ private class RenderableEntity extends com.haxepunk.Entity
     private var renderable:Renderable;
     private var assetFactory:AssetFactory;
     private var mainGraphic:Graphic;
+    private var alphaTween:NumTween;
 
     public function new(renderable:Renderable, assetFactory:AssetFactory)
     {
@@ -356,10 +353,49 @@ private class RenderableEntity extends com.haxepunk.Entity
         layer = renderable.layer;
         this.renderable = renderable;
         this.assetFactory = assetFactory;
+
+        if (!renderable.memorable)
+        {
+            alphaTween = new NumTween(onAlphaTweenComplete);
+            alphaTween.value = 0;
+            addTween(alphaTween);
+        }
+    }
+
+    public function show():Void
+    {
+        visible = true;
+        if (!renderable.memorable)
+            alphaTween.tween(alphaTween.value, 1.0, 0.25);
+    }
+
+    public function hide():Void
+    {
+        if (!renderable.memorable)
+            alphaTween.tween(alphaTween.value, 0.0, 0.25);
+        else
+            visible = false;
+    }
+
+    private function onAlphaTweenComplete(e):Void
+    {
+        if (alphaTween.value == 0)
+            visible = false;
     }
 
     override public function update():Void
     {
+        if (alphaTween != null && alphaTween.active)
+        {
+            for (g in cast(graphic, Graphiclist).children)
+            {
+                if (Std.is(g, Image))
+                    cast(g, Image).alpha = alphaTween.value;
+                else if (Std.is(g, Spritemap))
+                    cast(g, Spritemap).alpha = alphaTween.value;
+            }
+        }
+
         if (renderable.assetInvalid)
         {
             var gList:Graphiclist = cast graphic;
