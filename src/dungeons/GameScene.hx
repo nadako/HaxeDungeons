@@ -89,7 +89,7 @@ class GameScene extends Scene
     {
         engine = new Engine();
 
-        var dungeon:Dungeon = new Dungeon(50, 50, 25, {x: 5, y: 5}, {x: 15, y: 15});
+        var dungeon:Dungeon = new Dungeon(50, 50, 15, {x: 5, y: 5}, {x: 10, y: 10});
         dungeon.generate();
 
         var map:Map = new Map(dungeon.width, dungeon.height);
@@ -102,7 +102,24 @@ class GameScene extends Scene
 
         var doorTypes:Array<String> = "curtain,shabby,simple,peephole,square,braced,iron,iron_peephole,grated,gold,gold_peephole".split(",");
 
-        var startRoom:Room = dungeon.rooms.randomChoice();
+        var startRoom:Room = dungeon.rooms[0];
+
+        var endRoomCandidates:Array<Room> = [];
+        for (room in dungeon.rooms)
+        {
+            if (room == startRoom)
+                continue;
+            if (room.children.length == 0)
+                endRoomCandidates.push(room);
+        }
+
+        var endRoom:Room = endRoomCandidates.randomChoice();
+        var endPoint:Vector = getRandomRoomPoint(endRoom);
+
+        var downStairs:Entity = new Entity();
+        downStairs.add(new Position(endPoint.x, endPoint.y));
+        downStairs.add(new Renderable("stair_down", RenderLayers.OBJECT));
+        engine.addEntity(downStairs);
 
         for (y in 0...dungeon.height)
         {

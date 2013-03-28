@@ -92,6 +92,7 @@
         "door_gold_peephole_destroyed": "eight2empire/level assets.png:10,32",
 
         "stair_up": "eight2empire/level assets.png:21,2",
+        "stair_down": "eight2empire/level assets.png:22,2",
 
         "blood0": "eight2empire/level assets.png:0,37",
         "blood1": "eight2empire/level assets.png:1,37",

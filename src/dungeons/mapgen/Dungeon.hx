@@ -19,6 +19,8 @@ typedef Room =
     var x:Int;
     var y:Int;
     var grid:Grid<Tile>;
+    var parent:Room;
+    var children:Array<Room>;
 }
 
 class Dungeon
@@ -92,7 +94,7 @@ class Dungeon
             if (hasSpaceForRoom(room, x, y))
             {
                 placeRoom(room, x, y);
-                connectRooms(connection);
+                connectRoom(connection, room);
                 unusedConnections.splice(connIdx, 1);
             }
             else
@@ -167,7 +169,7 @@ class Dungeon
                 roomGrid.set(x, y, tile);
             }
         }
-        return {grid: roomGrid, x: 0, y: 0};
+        return {grid: roomGrid, x: 0, y: 0, parent: null, children: []};
     }
 
     private function hasSpaceForRoom(room:Room, x:Int, y:Int):Bool
@@ -198,18 +200,18 @@ class Dungeon
                     grid.set(x + roomX, y + roomY, tile);
 
                 if (roomY == 0 && roomX > 0 && roomX < room.grid.width - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: North});
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: North, parent: room});
                 else if (roomY == room.grid.height - 1 && roomX > 0 && roomX < room.grid.width - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: South});
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: South, parent: room});
                 else if (roomX == 0 && roomY > 0 && roomY < room.grid.height - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: West});
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: West, parent: room});
                 else if (roomX == room.grid.width - 1 && roomY > 0 && roomY < room.grid.height - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: East});
+                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: East, parent: room});
             }
         }
     }
 
-    private function connectRooms(connection:Connection):Void
+    private function connectRoom(connection:Connection, room:Room):Void
     {
         var posX:Int = connection.x;
         var posY:Int = connection.y;
@@ -232,6 +234,11 @@ class Dungeon
 
         grid.set(connection.x, connection.y, outerDoor ? Floor : doorTile);
         grid.set(posX, posY, outerDoor ? doorTile : Floor);
+
+        if (room.parent != null)
+            throw "Room parent is already set? WTF!";
+        connection.parent.children.push(room);
+        room.parent = connection.parent;
     }
 }
 
@@ -240,4 +247,5 @@ private typedef Connection =
     var x:Int;
     var y:Int;
     var direction:Direction;
+    var parent:Room;
 }
