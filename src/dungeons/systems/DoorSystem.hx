@@ -8,10 +8,12 @@ import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Door;
+import dungeons.components.Key;
 import dungeons.components.DoorRenderable;
 import dungeons.components.Renderable;
 import dungeons.components.LightOccluder;
 import dungeons.components.Obstacle;
+import dungeons.components.Inventory;
 import dungeons.nodes.DoorNode;
 import dungeons.utils.Map;
 
@@ -64,14 +66,39 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
 
     private function onNodeOpenRequested(node:DoorNode, who:Entity):Void
     {
-        // here we can add checks for key in inventory and so on
+        var door:Door = node.door;
 
-        if (!node.door.open)
+        if (door.open)
+            return;
+
+        if (door.keyId > 0)
         {
-            node.door.open = true;
-            updateDoor(node);
-            MessageLogSystem.message(who.isPlayer() ? "You open the door." : "Door opens...");
+            var inventory:Inventory = who.get(Inventory);
+            if (inventory == null)
+                return;
+
+            var hasKey:Bool = false;
+            for (item in inventory.items)
+            {
+                var key:Key = item.get(Key);
+                if (key != null && key.keyId == door.keyId)
+                {
+                    hasKey = true;
+                    break;
+                }
+            }
+
+            if (!hasKey)
+            {
+                if (who.isPlayer())
+                    MessageLogSystem.message("You don't have a key for this door (keyId="+door.keyId+")");
+                return;
+            }
         }
+
+        door.open = true;
+        updateDoor(node);
+        MessageLogSystem.message(who.isPlayer() ? "You open the door." : "Door opens...");
     }
 
     private function onNodeCloseRequested(node:DoorNode, who:Entity):Void

@@ -6,12 +6,14 @@ import ash.signals.Signal1;
 class Door
 {
     public var open:Bool;
+    public var keyId:Int;
     public var openRequested(default, null):Signal1<Entity>;
     public var closeRequested(default, null):Signal1<Entity>;
 
-    public function new(open:Bool = false)
+    public function new(open:Bool = false, keyId:Int = 0)
     {
         this.open = open;
+        this.keyId = keyId;
         openRequested = new Signal1();
         closeRequested = new Signal1();
     }

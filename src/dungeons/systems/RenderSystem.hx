@@ -100,6 +100,7 @@ class RenderSystem extends System
         fovOverlayImage = new Image(fovOverlayData);
         fovOverlayImage.scale = assetFactory.tileSize;
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
+//        fovOverlayEntity.visible = false;
 
         fovOverlayDirty = true;
 

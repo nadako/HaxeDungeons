@@ -119,6 +119,10 @@
         "bookshelf_ransacked2": "eight2empire/level assets.png:19,22",
 
         "waterbowl": "eight2empire/level assets.png:15,28:16,28",
-        "firebowl": "eight2empire/level assets.png:17,28:18,28"
+        "firebowl": "eight2empire/level assets.png:17,28:18,28",
+
+        "key1": "eight2empire/item assets.png:0,5",
+        "key2": "eight2empire/item assets.png:1,5",
+        "key3": "eight2empire/item assets.png:2,5"
     }
 }

@@ -30,6 +30,7 @@ import nme.Lib;
 import ash.core.Engine;
 import ash.core.Entity;
 
+import dungeons.components.Key;
 import dungeons.components.Health;
 import dungeons.components.Description;
 import dungeons.components.MonsterAI;
@@ -105,7 +106,7 @@ class GameScene extends Scene
         var startRoom:Room = dungeon.rooms[0];
 
         var endRoomCandidates:Array<Room> = [];
-        for (room in dungeon.rooms)
+        for (room in dungeon.getLevelRooms(dungeon.keyLevel))
         {
             if (room == startRoom)
                 continue;
@@ -133,10 +134,10 @@ class GameScene extends Scene
                         entity.add(obstacle);
                         entity.add(lightOccluder);
                         engine.addEntity(entity);
-                    case Door(open):
+                    case Door(open, level):
                         var door:Entity = new Entity();
                         door.add(new Position(x, y));
-                        door.add(new dungeons.components.Door(open));
+                        door.add(new dungeons.components.Door(open, level));
                         var type:String = doorTypes.randomChoice();
                         door.add(new DoorRenderable("door_"+type+"_open", "door_"+type+"_closed"), Renderable);
                         engine.addEntity(door);
@@ -144,6 +145,23 @@ class GameScene extends Scene
                         continue;
                 }
             }
+        }
+
+        for (keyLevel in 1...dungeon.keyLevel + 1)
+        {
+            var room:Room = dungeon.getLevelRooms(keyLevel - 1).randomChoice();
+            var point:Vector = getRandomRoomPoint(room);
+
+            var key:Entity = new Entity();
+            key.add(new Position(point.x, point.y));
+            key.add(new Item("key"+keyLevel, false, 1));
+            key.add(new Description("Key " + keyLevel));
+            key.add(new Key(keyLevel));
+
+            var assetName:String = "key" + Std.string((keyLevel - 1) % 3 + 1);
+            key.add(new Renderable(assetName, RenderLayers.OBJECT));
+
+            engine.addEntity(key);
         }
 
         var startPoint:Vector = getRandomRoomPoint(startRoom);

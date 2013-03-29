@@ -11,7 +11,7 @@ enum Tile
     Empty;
     Wall;
     Floor;
-    Door(open:Bool);
+    Door(open:Bool, level:Int);
 }
 
 typedef Room =
@@ -21,6 +21,18 @@ typedef Room =
     var grid:Grid<Tile>;
     var parent:Room;
     var children:Array<Room>;
+    var level:Int;
+    var unusedConnections:Array<Connection>;
+    var connections:Array<Connection>;
+}
+
+private typedef Connection =
+{
+    var x:Int;
+    var y:Int;
+    var direction:Direction;
+    var fromRoom:Room;
+    var toRoom:Room;
 }
 
 class Dungeon
@@ -36,9 +48,10 @@ class Dungeon
 
     public var grid(default, null):Grid<Tile>;
     public var rooms(default, null):Array<Room>;
+    public var keyLevel(default, null):Int;
 
+    private var levels:IntHash<Array<Room>>;
     private var connectionDirections:Array<Direction>;
-    private var unusedConnections:Array<Connection>;
 
     public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
     {
@@ -51,13 +64,33 @@ class Dungeon
         this.openDoorChance = openDoorChance;
 
         connectionDirections = [North, West, South, East];
-        unusedConnections = [];
     }
 
+    public function getLevelRooms(level:Int):Array<Room>
+    {
+        if (!levels.exists(level))
+            levels.set(level, []);
+        return levels.get(level);
+    }
+
+    private function useConnection(connection:Connection, toRoom:Room):Void
+    {
+        connection.fromRoom.unusedConnections.remove(connection);
+        connection.fromRoom.connections.push(connection);
+        connection.fromRoom.children.push(toRoom);
+        connection.toRoom = toRoom;
+        toRoom.parent = connection.fromRoom;
+    }
+    
     public function generate():Void
     {
         grid = new Grid<Tile>(width, height, Empty);
-        rooms = new Array<Room>();
+        rooms = [];
+        levels = new IntHash();
+
+        keyLevel = 0;
+        var maxKeys:Int = 3;
+        var roomsPerLock:Int = Std.int(maxRooms / maxKeys);
 
         var room:Room = generateRoom();
         var x:Int = Std.int((grid.width - room.grid.width) / 2);
@@ -70,9 +103,26 @@ class Dungeon
             if (rooms.length == maxRooms)
                 break;
 
-            var connIdx:Int = Std.random(unusedConnections.length);
-            var connection:Connection = unusedConnections[connIdx];
+            var doLock:Bool = false;
+            if (getLevelRooms(keyLevel).length >= roomsPerLock)
+            {
+                keyLevel++;
+                doLock = true;
+            }
+
+            var parentRoom:Room = null;
+            if (!doLock)
+                parentRoom = getLevelRooms(keyLevel).randomChoice();
+
+            if (parentRoom == null)
+            {
+                parentRoom = rooms.randomChoice();
+                doLock = true;
+            }
+
+            var connection:Connection = parentRoom.unusedConnections.randomChoice();
             room = generateRoom();
+            room.level = keyLevel;
 
             switch (connection.direction)
             {
@@ -94,8 +144,7 @@ class Dungeon
             if (hasSpaceForRoom(room, x, y))
             {
                 placeRoom(room, x, y);
-                connectRoom(connection, room);
-                unusedConnections.splice(connIdx, 1);
+                connectRoom(connection, room, doLock);
             }
             else
             {
@@ -169,7 +218,7 @@ class Dungeon
                 roomGrid.set(x, y, tile);
             }
         }
-        return {grid: roomGrid, x: 0, y: 0, parent: null, children: []};
+        return {grid: roomGrid, x: 0, y: 0, parent: null, children: [], level: 0, connections: [], unusedConnections: []};
     }
 
     private function hasSpaceForRoom(room:Room, x:Int, y:Int):Bool
@@ -190,6 +239,7 @@ class Dungeon
         room.x = x;
         room.y = y;
         rooms.push(room);
+        getLevelRooms(room.level).push(room);
 
         for (roomY in 0...room.grid.height)
         {
@@ -200,18 +250,18 @@ class Dungeon
                     grid.set(x + roomX, y + roomY, tile);
 
                 if (roomY == 0 && roomX > 0 && roomX < room.grid.width - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: North, parent: room});
+                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: North, fromRoom: room, toRoom: null});
                 else if (roomY == room.grid.height - 1 && roomX > 0 && roomX < room.grid.width - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: South, parent: room});
+                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: South, fromRoom: room, toRoom: null});
                 else if (roomX == 0 && roomY > 0 && roomY < room.grid.height - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: West, parent: room});
+                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: West, fromRoom: room, toRoom: null});
                 else if (roomX == room.grid.width - 1 && roomY > 0 && roomY < room.grid.height - 2)
-                    unusedConnections.push({x: x + roomX, y: y + roomY, direction: East, parent: room});
+                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: East, fromRoom: room, toRoom: null});
             }
         }
     }
 
-    private function connectRoom(connection:Connection, room:Room):Void
+    private function connectRoom(connection:Connection, room:Room, lock:Bool):Void
     {
         var posX:Int = connection.x;
         var posY:Int = connection.y;
@@ -230,22 +280,19 @@ class Dungeon
         }
 
         var outerDoor:Bool = Math.random() < 0.5;
-        var doorTile:Tile = (Math.random() < doorChance) ? Door(Math.random() < openDoorChance) : Floor;
+
+        var doorTile:Tile = Floor;
+        if (lock)
+            doorTile = Door(false, room.level);
+        else if (Math.random() < doorChance)
+            doorTile = Door(Math.random() < openDoorChance, 0);
 
         grid.set(connection.x, connection.y, outerDoor ? Floor : doorTile);
         grid.set(posX, posY, outerDoor ? doorTile : Floor);
 
         if (room.parent != null)
             throw "Room parent is already set? WTF!";
-        connection.parent.children.push(room);
-        room.parent = connection.parent;
-    }
-}
 
-private typedef Connection =
-{
-    var x:Int;
-    var y:Int;
-    var direction:Direction;
-    var parent:Room;
+        useConnection(connection, room);
+    }
 }
