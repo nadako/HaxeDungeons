@@ -126,7 +126,7 @@ class GameScene extends Scene
         {
             for (x in 0...dungeon.width)
             {
-                switch (dungeon.grid.get(x, y))
+                switch (dungeon.grid.get(x, y).tile)
                 {
                     case Wall:
                         var entity:Entity = new Entity();
@@ -138,7 +138,7 @@ class GameScene extends Scene
                         var door:Entity = new Entity();
                         door.add(new Position(x, y));
                         door.add(new dungeons.components.Door(open, level));
-                        var type:String = doorTypes.randomChoice();
+                        var type:String = doorTypes[level % doorTypes.length];
                         door.add(new DoorRenderable("door_"+type+"_open", "door_"+type+"_closed"), Renderable);
                         engine.addEntity(door);
                     default:
@@ -252,13 +252,13 @@ class GameScene extends Scene
                         if (Math.random() < 0.1)
                             continue;
 
-                        if (x == room.x + 1 && dungeon.grid.get(x - 1, y) != Tile.Wall)
+                        if (x == room.x + 1 && dungeon.grid.get(x - 1, y).tile != Tile.Wall)
                             continue;
 
-                        if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y) != Tile.Wall)
+                        if (x == room.x + room.grid.width - 2 && dungeon.grid.get(x + 1, y).tile != Tile.Wall)
                             continue;
 
-                        if (dungeon.grid.get(x, y - 1) != Tile.Wall)
+                        if (dungeon.grid.get(x, y - 1).tile != Tile.Wall)
                             continue;
 
                         var shelf:Entity = new Entity();

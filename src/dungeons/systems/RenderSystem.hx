@@ -310,7 +310,7 @@ class RenderSystem extends System
         {
             for (x in 0...dungeon.width)
             {
-                switch (dungeon.grid.get(x, y))
+                switch (dungeon.grid.get(x, y).tile)
                 {
                     case Floor, Door(_):
                         floorTilemap.setTile(x, y, floorTileIndex);
