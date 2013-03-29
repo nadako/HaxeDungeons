@@ -1,5 +1,6 @@
 package dungeons.mapgen;
 
+import Lambda;
 import ash.ObjectMap;
 
 import dungeons.utils.Vector;
@@ -32,6 +33,7 @@ typedef Room =
     var level:Int;
     var unusedConnections:Array<Connection>;
     var connections:Array<Connection>;
+    var intensity:Float;
 }
 
 typedef RoomCellInfo =
@@ -177,6 +179,7 @@ class Dungeon
         }
 
         addLoops();
+        calcIntensity();
     }
 
     private function addLoops():Void
@@ -228,6 +231,51 @@ class Dungeon
                 }
             }
         }
+    }
+
+    private function calcIntensity():Void
+    {
+        var INTENSITY_EASE_OFF:Float = 0.2;
+
+        var keys:Array<Int> = [];
+        for (key in levels.keys())
+            keys.push(key);
+
+        keys.sort(function(a, b) { return a - b; });
+
+        var nextLevelBaseIntensity:Float = 0.0;
+        for (key in keys)
+        {
+            var intensity:Float = nextLevelBaseIntensity * (1.0 - INTENSITY_EASE_OFF);
+            for (room in levels.get(key))
+            {
+                if (room.parent == null || room.parent.level < room.level)
+                    nextLevelBaseIntensity = Math.max(nextLevelBaseIntensity, applyIntensity(room, intensity));
+            }
+        }
+
+        // normalize
+        var maxIntensity:Float = 0.0;
+        for (room in rooms)
+            maxIntensity = Math.max(maxIntensity, room.intensity);
+        for (room in rooms)
+            room.intensity = room.intensity * 0.99 / maxIntensity;
+    }
+
+    private function applyIntensity(room:Room, intensity:Float):Float
+    {
+        var INTENSITY_GROWTH_JITTER:Float = 0.1;
+        intensity *= 1.0 - INTENSITY_GROWTH_JITTER/2.0 + INTENSITY_GROWTH_JITTER * Math.random();
+
+        room.intensity = intensity;
+
+        var maxIntensity:Float = intensity;
+        for (child in room.children)
+        {
+            if (room.level == child.level)
+                maxIntensity = Math.max(maxIntensity, applyIntensity(child, intensity + 1.0));
+        }
+        return maxIntensity;
     }
 
     public function getWallTransition(x:Int, y:Int):Int
@@ -300,7 +348,7 @@ class Dungeon
                 roomGrid.set(x, y, {tile: tile, canBeConnected: canBeConnected});
             }
         }
-        return {grid: roomGrid, x: 0, y: 0, parent: null, children: [], level: 0, connections: [], unusedConnections: []};
+        return {grid: roomGrid, x: 0, y: 0, parent: null, children: [], level: 0, connections: [], unusedConnections: [], intensity: 0};
     }
 
     private function hasSpaceForRoom(room:Room, x:Int, y:Int):Bool

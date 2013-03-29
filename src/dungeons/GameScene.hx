@@ -147,18 +147,27 @@ class GameScene extends Scene
             }
         }
 
-        for (keyLevel in 1...dungeon.keyLevel + 1)
+        for (keyLevel in 0...dungeon.keyLevel)
         {
-            var room:Room = dungeon.getLevelRooms(keyLevel - 1).randomChoice();
+            var rooms:Array<Room> = Lambda.array(dungeon.getLevelRooms(keyLevel));
+            rooms.sort(function (a:Room, b:Room) {
+                if (a.intensity > b.intensity)
+                    return -1;
+                if (a.intensity < b.intensity)
+                    return 1;
+                return 0;
+            });
+
+            var room:Room = rooms[0];
             var point:Vector = getRandomRoomPoint(room);
 
             var key:Entity = new Entity();
             key.add(new Position(point.x, point.y));
-            key.add(new Item("key"+keyLevel, false, 1));
-            key.add(new Description("Key " + keyLevel));
-            key.add(new Key(keyLevel));
+            key.add(new Item("key"+(keyLevel + 1), false, 1));
+            key.add(new Description("Key " + (keyLevel + 1)));
+            key.add(new Key(keyLevel + 1));
 
-            var assetName:String = "key" + Std.string((keyLevel - 1) % 3 + 1);
+            var assetName:String = "key" + Std.string(keyLevel % 3 + 1);
             key.add(new Renderable(assetName, RenderLayers.OBJECT));
 
             engine.addEntity(key);
