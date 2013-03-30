@@ -1,8 +1,10 @@
 package dungeons.mapgen;
 
 import Lambda;
+
 import ash.ObjectMap;
 
+import dungeons.mapgen.IRoomFactory.RoomCellInfo;
 import dungeons.utils.Vector;
 import dungeons.utils.Direction;
 import dungeons.utils.Grid;
@@ -36,12 +38,6 @@ typedef Room =
     var intensity:Float;
 }
 
-typedef RoomCellInfo =
-{
-    var tile:Tile;
-    var canBeConnected:Bool;
-}
-
 private typedef Connection =
 {
     var x:Int;
@@ -56,8 +52,6 @@ class Dungeon
     public var width:Int;
     public var height:Int;
     public var maxRooms:Int;
-    public var minRoomSize:Vector;
-    public var maxRoomSize:Vector;
 
     public var doorChance:Float;
     public var openDoorChance:Float;
@@ -68,16 +62,16 @@ class Dungeon
 
     private var levels:IntHash<Array<Room>>;
     private var connectionDirections:Array<Direction>;
+    private var roomFactory:IRoomFactory;
 
     public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
     {
         this.width = width;
         this.height = height;
         this.maxRooms = maxRooms;
-        this.minRoomSize = minRoomSize;
-        this.maxRoomSize = maxRoomSize;
         this.doorChance = doorChance;
         this.openDoorChance = openDoorChance;
+        this.roomFactory = new RectRoomFactory(minRoomSize, maxRoomSize);
 
         connectionDirections = [North, West, South, East];
     }
@@ -325,30 +319,16 @@ class Dungeon
 
     private function generateRoom():Room
     {
-        var w:Int = minRoomSize.x + Std.random(maxRoomSize.x - minRoomSize.x + 1);
-        var h:Int = minRoomSize.y + Std.random(maxRoomSize.y - minRoomSize.y + 1);
-
-        var roomGrid:Grid<RoomCellInfo> = new Grid(w, h);
-        for (y in 0...h)
-        {
-            for (x in 0...w)
-            {
-                var tile:Tile;
-                var canBeConnected:Bool = false;
-                if (x == 0 || x == w - 1 || y == 0 || y == h - 1)
-                {
-                    if ((y == 0 || y == h -1) && x > 0 && x < w - 1)
-                        canBeConnected == true;
-                    else if ((x == 0 || x == w - 1) && y > 0 && y < h -1)
-                        canBeConnected = true;
-                    tile = Wall;
-                }
-                else
-                    tile = Floor;
-                roomGrid.set(x, y, {tile: tile, canBeConnected: canBeConnected});
-            }
-        }
-        return {grid: roomGrid, x: 0, y: 0, parent: null, children: [], level: 0, connections: [], unusedConnections: [], intensity: 0};
+        return {
+            grid: roomFactory.generateRoomGrid(),
+            x: 0, y: 0,
+            parent: null,
+            children: [],
+            level: 0,
+            connections: [],
+            unusedConnections: [],
+            intensity: 0
+        };
     }
 
     private function hasSpaceForRoom(room:Room, x:Int, y:Int):Bool
@@ -375,22 +355,15 @@ class Dungeon
         {
             for (roomX in 0...room.grid.width)
             {
-                var tile:Tile = room.grid.get(roomX, roomY).tile;
-                if (tile != Empty)
+                var roomCell:RoomCellInfo = room.grid.get(roomX, roomY);
+                if (roomCell.tile != Empty)
                 {
                     var cell:CellInfo = grid.get(x + roomX, y + roomY);
-                    cell.tile = tile;
+                    cell.tile = roomCell.tile;
                     cell.room = room;
                 }
-
-                if (roomY == 0 && roomX > 0 && roomX < room.grid.width - 2)
-                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: North, fromRoom: room, toRoom: null});
-                else if (roomY == room.grid.height - 1 && roomX > 0 && roomX < room.grid.width - 2)
-                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: South, fromRoom: room, toRoom: null});
-                else if (roomX == 0 && roomY > 0 && roomY < room.grid.height - 2)
-                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: West, fromRoom: room, toRoom: null});
-                else if (roomX == room.grid.width - 1 && roomY > 0 && roomY < room.grid.height - 2)
-                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: East, fromRoom: room, toRoom: null});
+                if (roomCell.canBeConnected)
+                    room.unusedConnections.push({x: x + roomX, y: y + roomY, direction: roomCell.direction, fromRoom: room, toRoom: null});
             }
         }
     }
