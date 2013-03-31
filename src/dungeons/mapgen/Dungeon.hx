@@ -10,6 +10,7 @@ import dungeons.utils.Direction;
 import dungeons.utils.Grid;
 
 using dungeons.utils.ArrayUtil;
+using dungeons.utils.Direction.DirectionUtil;
 
 enum Tile
 {
@@ -176,6 +177,28 @@ class Dungeon
         calcIntensity();
     }
 
+    private function traceToRoom(connection:Connection)
+    {
+        var offset:Vector = connection.direction.offset();
+        var x:Int = connection.x;
+        var y:Int = connection.y;
+
+        for (_ in 0...7)
+        {
+            x += offset.x;
+            y += offset.y;
+
+            if (!grid.inRange(x, y))
+                return null;
+
+            var room:Room = grid.get(x, y).room;
+            if (room != null)
+                return {x: x, y: y, room: room};
+        }
+
+        return null;
+    }
+
     private function addLoops():Void
     {
         for (room in rooms)
@@ -186,13 +209,12 @@ class Dungeon
 
             for (conn in room.unusedConnections)
             {
-                var pos:Vector = getConnectionNextPos(conn);
-                if (!grid.inRange(pos.x, pos.y))
+                var nextRoomInfo:{var x:Int; var y:Int; var room:Room;} = traceToRoom(conn);
+                if (nextRoomInfo == null || connectedRooms.exists(nextRoomInfo.room))
                     continue;
 
-                var nextRoom:Room = grid.get(pos.x, pos.y).room;
-                if (nextRoom == null || connectedRooms.exists(nextRoom))
-                    continue;
+                var nextRoom:Room = nextRoomInfo.room;
+                var pos:Vector = nextRoomInfo;
 
                 var roomCellInfo:RoomCellInfo = nextRoom.grid.get(pos.x - nextRoom.x, pos.y - nextRoom.y);
                 if (!roomCellInfo.canBeConnected)
@@ -213,18 +235,66 @@ class Dungeon
 
                 if (room.level == nextRoom.level)
                 {
-                    trace("Adding loop connection");
+//                    trace("Adding loop connection");
+                    makeCorridor(conn, pos);
                     connectRoom(conn, nextRoom, 0);
                     connectedRooms.set(nextRoom, true);
                 }
                 else if (Math.abs(room.level - nextRoom.level) == 1)
                 {
-                    trace("Adding locked loop connection");
+//                    trace("Adding locked loop connection");
+                    makeCorridor(conn, pos);
                     connectRoom(conn, nextRoom, Std.int(Math.max(room.level, nextRoom.level)));
                     connectedRooms.set(nextRoom, true);
                 }
             }
         }
+    }
+
+    private function makeCorridor(connection:Connection, endPos:Vector):Void
+    {
+        var offset:Vector = connection.direction.offset();
+        var x:Int = connection.x;
+        var y:Int = connection.y;
+
+        var l:Int = switch (connection.direction)
+        {
+            case North, South:
+                endPos.y - connection.y;
+            case East, West:
+                endPos.x - connection.x;
+            default:
+                0;
+        };
+        var length:Int = Std.int(Math.abs(l));
+
+        while (length > 0)
+        {
+            x += offset.x;
+            y += offset.y;
+            length--;
+
+            grid.get(x, y).tile = Floor;
+
+            switch (connection.direction)
+            {
+                case North, South:
+                    setWallIfEmpty(x - 1, y);
+                    setWallIfEmpty(x + 1, y);
+                case East, West:
+                    setWallIfEmpty(x, y - 1);
+                    setWallIfEmpty(x, y + 1);
+                default:
+            }
+
+        }
+    }
+
+    private inline function setWallIfEmpty(x:Int, y:Int):Void
+    {
+        var cell:CellInfo = grid.get(x, y);
+        if (cell.tile == Empty)
+            cell.tile = Wall;
     }
 
     private function calcIntensity():Void
@@ -370,22 +440,8 @@ class Dungeon
 
     private function getConnectionNextPos(connection:Connection):Vector
     {
-        var posX:Int = connection.x;
-        var posY:Int = connection.y;
-        switch (connection.direction)
-        {
-            case North:
-                posY--;
-            case South:
-                posY++;
-            case West:
-                posX--;
-            case East:
-                posX++;
-            default:
-                throw "invalid direction";
-        }
-        return {x: posX, y: posY};
+        var offset:Vector = connection.direction.offset();
+        return {x: connection.x + offset.x, y: connection.y + offset.y};
     }
     
     private function connectRoom(connection:Connection, room:Room, lockLevel:Int):Void
