@@ -32,12 +32,12 @@ class RectRoomFactory implements IRoomFactory
                 var direction:Direction = null;
                 if (x == 0 || x == w - 1 || y == 0 || y == h - 1)
                 {
-                    if ((y == 0 || y == h -1) && x > 0 && x < w - 1)
+                    if ((y == 0 || y == h - 1) && x > 0 && x < w - 1)
                     {
-                        canBeConnected == true;
+                        canBeConnected = true;
                         direction = (y == 0) ? North : South;
                     }
-                    else if ((x == 0 || x == w - 1) && y > 0 && y < h -1)
+                    else if ((x == 0 || x == w - 1) && y > 0 && y < h - 1)
                     {
                         canBeConnected = true;
                         direction = (x == 0) ? West : East;
