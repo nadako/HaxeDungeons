@@ -200,7 +200,7 @@ class GameScene extends Scene
         {
             var randomPoint:Vector;
 
-            if (room != startRoom && Math.random() < 0.3)
+            if (room != startRoom && HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
                 var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
@@ -217,19 +217,19 @@ class GameScene extends Scene
             }
 
             var goldDesc:Description = new Description("Gold");
-            if (Math.random() < 0.3)
+            if (HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
                 var gold:Entity = new Entity();
-                var quantity:Int = 1 + Std.random(30);
+                var quantity:Int = 1 + HXP.rand(30);
                 gold.add(new Item("gold", true, quantity));
                 gold.add(new Position(randomPoint.x, randomPoint.y));
-                gold.add(new Renderable("gold" + (1 + Std.random(15))));
+                gold.add(new Renderable("gold" + (1 + HXP.rand(15))));
                 gold.add(goldDesc);
                 engine.addEntity(gold);
             }
 
-            if (Math.random() < 0.3)
+            if (HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
                 var weaponDef:WeaponDefinition = weaponDefs.randomChoice();
@@ -242,12 +242,12 @@ class GameScene extends Scene
                 engine.addEntity(weapon);
             }
 
-            if (Math.random() < 0.3)
+            if (HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
                 var blood:Entity = new Entity();
                 blood.add(new Position(randomPoint.x, randomPoint.y));
-                blood.add(new Renderable("blood" + Std.random(15)));
+                blood.add(new Renderable("blood" + HXP.rand(15)));
                 engine.addEntity(blood);
             }
 
@@ -258,7 +258,7 @@ class GameScene extends Scene
                     var y:Int = room.y + 1;
                     for (x in room.x + 1...room.x + room.grid.width - 1)
                     {
-                        if (Math.random() < 0.1)
+                        if (HXP.random < 0.1)
                             continue;
 
                         if (x == room.x + 1 && dungeon.grid.get(x - 1, y).tile != Tile.Wall)
@@ -273,8 +273,8 @@ class GameScene extends Scene
                         var shelf:Entity = new Entity();
                         shelf.add(new Position(x, y));
                         shelf.add(obstacle);
-                        var type:String = Math.random() < 0.5 ? "bookshelf_ransacked" : "bookshelf";
-                        var variant:Int = Std.random(3);
+                        var type:String = HXP.random < 0.5 ? "bookshelf_ransacked" : "bookshelf";
+                        var variant:Int = HXP.rand(3);
                         shelf.add(new Renderable(type+variant, RenderLayers.OBJECT));
                         engine.addEntity(shelf);
                     }
@@ -329,8 +329,8 @@ class GameScene extends Scene
     private static function getRandomRoomPoint(room:Room):Vector
     {
         return {
-            x: room.x + 1 + Std.random(room.grid.width - 2),
-            y: room.y + 1 + Std.random(room.grid.height - 2)
+            x: room.x + 1 + HXP.rand(room.grid.width - 2),
+            y: room.y + 1 + HXP.rand(room.grid.height - 2)
         };
     }
 

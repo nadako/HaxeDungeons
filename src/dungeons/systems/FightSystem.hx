@@ -5,6 +5,8 @@ import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 import ash.ObjectMap;
 
+import com.haxepunk.HXP;
+
 import dungeons.components.Equipment;
 import dungeons.components.Inventory;
 import dungeons.components.Position;
@@ -82,7 +84,7 @@ class FightSystem extends ListIteratingSystem<FighterNode>
             }
         }
 
-        var hit:Bool = Math.random() < attackPower / (attackPower + defense);
+        var hit:Bool = HXP.random < attackPower / (attackPower + defense);
         if (hit)
         {
             var damage:Int = Std.int(attackPower / (defense > 0 ? defense : 1));

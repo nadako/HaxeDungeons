@@ -301,8 +301,8 @@ class RenderSystem extends System
         var floorTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
         var wallTilemap:Tilemap = new Tilemap(bmp, tilemapWidth, tilemapHeight, assetFactory.tileSize, assetFactory.tileSize);
 
-        var wallRow:Int = 2 + Std.random(5) * 2;
-        var floorCol:Int = Std.random(15);
+        var wallRow:Int = 2 + HXP.rand(5) * 2;
+        var floorCol:Int = HXP.rand(15);
         var floorRow:Int = 0;
         var floorTileIndex:Int = tilesetCols * floorRow + floorCol;
 
@@ -430,8 +430,8 @@ private class FloatingText extends com.haxepunk.Entity
 
         var origX:Int = posX * tileSize + Std.int(tileSize * 0.5 - textGraphic.width * 0.5);
         var origY:Int = posY * tileSize - textGraphic.height;
-        var targetX:Int = origX + ((Math.random() < 0.5) ? -1 : 1) * Std.int(tileSize * Math.random() * 0.5);
-        var targetY:Int = origY - Std.int(tileSize * (0.5 + Math.random() * 0.5));
+        var targetX:Int = origX + ((HXP.random < 0.5) ? -1 : 1) * Std.int(tileSize * HXP.random * 0.5);
+        var targetY:Int = origY - Std.int(tileSize * (0.5 + HXP.random * 0.5));
 
         x = origX;
         y = origY;

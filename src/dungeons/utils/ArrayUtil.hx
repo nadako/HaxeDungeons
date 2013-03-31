@@ -1,12 +1,14 @@
 package dungeons.utils;
 
+import com.haxepunk.HXP;
+
 // enable these classes with "using ArrayUtil"
 
 class ArrayUtil
 {
     public static function randomChoice<T>(array:Array<T>):T
     {
-        return array[Std.random(array.length)];
+        return array[HXP.rand(array.length)];
     }
 }
 
