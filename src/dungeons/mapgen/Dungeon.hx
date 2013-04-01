@@ -58,32 +58,36 @@ class Dungeon
 
     public var doorChance:Float;
     public var openDoorChance:Float;
+    public var maxKeys:Int;
 
     public var grid(default, null):Grid<CellInfo>;
     public var rooms(default, null):Array<Room>;
     public var keyLevel(default, null):Int;
 
-    private var levels:IntHash<Array<Room>>;
+    private var levels:Array<Array<Room>>;
     private var connectionDirections:Array<Direction>;
     private var roomFactory:IRoomFactory;
 
-    public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5)
+    public function new(width:Int, height:Int, maxRooms:Int, minRoomSize:Vector, maxRoomSize:Vector, doorChance:Float = 0.75, openDoorChance:Float = 0.5, maxKeys:Int = 2)
     {
         this.width = width;
         this.height = height;
         this.maxRooms = maxRooms;
         this.doorChance = doorChance;
         this.openDoorChance = openDoorChance;
+        this.maxKeys = maxKeys;
         this.roomFactory = new RectRoomFactory(minRoomSize, maxRoomSize);
 
         connectionDirections = [North, West, South, East];
     }
 
-    public function getLevelRooms(level:Int):Array<Room>
+    public function getLevelRooms(keyLevel:Int):Array<Room>
     {
-        if (!levels.exists(level))
-            levels.set(level, []);
-        return levels.get(level);
+        while (keyLevel >= levels.length)
+            levels.push(null);
+        if (levels[keyLevel] == null)
+            levels[keyLevel] = [];
+        return levels[keyLevel];
     }
 
     private function useConnection(connection:Connection, toRoom:Room):Void
@@ -94,8 +98,8 @@ class Dungeon
         connection.toRoom = toRoom;
         toRoom.parent = connection.fromRoom;
     }
-    
-    public function generate():Void
+
+    private function init():Void
     {
         grid = new Grid<CellInfo>(width, height);
         for (y in 0...grid.height)
@@ -106,34 +110,38 @@ class Dungeon
             }
         }
         rooms = [];
-        levels = new IntHash();
-
+        levels = [];
         keyLevel = 0;
-        var maxKeys:Int = 3;
-        var roomsPerLock:Int = Std.int(maxRooms / maxKeys);
+    }
 
+    private function createStartRoom():Void
+    {
         var room:Room = generateRoom();
-        var x:Int = Std.int((grid.width - room.grid.width) / 2);
-        var y:Int = Std.int((grid.height - room.grid.height) / 2);
+        var x:Int = Std.random(grid.width - room.grid.width);
+        var y:Int = Std.random(grid.height - room.grid.height);
         placeRoom(room, x, y);
+    }
 
-        var i:Int = 0;
-        while (i < width * height * 2)
+    private function placeRooms():Void
+    {
+        var roomsPerLock:Int = Std.int(maxRooms / maxKeys);
+        var nextKeyLevel:Int = 0;
+        for (i in 0...width * height * 2)
         {
             if (rooms.length == maxRooms)
                 break;
 
             var doLock:Bool = false;
+            var nextKeyLevel:Int = keyLevel;
             if (getLevelRooms(keyLevel).length >= roomsPerLock)
             {
-                keyLevel++;
+                nextKeyLevel++;
                 doLock = true;
             }
 
             var parentRoom:Room = null;
-            if (!doLock)
+            if (!doLock && Std.random(10) > 0)
                 parentRoom = getLevelRooms(keyLevel).randomChoice();
-
             if (parentRoom == null)
             {
                 parentRoom = rooms.randomChoice();
@@ -141,9 +149,10 @@ class Dungeon
             }
 
             var connection:Connection = parentRoom.unusedConnections.randomChoice();
-            room = generateRoom();
-            room.level = keyLevel;
+            var room:Room = generateRoom();
+            room.level = nextKeyLevel;
 
+            var x:Int = 0, y:Int = 0;
             switch (connection.direction)
             {
                 case North:
@@ -166,17 +175,18 @@ class Dungeon
                 placeRoom(room, x, y);
                 connectRoom(connection, room, doLock ? room.level : 0);
                 useConnection(connection, room);
+                keyLevel = nextKeyLevel;
             }
-            else
-            {
-                i++;
-            }
-
-            i++;
         }
+    }
 
+    public function generate():Void
+    {
+        init();
+        createStartRoom();
+        placeRooms();
         addLoops();
-        calcIntensity();
+        computeIntensity();
     }
 
     private function traceToRoom(connection:Connection)
@@ -303,31 +313,32 @@ class Dungeon
             cell.tile = Wall;
     }
 
-    private function calcIntensity():Void
+    private function computeIntensity():Void
     {
         var INTENSITY_EASE_OFF:Float = 0.2;
 
-        var keys:Array<Int> = [];
-        for (key in levels.keys())
-            keys.push(key);
-
-        keys.sort(function(a, b) { return a - b; });
-
         var nextLevelBaseIntensity:Float = 0.0;
-        for (key in keys)
+        for (keyLevel in 0...levels.length)
         {
             var intensity:Float = nextLevelBaseIntensity * (1.0 - INTENSITY_EASE_OFF);
-            for (room in levels.get(key))
+            for (room in getLevelRooms(keyLevel))
             {
                 if (room.parent == null || room.parent.level < room.level)
                     nextLevelBaseIntensity = Math.max(nextLevelBaseIntensity, applyIntensity(room, intensity));
             }
         }
 
-        // normalize
+        normalizeIntensity();
+    }
+
+    private function normalizeIntensity():Void
+    {
+        // compute maximum intensity
         var maxIntensity:Float = 0.0;
         for (room in rooms)
             maxIntensity = Math.max(maxIntensity, room.intensity);
+
+        // normalize intensity of all rooms so it will be (0;1)
         for (room in rooms)
             room.intensity = room.intensity * 0.99 / maxIntensity;
     }
