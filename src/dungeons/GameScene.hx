@@ -1,5 +1,9 @@
 package dungeons;
 
+import Lambda;
+
+import flash.net.FileReference;
+
 import com.haxepunk.graphics.Image;
 import com.haxepunk.graphics.Graphiclist;
 import com.haxepunk.graphics.Spritemap;
@@ -86,12 +90,54 @@ class GameScene extends Scene
         super();
     }
 
+    private function createDOT(dungeon:Dungeon):String
+    {
+        var lines:Array<String> = [];
+        lines.push("digraph dungeon {");
+
+        for (i in 0...dungeon.rooms.length)
+        {
+            var room:Room = dungeon.rooms[i];
+            for (conn in room.connections)
+            {
+                var j:Int = Lambda.indexOf(dungeon.rooms, conn.toRoom);
+                var style:String = Lambda.indexOf(room.unusedConnections, conn) == -1 ? "solid" : "dotted";
+                var tailport:String = null;
+                var headport:String = null;
+                switch (conn.direction)
+                {
+                    case North:
+                        tailport = "n";
+                        headport = "s";
+                    case South:
+                        tailport = "s";
+                        headport = "n";
+                    case East:
+                        tailport = "e";
+                        headport = "w";
+                    case West:
+                        tailport = "w";
+                        headport = "e";
+                    default:
+                        throw "WTF";
+                };
+                lines.push(Std.format("\tr$i -> r$j [label=\"${conn.toRoom.level}\", style=\"$style\", tailport=$tailport, headport=$headport];"));
+            }
+        }
+
+        lines.push("}");
+        return lines.join("\n");
+    }
+
     override public function begin()
     {
         engine = new Engine();
 
-        var dungeon:Dungeon = new Dungeon(50, 50, 15, {x: 5, y: 5}, {x: 10, y: 10});
+        var dungeon:Dungeon = new Dungeon(50, 50, 7, {x: 5, y: 5}, {x: 10, y: 10});
         dungeon.generate();
+
+        var ref:FileReference = new FileReference();
+        ref.save(createDOT(dungeon), "dungeon.gv");
 
         var map:Map = new Map(dungeon.width, dungeon.height);
 

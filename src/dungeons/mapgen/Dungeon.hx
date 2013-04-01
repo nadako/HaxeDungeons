@@ -241,6 +241,8 @@ class Dungeon
                     makeCorridor(conn, pos);
                     connectRoom(conn, nextRoom, 0);
                     connectedRooms.set(nextRoom, true);
+                    conn.toRoom = nextRoom;
+                    room.connections.push(conn);
                 }
                 else if (Math.abs(room.level - nextRoom.level) == 1)
                 {
@@ -248,6 +250,8 @@ class Dungeon
                     makeCorridor(conn, pos);
                     connectRoom(conn, nextRoom, Std.int(Math.max(room.level, nextRoom.level)));
                     connectedRooms.set(nextRoom, true);
+                    conn.toRoom = nextRoom;
+                    room.connections.push(conn);
                 }
             }
         }
