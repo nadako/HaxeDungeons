@@ -138,6 +138,34 @@ class BaseInputState implements IInputState
     }
 }
 
+class KeyUtil
+{
+    public static function keyToDirection(key:Int):Direction
+    {
+        return switch (key)
+        {
+            case Key.HOME, Key.NUMPAD_7:
+                NorthWest;
+            case Key.UP, Key.NUMPAD_8:
+                North;
+            case Key.PAGE_UP, Key.NUMPAD_9:
+                NorthEast;
+            case Key.LEFT, Key.NUMPAD_4:
+                West;
+            case Key.RIGHT, Key.NUMPAD_6:
+                East;
+            case Key.END, Key.NUMPAD_1:
+                SouthWest;
+            case Key.DOWN, Key.NUMPAD_2:
+                South;
+            case Key.PAGE_DOWN, Key.NUMPAD_3:
+                SouthEast;
+            default:
+                null;
+        };
+    }
+}
+
 class MainInputState extends BaseInputState
 {
     override public function getAction(system:PlayerControlSystem, entity:Entity):Action
@@ -147,39 +175,31 @@ class MainInputState extends BaseInputState
 
         var action:Action = null;
         var key:Int = Input.lastKey;
-        switch (key)
+        var moveDir:Direction = KeyUtil.keyToDirection(key);
+        if (moveDir != null)
         {
-            case Key.UP, Key.NUMPAD_8:
-                action = Move(North);
-            case Key.NUMPAD_7:
-                action = Move(NorthWest);
-            case Key.NUMPAD_9:
-                action = Move(NorthEast);
-            case Key.DOWN, Key.NUMPAD_2:
-                action = Move(South);
-            case Key.NUMPAD_1:
-                action = Move(SouthWest);
-            case Key.NUMPAD_3:
-                action = Move(SouthEast);
-            case Key.LEFT, Key.NUMPAD_4:
-                action = Move(West);
-            case Key.RIGHT, Key.NUMPAD_6:
-                action = Move(East);
-            case Key.SPACE, Key.NUMPAD_5:
-                action = Wait;
-            case Key.G:
-                var pos:Position = entity.get(Position);
-                for (item in system.map.get(pos.x, pos.y).entities)
-                {
-                    if (item.has(Item))
+            action = Move(moveDir);
+        }
+        else
+        {
+            switch (key)
+            {
+                case Key.SPACE, Key.NUMPAD_5:
+                    action = Wait;
+                case Key.G:
+                    var pos:Position = entity.get(Position);
+                    for (item in system.map.get(pos.x, pos.y).entities)
                     {
-                        action = Pickup(item);
-                        break;
+                        if (item.has(Item))
+                        {
+                            action = Pickup(item);
+                            break;
+                        }
                     }
-                }
-            case Key.C:
-                MessageLogSystem.message("Choose direction to close door.");
-                system.pushState(new ChooseDirectionState(closeDoor));
+                case Key.C:
+                    MessageLogSystem.message("Choose direction to close door.");
+                    system.pushState(new ChooseDirectionState(closeDoor));
+            }
         }
         return action;
     }
@@ -226,27 +246,7 @@ class ChooseDirectionState extends BaseInputState
             return cb(system, entity, null);
         }
 
-        var dir:Direction = switch (key)
-        {
-            case Key.UP, Key.NUMPAD_8:
-                North;
-            case Key.NUMPAD_7:
-                NorthWest;
-            case Key.NUMPAD_9:
-                NorthEast;
-            case Key.DOWN, Key.NUMPAD_2:
-                South;
-            case Key.NUMPAD_1:
-                SouthWest;
-            case Key.NUMPAD_3:
-                SouthEast;
-            case Key.LEFT, Key.NUMPAD_4:
-                West;
-            case Key.RIGHT, Key.NUMPAD_6:
-                East;
-            default:
-                null;
-        };
+        var dir:Direction = KeyUtil.keyToDirection(key);
         if (dir != null)
         {
             system.popState();
