@@ -184,7 +184,7 @@ class MainInputState extends BaseInputState
         {
             switch (key)
             {
-                case Key.SPACE, Key.NUMPAD_5:
+                case Key.SPACE, Key.NUMPAD_5 #if flash, 12 #end:
                     action = Wait;
                 case Key.G:
                     var pos:Position = entity.get(Position);
