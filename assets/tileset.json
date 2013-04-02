@@ -123,6 +123,8 @@
 
         "key1": "eight2empire/item assets.png:0,5",
         "key2": "eight2empire/item assets.png:1,5",
-        "key3": "eight2empire/item assets.png:2,5"
+        "key3": "eight2empire/item assets.png:2,5",
+
+        "slash": "oryx_lofi/lofi_obj.png:10,8"
     }
 }

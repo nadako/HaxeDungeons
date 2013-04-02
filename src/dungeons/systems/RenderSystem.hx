@@ -5,8 +5,8 @@ import nme.display.BitmapData;
 import nme.Lib;
 
 import com.haxepunk.tweens.misc.NumTween;
-import com.haxepunk.tweens.TweenEvent;
 import com.haxepunk.tweens.motion.LinearMotion;
+import com.haxepunk.tweens.TweenEvent;
 import com.haxepunk.graphics.Tilemap;
 import com.haxepunk.graphics.Graphiclist;
 import com.haxepunk.graphics.Canvas;
@@ -40,6 +40,7 @@ import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
 import dungeons.utils.Map;
 import dungeons.utils.TransitionTileHelper;
+import dungeons.utils.Scheduler;
 
 using dungeons.utils.EntityUtil;
 using dungeons.utils.ArrayUtil;
@@ -67,13 +68,15 @@ class RenderSystem extends System
 
     private var timeDisplay:Label;
     private var timeNodes:NodeList<TimeTickerNode>;
+    private var scheduler:Scheduler;
 
-    public function new(scene:Scene, map:Map, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals)
+    public function new(scene:Scene, map:Map, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals, scheduler:Scheduler)
     {
         super();
         this.scene = scene;
         this.map = map;
         this.assetFactory = assetFactory;
+        this.scheduler = scheduler;
         renderSignals.hpChange.add(onHPChangeSignal);
         renderSignals.miss.add(onMissSignal);
 
@@ -277,6 +280,11 @@ class RenderSystem extends System
             color = 0x00FF00;
         }
         addFloatingText(text, color, posX, posY);
+
+        if (value < 0)
+        {
+            addSlashAnimation(posX, posY);
+        }
     }
 
     private function onMissSignal(posX:Int, posY:Int):Void
@@ -287,6 +295,11 @@ class RenderSystem extends System
     private inline function addFloatingText(text:String, color:Int, posX:Int, posY:Int):Void
     {
         scene.create(FloatingText).init(assetFactory.tileSize, text, color, posX, posY);
+    }
+
+    private inline function addSlashAnimation(posX:Int, posY:Int):Void
+    {
+        scene.create(SlashAnimation).init(assetFactory, posX, posY, scheduler);
     }
 
     private function renderDungeon(dungeon:Dungeon):Graphic
@@ -455,6 +468,50 @@ private class FloatingText extends com.haxepunk.Entity
             x = tween.x;
             y = tween.y;
         }
+    }
+}
+
+private class SlashAnimation extends com.haxepunk.Entity
+{
+    private var tween:NumTween;
+    private var scheduler:Scheduler;
+
+    public function new()
+    {
+        super();
+        layer = RenderLayers.UI;
+        tween = new NumTween();
+    }
+
+    public function init(assetFactory:AssetFactory, posX:Int, posY:Int, scheduler:Scheduler):Void
+    {
+        if (graphic == null)
+            graphic = assetFactory.createTileImage("slash");
+
+        x = posX * assetFactory.tileSize;
+        y = posY * assetFactory.tileSize;
+
+        this.scheduler = scheduler;
+        scheduler.lock();
+
+        tween.tween(1, 0, 0.25);
+        tween.addEventListener(TweenEvent.FINISH, onTweenComplete);
+        addTween(tween);
+    }
+
+    private function onTweenComplete(event:TweenEvent):Void
+    {
+        scheduler.unlock();
+        scheduler = null;
+        tween.removeEventListener(TweenEvent.FINISH, onTweenComplete);
+        removeTween(tween);
+        scene.recycle(this);
+    }
+
+    override public function update():Void
+    {
+        if (tween.active)
+            cast(graphic, Image).alpha = tween.value;
     }
 }
 

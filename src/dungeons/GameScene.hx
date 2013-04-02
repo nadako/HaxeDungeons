@@ -368,7 +368,7 @@ class GameScene extends Scene
         engine.addSystem(new ScheduleSystem(scheduler), SystemPriorities.ACTIONS);
 
         // rendering comes last.
-        engine.addSystem(new RenderSystem(this, map, dungeon, assetFactory, renderSignals), SystemPriorities.RENDER);
+        engine.addSystem(new RenderSystem(this, map, dungeon, assetFactory, renderSignals, scheduler), SystemPriorities.RENDER);
         engine.addSystem(new MessageLogSystem(createMessageField(), 6), SystemPriorities.RENDER);
     }
 
