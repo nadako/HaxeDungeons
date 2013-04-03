@@ -293,7 +293,10 @@ class GameScene extends Scene
                 randomPoint = getRandomRoomPoint(room);
                 var blood:Entity = new Entity();
                 blood.add(new Position(randomPoint.x, randomPoint.y));
-                blood.add(new Renderable("blood" + HXP.rand(15)));
+                if (HXP.random < 0.5)
+                    blood.add(new Renderable("blood" + HXP.rand(15)));
+                else
+                    blood.add(new Renderable("bones" + HXP.rand(9)));
                 engine.addEntity(blood);
             }
 
