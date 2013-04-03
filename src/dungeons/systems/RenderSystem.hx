@@ -485,10 +485,16 @@ private class SlashAnimation extends com.haxepunk.Entity
 
     public function init(assetFactory:AssetFactory, posX:Int, posY:Int, scheduler:Scheduler):Void
     {
-        if (graphic == null)
-            graphic = assetFactory.createTileImage("slash");
+        var image:Image = cast graphic;
+        if (image == null)
+            graphic = image = cast assetFactory.createTileImage("slash");
 
+        var flip:Bool = HXP.random < 0.5;
+
+        image.scaleX = flip ? -1 : 1;
         x = posX * assetFactory.tileSize;
+        if (flip)
+            x += image.width;
         y = posY * assetFactory.tileSize;
 
         this.scheduler = scheduler;
