@@ -18,8 +18,7 @@ import com.haxepunk.Graphic;
 import com.haxepunk.Scene;
 
 import com.haxepunk.gui.Label;
-import com.haxepunk.gui.MenuItem;
-import com.haxepunk.gui.MenuList;
+import com.haxepunk.gui.Panel;
 
 import ash.ObjectMap;
 import ash.core.Engine;
@@ -605,18 +604,24 @@ private class HealthBar extends Canvas
     }
 }
 
-private class PlayerInventory extends MenuList
+private class PlayerInventory extends Panel
 {
-    private static inline var WIDTH:Int = 100;
+    private static inline var PADDING:Int = 4;
 
     private var inventory:Inventory;
+    private var title:Label;
+    private var items:Array<Label>;
 
     public function new(inventory:Inventory)
     {
-        super(HXP.width - WIDTH - MenuList.defaultPadding * 2, 0, WIDTH);
+        super();
         followCamera = true;
-        enabled = false;
-        addControl(new MenuItem("Inventory", null, 0, 0, 0, WIDTH));
+
+        title = new Label("Inventory", PADDING, PADDING);
+        title.color = 0x0000FF;
+        addControl(title);
+
+        items = [];
 
         this.inventory = inventory;
         inventory.updated.add(redraw);
@@ -627,21 +632,39 @@ private class PlayerInventory extends MenuList
     {
         if (inventory.items.length > 0)
         {
-            show();
+            for (item in items)
+                removeControl(item);
+            items = [];
 
-            var len:Int = children.length;
-            while (len > 1)
-            {
-                len--;
-                removeControl(children[len]);
-            }
+            var w:Int = title.width + PADDING * 2;
+            var y:Float = title.localY + title.height;
 
             for (entity in inventory.items)
             {
                 var name:String = entity.getName();
                 var item:Item = entity.get(Item);
-                addControl(new MenuItem(name, null, item.quantity > 1 ? item.quantity : 0, 0, 0, WIDTH));
+                var s:String = name;
+                if (item.quantity > 1)
+                    s += " x" + item.quantity;
+                var itemLabel:Label = new Label(s, 0, y);
+                itemLabel.localX = PADDING;
+                itemLabel.localY = y;
+
+                if (itemLabel.width + PADDING * 2 > w)
+                    w = itemLabel.width + PADDING * 2;
+
+                y += itemLabel.height;
+
+                items.push(itemLabel);
+                addControl(itemLabel);
             }
+
+            width = w;
+            height = Std.int(y) + PADDING;
+
+            localX = HXP.width - width;
+
+            show();
         }
         else
         {
