@@ -135,6 +135,8 @@ class GameScene extends Scene
     {
         engine = new Engine();
 
+        var entityCreator:EntityCreator = new EntityCreator(engine);
+
         var dungeon:Dungeon = new Dungeon(50, 50, 7, {x: 5, y: 5}, {x: 10, y: 10});
         dungeon.generate();
 
@@ -221,30 +223,6 @@ class GameScene extends Scene
             engine.addEntity(key);
         }
 
-        var startPoint:Vector = getRandomRoomPoint(startRoom);
-
-        var hero:Entity = new Entity();
-        hero.name = "player";
-        hero.add(new Renderable("player", RenderLayers.CHARACTER));
-        hero.add(new PlayerControls());
-        hero.add(new Actor(Std.int(Constants.TICK_ENERGY * 1.5)));
-        hero.add(new Position(startPoint.x, startPoint.y));
-        hero.add(new CameraFocus());
-        hero.add(new FOV(10));
-        hero.add(new Health(50));
-        hero.add(new HealthRegen(3));
-        hero.add(new Fighter(5, 1));
-        hero.add(new Inventory());
-        hero.add(obstacle);
-        engine.addEntity(hero);
-
-        var upStairs:Entity = new Entity();
-        upStairs.add(new Position(startPoint.x, startPoint.y));
-        upStairs.add(new Renderable("stair_up", RenderLayers.OBJECT));
-        engine.addEntity(upStairs);
-
-        var monsterDefs:Array<MonsterDefinition> = cast Json.parse(Assets.getText("monsters.json"));
-        var weaponDefs:Array<WeaponDefinition> = cast Json.parse(Assets.getText("weapons.json"));
         for (room in dungeon.rooms)
         {
             var randomPoint:Vector;
@@ -252,55 +230,29 @@ class GameScene extends Scene
             if (room != startRoom && HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
-                var monsterDef:MonsterDefinition = monsterDefs.randomChoice();
-                var monster:Entity = new Entity();
-                monster.add(new Description(monsterDef.name));
-                monster.add(new Renderable(monsterDef.tile, RenderLayers.CHARACTER, false));
-                monster.add(new Position(randomPoint.x, randomPoint.y));
-                monster.add(new Actor(Constants.TICK_ENERGY));
-                monster.add(new Health(monsterDef.hp));
-                monster.add(new Fighter(monsterDef.power, monsterDef.defense));
-                monster.add(obstacle);
-                monster.add(new MonsterAI());
-                engine.addEntity(monster);
-            }
-
-            var goldDesc:Description = new Description("Gold");
-            if (HXP.random < 0.3)
-            {
-                randomPoint = getRandomRoomPoint(room);
-                var gold:Entity = new Entity();
-                var quantity:Int = 1 + HXP.rand(30);
-                gold.add(new Item("gold", true, quantity));
-                gold.add(new Position(randomPoint.x, randomPoint.y));
-                gold.add(new Renderable("gold" + (1 + HXP.rand(15))));
-                gold.add(goldDesc);
-                engine.addEntity(gold);
+                var monster:Entity = entityCreator.createMonster();
+                monster.get(Position).moveTo(randomPoint.x, randomPoint.y);
             }
 
             if (HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
-                var weaponDef:WeaponDefinition = weaponDefs.randomChoice();
-                var weapon:Entity = new Entity();
-                weapon.add(new Item(weaponDef.name, false, 1));
-                weapon.add(new Equipment(EquipSlot.Weapon, weaponDef.atk));
-                weapon.add(new Position(randomPoint.x, randomPoint.y));
-                weapon.add(new Renderable(weaponDef.tile));
-                weapon.add(new Description(weaponDef.name));
-                engine.addEntity(weapon);
+                var gold:Entity = entityCreator.createGold(1 + HXP.rand(30));
+                gold.get(Position).moveTo(randomPoint.x, randomPoint.y);
             }
 
             if (HXP.random < 0.3)
             {
                 randomPoint = getRandomRoomPoint(room);
-                var blood:Entity = new Entity();
-                blood.add(new Position(randomPoint.x, randomPoint.y));
-                if (HXP.random < 0.5)
-                    blood.add(new Renderable("blood" + HXP.rand(15)));
-                else
-                    blood.add(new Renderable("bones" + HXP.rand(9)));
-                engine.addEntity(blood);
+                var weapon:Entity = entityCreator.createWeapon();
+                weapon.get(Position).moveTo(randomPoint.x, randomPoint.y);
+            }
+
+            if (HXP.random < 0.3)
+            {
+                randomPoint = getRandomRoomPoint(room);
+                var remains:Entity = entityCreator.createRemains();
+                remains.get(Position).moveTo(randomPoint.x, randomPoint.y);
             }
 
             var decor:RoomDecor = RoomDecor.randomChoice();
@@ -349,6 +301,15 @@ class GameScene extends Scene
         var timeTicker:Entity = new Entity();
         timeTicker.add(new TimeTicker());
         engine.addEntity(timeTicker);
+
+        var startPoint:Vector = getRandomRoomPoint(startRoom);
+        var hero:Entity = entityCreator.createPlayer();
+        hero.get(Position).moveTo(startPoint.x, startPoint.y);
+
+        var upStairs:Entity = new Entity();
+        upStairs.add(new Position(startPoint.x, startPoint.y));
+        upStairs.add(new Renderable("stair_up", RenderLayers.OBJECT));
+        engine.addEntity(upStairs);
 
         var renderSignals:RenderSignals = new RenderSignals();
 
@@ -421,20 +382,4 @@ enum RoomDecor
     Library;
     Fountain;
     Light;
-}
-
-private typedef MonsterDefinition =
-{
-    var name:String;
-    var tile:String;
-    var hp:Int;
-    var power:Int;
-    var defense:Int;
-}
-
-private typedef WeaponDefinition =
-{
-    var name:String;
-    var tile:String;
-    var atk:Int;
 }
