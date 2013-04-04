@@ -34,6 +34,7 @@ import nme.Lib;
 import ash.core.Engine;
 import ash.core.Entity;
 
+import dungeons.components.HealthRegen;
 import dungeons.components.Key;
 import dungeons.components.Health;
 import dungeons.components.Description;
@@ -70,6 +71,7 @@ import dungeons.systems.InventorySystem;
 import dungeons.systems.RenderSignals;
 import dungeons.systems.TimeSystem;
 import dungeons.systems.ScheduleSystem;
+import dungeons.systems.HealthRegenSystem;
 
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
@@ -225,11 +227,12 @@ class GameScene extends Scene
         hero.name = "player";
         hero.add(new Renderable("player", RenderLayers.CHARACTER));
         hero.add(new PlayerControls());
-        hero.add(new Actor(150));
+        hero.add(new Actor(Std.int(Constants.TICK_ENERGY * 1.5)));
         hero.add(new Position(startPoint.x, startPoint.y));
         hero.add(new CameraFocus());
         hero.add(new FOV(10));
         hero.add(new Health(50));
+        hero.add(new HealthRegen(3));
         hero.add(new Fighter(5, 1));
         hero.add(new Inventory());
         hero.add(obstacle);
@@ -254,7 +257,7 @@ class GameScene extends Scene
                 monster.add(new Description(monsterDef.name));
                 monster.add(new Renderable(monsterDef.tile, RenderLayers.CHARACTER, false));
                 monster.add(new Position(randomPoint.x, randomPoint.y));
-                monster.add(new Actor(100));
+                monster.add(new Actor(Constants.TICK_ENERGY));
                 monster.add(new Health(monsterDef.hp));
                 monster.add(new Fighter(monsterDef.power, monsterDef.defense));
                 monster.add(obstacle);
@@ -359,6 +362,7 @@ class GameScene extends Scene
         engine.addSystem(new CameraSystem(assetFactory.tileSize), SystemPriorities.NONE);
         engine.addSystem(new DoorSystem(map), SystemPriorities.NONE);
         engine.addSystem(new FightSystem(renderSignals), SystemPriorities.NONE);
+        engine.addSystem(new HealthRegenSystem(scheduler, renderSignals), SystemPriorities.NONE);
         engine.addSystem(new InventorySystem(), SystemPriorities.NONE);
         engine.addSystem(new TimeSystem(scheduler), SystemPriorities.NONE);
         engine.addSystem(new ActorSystem(scheduler), SystemPriorities.NONE);
