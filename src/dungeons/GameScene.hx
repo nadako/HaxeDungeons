@@ -2,8 +2,6 @@ package dungeons;
 
 import Lambda;
 
-import flash.net.FileReference;
-
 import com.haxepunk.graphics.Image;
 import com.haxepunk.graphics.Graphiclist;
 import com.haxepunk.graphics.Spritemap;
@@ -140,8 +138,9 @@ class GameScene extends Scene
         var dungeon:Dungeon = new Dungeon(50, 50, 7, {x: 5, y: 5}, {x: 10, y: 10});
         dungeon.generate();
 
-        var ref:FileReference = new FileReference();
-        ref.save(createDOT(dungeon), "dungeon.gv");
+        #if flash
+        new flash.net.FileReference().save(createDOT(dungeon), "dungeon.gv");
+        #end
 
         var map:MapGrid = new MapGrid(dungeon.width, dungeon.height);
 
