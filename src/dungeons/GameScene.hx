@@ -92,7 +92,7 @@ class GameScene extends Scene
 
     private function createDOT(dungeon:Dungeon):String
     {
-        var lines:Array<String> = [];
+        var lines = [];
         lines.push("digraph dungeon {");
 
         for (i in 0...dungeon.rooms.length)
@@ -150,11 +150,11 @@ class GameScene extends Scene
         var lightOccluder:LightOccluder = new LightOccluder();
         var obstacle:Obstacle = new Obstacle();
 
-        var doorTypes:Array<String> = "curtain,shabby,simple,peephole,square,braced,iron,iron_peephole,grated,gold,gold_peephole".split(",");
+        var doorTypes = "curtain,shabby,simple,peephole,square,braced,iron,iron_peephole,grated,gold,gold_peephole".split(",");
 
         var startRoom:Room = dungeon.rooms[0];
 
-        var endRoomCandidates:Array<Room> = [];
+        var endRoomCandidates = [];
         for (room in dungeon.getLevelRooms(dungeon.keyLevel))
         {
             if (room == startRoom)
@@ -198,14 +198,8 @@ class GameScene extends Scene
 
         for (keyLevel in 0...dungeon.keyLevel)
         {
-            var rooms:Array<Room> = Lambda.array(dungeon.getLevelRooms(keyLevel));
-            rooms.sort(function (a:Room, b:Room) {
-                if (a.intensity > b.intensity)
-                    return -1;
-                if (a.intensity < b.intensity)
-                    return 1;
-                return 0;
-            });
+            var rooms = Lambda.array(dungeon.getLevelRooms(keyLevel));
+            rooms.sort(function (a, b) { return Math.round(a.intensity - b.intensity); });
 
             var room:Room = rooms[0];
             var point:Vector = getRandomRoomPoint(room);

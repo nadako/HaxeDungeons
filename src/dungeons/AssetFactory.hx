@@ -35,15 +35,15 @@ class AssetFactory
     {
         var key:String = Reflect.field(def.tiles, name);
 
-        var parts:Array<String> = key.split(":");
-        var assetPath:String;
-        var frames:Array<{var col:Int; var row:Int;}> = [];
+        var parts = key.split(":");
+        var assetPath;
+        var frames = [];
         try
         {
             assetPath = parts.shift();
             for (frameData in parts)
             {
-                var frameParts:Array<String> = frameData.split(",");
+                var frameParts = frameData.split(",");
                 var col:Int = Std.parseInt(frameParts[0]);
                 var row:Int = Std.parseInt(frameParts[1]);
                 frames.push({col: col, row: row});
@@ -59,10 +59,8 @@ class AssetFactory
         if (frames.length > 1)
         {
             var spritemap:Spritemap = new Spritemap(bmp, tileSize, tileSize);
-            var animFrames:Array<Int> = [];
             var cols:Int = Std.int(bmp.width / tileSize);
-            for (frame in frames)
-                animFrames.push(frame.row * cols + frame.col);
+            var animFrames = [for (frame in frames) frame.row * cols + frame.col];
             spritemap.add("", animFrames, 1);
             spritemap.play();
             return spritemap;

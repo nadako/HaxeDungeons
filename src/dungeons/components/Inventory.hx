@@ -31,13 +31,7 @@ class Inventory
 
     public function getEquippedItems():Iterable<Entity>
     {
-        var result:Array<Entity> = [];
-        for (entity in equipped)
-        {
-            if (entity != null)
-                result.push(entity);
-        }
-        return result;
+        return [for (entity in equipped) if (entity != null) entity];
     }
 
     public function getEquippedInSlot(slot:EquipSlot):Entity

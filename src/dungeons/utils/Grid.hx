@@ -34,8 +34,6 @@ class Grid<T>
 
     public function clear(fillValue:T = null):Void
     {
-        content = [];
-        for (i in 0...width * height)
-            content.push(fillValue);
+        content = [for (i in 0...width * height) fillValue];
     }
 }
