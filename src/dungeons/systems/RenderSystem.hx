@@ -20,7 +20,6 @@ import com.haxepunk.Scene;
 import com.haxepunk.gui.Label;
 import com.haxepunk.gui.Panel;
 
-import ash.ObjectMap;
 import ash.core.Engine;
 import ash.core.NodeList;
 import ash.core.System;
@@ -49,8 +48,8 @@ class RenderSystem extends System
     private var map:MapGrid;
 
     private var nodeList:NodeList<RenderNode>;
-    private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
-    private var sceneEntities:ObjectMap<Renderable, RenderableEntity>;
+    private var positionListeners:Map<RenderNode, PositionChangeListener>;
+    private var sceneEntities:Map<Renderable, RenderableEntity>;
     private var scene:Scene;
 
     private var assetFactory:AssetFactory;
@@ -84,9 +83,9 @@ class RenderSystem extends System
 
     override public function addToEngine(engine:Engine):Void
     {
-        positionListeners = new ObjectMap();
+        positionListeners = new Map<RenderNode, PositionChangeListener>();
 
-        sceneEntities = new ObjectMap();
+        sceneEntities = new Map<Renderable, RenderableEntity>();
 
         nodeList = engine.getNodeList(RenderNode);
         for (node in nodeList)

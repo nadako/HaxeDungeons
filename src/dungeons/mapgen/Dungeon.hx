@@ -1,9 +1,5 @@
 package dungeons.mapgen;
 
-import Lambda;
-
-import ash.ObjectMap;
-
 import com.haxepunk.HXP;
 
 import dungeons.mapgen.IRoomFactory.RoomCellInfo;
@@ -215,7 +211,7 @@ class Dungeon
     {
         for (room in rooms)
         {
-            var connectedRooms:ObjectMap<Room, Bool> = new ObjectMap();
+            var connectedRooms = new Map<Room, Bool>();
             for (conn in room.connections)
                 connectedRooms.set(conn.toRoom, true);
 

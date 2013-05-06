@@ -1,7 +1,6 @@
 package dungeons.systems;
 
 import dungeons.components.Position;
-import ash.ObjectMap;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.nodes.HealthRegenNode;
@@ -9,7 +8,7 @@ import dungeons.utils.Scheduler;
 
 class HealthRegenSystem extends ListIteratingSystem<HealthRegenNode>
 {
-    private var listeners:ObjectMap<HealthRegenNode, Void->Void>;
+    private var listeners:Map<HealthRegenNode, Void->Void>;
     private var scheduler:Scheduler;
     private var renderSignals:RenderSignals;
 
@@ -18,7 +17,7 @@ class HealthRegenSystem extends ListIteratingSystem<HealthRegenNode>
         super(HealthRegenNode, null, onNodeAdd, onNodeRemove);
         this.scheduler = scheduler;
         this.renderSignals = renderSignals;
-        listeners = new ObjectMap();
+        listeners = new Map<HealthRegenNode, Void->Void>();
     }
 
     private function onNodeAdd(node:HealthRegenNode):Void

@@ -1,6 +1,5 @@
 package dungeons.systems;
 
-import ash.ObjectMap;
 import ash.core.Entity;
 import ash.core.Engine;
 import ash.tools.ListIteratingSystem;
@@ -26,7 +25,7 @@ import dungeons.utils.Scheduler;
 class ActorSystem extends ListIteratingSystem<ActorNode>
 {
     private var scheduler:Scheduler;
-    private var actionListeners:ObjectMap<ActorNode, Action -> Void>;
+    private var actionListeners:Map<ActorNode, Action -> Void>;
 
     public function new(scheduler:Scheduler)
     {
@@ -36,7 +35,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        actionListeners = new ObjectMap();
+        actionListeners = new Map<ActorNode, Action -> Void>();
         super.addToEngine(engine);
     }
 

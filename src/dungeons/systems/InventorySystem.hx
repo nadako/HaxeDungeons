@@ -1,7 +1,6 @@
 package dungeons.systems;
 
 import ash.core.Engine;
-import ash.ObjectMap;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
 
@@ -15,7 +14,7 @@ using dungeons.utils.EntityUtil;
 
 class InventorySystem extends ListIteratingSystem<InventoryNode>
 {
-    private var pickupListeners:ObjectMap<InventoryNode, PickupListener>;
+    private var pickupListeners:Map<InventoryNode, PickupListener>;
     private var engine:Engine;
 
     public function new()
@@ -25,7 +24,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        pickupListeners = new ObjectMap();
+        pickupListeners = new Map<InventoryNode, PickupListener>();
         this.engine = engine;
         super.addToEngine(engine);
     }

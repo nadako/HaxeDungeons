@@ -3,7 +3,6 @@ package dungeons.systems;
 import ash.core.Engine;
 import ash.core.Entity;
 import ash.tools.ListIteratingSystem;
-import ash.ObjectMap;
 
 import com.haxepunk.HXP;
 
@@ -17,7 +16,7 @@ using dungeons.utils.EntityUtil;
 
 class FightSystem extends ListIteratingSystem<FighterNode>
 {
-    private var attackListeners:ObjectMap<FighterNode, AttackRequestListener>;
+    private var attackListeners:Map<FighterNode, AttackRequestListener>;
     private var engine:Engine;
     private var renderSignals:RenderSignals;
 
@@ -30,7 +29,7 @@ class FightSystem extends ListIteratingSystem<FighterNode>
     override public function addToEngine(engine:Engine):Void
     {
         this.engine = engine;
-        attackListeners = new ObjectMap();
+        attackListeners = new Map<FighterNode, AttackRequestListener>();
         super.addToEngine(engine);
     }
 

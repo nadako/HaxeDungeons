@@ -3,7 +3,6 @@ package dungeons.systems;
 import ash.core.Engine;
 import ash.tools.ComponentPool;
 import ash.tools.ListIteratingSystem;
-import ash.ObjectMap;
 
 import dungeons.components.Position;
 import dungeons.nodes.PositionNode;
@@ -13,7 +12,7 @@ import dungeons.utils.MapGrid;
 
 class PositionSystem extends ListIteratingSystem<PositionNode>
 {
-    private var moveListeners:ObjectMap<PositionNode, MoveRequestListener>;
+    private var moveListeners:Map<PositionNode, MoveRequestListener>;
     private var map:MapGrid;
 
     public function new(map:MapGrid)
@@ -24,7 +23,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        moveListeners = new ObjectMap();
+        moveListeners = new Map<PositionNode, MoveRequestListener>();
         super.addToEngine(engine);
     }
 

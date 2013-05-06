@@ -4,7 +4,6 @@ import ash.core.Node;
 import ash.core.NodeList;
 import ash.core.System;
 import ash.core.Engine;
-import ash.ObjectMap;
 import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Fighter;
@@ -26,7 +25,7 @@ private class PlayerTargetNode extends Node<PlayerTargetNode>
 
 class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {
-    private var nodeListeners:ObjectMap<MonsterActorNode, Void -> Void>;
+    private var nodeListeners:Map<MonsterActorNode, Void -> Void>;
     private var playerNodeList:NodeList<PlayerTargetNode>;
     private var map:MapGrid;
 
@@ -38,7 +37,7 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 
     override public function addToEngine(engine:Engine):Void
     {
-        nodeListeners = new ObjectMap();
+        nodeListeners = new Map<MonsterActorNode, Void->Void>();
         playerNodeList = engine.getNodeList(PlayerTargetNode);
         super.addToEngine(engine);
     }
