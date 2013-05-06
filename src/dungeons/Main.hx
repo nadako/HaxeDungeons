@@ -8,9 +8,8 @@ import dungeons.systems.RenderSystem.RenderLayers;
 
 class Main extends Engine
 {
-    public function new()
+    override public function init()
     {
-        super();
         Control.useSkin("gfx/ui/blueMagda.png");
         Control.defaultLayer = RenderLayers.UI;
 //        HXP.console.enable();
