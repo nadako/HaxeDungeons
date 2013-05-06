@@ -14,7 +14,7 @@ class Main extends Engine
         Control.useSkin("blueMagda.png");
         Control.defaultLayer = RenderLayers.UI;
 //        HXP.console.enable();
-        trace(Std.format("Random seed is ${HXP.randomSeed}"));
+        trace('Random seed is ${HXP.randomSeed}');
         HXP.scene = new GameScene();
     }
 

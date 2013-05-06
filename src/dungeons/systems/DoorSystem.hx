@@ -15,7 +15,7 @@ import dungeons.components.LightOccluder;
 import dungeons.components.Obstacle;
 import dungeons.components.Inventory;
 import dungeons.nodes.DoorNode;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 
 using dungeons.utils.EntityUtil;
 
@@ -24,9 +24,9 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
     private var doorListeners:ObjectMap<DoorNode, DoorListener>;
     private var obstacle:Obstacle;
     private var lightOccluder:LightOccluder;
-    private var map:Map;
+    private var map:MapGrid;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         super(DoorNode, null, onNodeAdded, onNodeRemoved);
         this.map = map;
@@ -55,8 +55,8 @@ class DoorSystem extends ListIteratingSystem<DoorNode>
     private function onNodeAdded(node:DoorNode):Void
     {
         var listener:DoorListener = {
-            openListener: callback(onNodeOpenRequested, node),
-            closeListener: callback(onNodeCloseRequested, node)
+            openListener: onNodeOpenRequested.bind(node),
+            closeListener: onNodeCloseRequested.bind(node)
         };
         doorListeners.set(node, listener);
         node.door.openRequested.add(listener.openListener);

@@ -17,14 +17,14 @@ class AssetFactory
     public var tileSize(default, null):Int;
 
     private var def:TilesetDef;
-    private var images:Hash<BitmapData>;
+    private var images:Map<String, BitmapData>;
     private var tileRect:Rectangle;
     private var scaleMatrix:Matrix;
 
     public function new(tileset:String)
     {
         def = Json.parse(Assets.getText(tileset));
-        images = new Hash();
+        images = new Map<String, BitmapData>();
         tileSize = def.tileSize * def.scale;
         tileRect = new Rectangle(0, 0, tileSize, tileSize);
         scaleMatrix = new Matrix();

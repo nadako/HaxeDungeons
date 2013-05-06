@@ -13,7 +13,7 @@ import dungeons.components.PlayerControls;
 import dungeons.nodes.MonsterActorNode;
 import dungeons.utils.Direction;
 import dungeons.utils.Vector;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 
 using dungeons.utils.ArrayUtil;
 
@@ -28,9 +28,9 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 {
     private var nodeListeners:ObjectMap<MonsterActorNode, Void -> Void>;
     private var playerNodeList:NodeList<PlayerTargetNode>;
-    private var map:Map;
+    private var map:MapGrid;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         this.map = map;
         super(MonsterActorNode, null, onNodeAdded, onNodeRemoved);
@@ -61,7 +61,7 @@ class MonsterAISystem extends ListIteratingSystem<MonsterActorNode>
 
     private function onNodeAdded(node:MonsterActorNode):Void
     {
-        var listener = callback(onNodeActionRequested, node);
+        var listener = onNodeActionRequested.bind(node);
         node.actor.actionRequested.add(listener);
         nodeListeners.set(node, listener);
     }

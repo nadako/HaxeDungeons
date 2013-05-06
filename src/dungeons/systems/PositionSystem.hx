@@ -9,14 +9,14 @@ import dungeons.components.Position;
 import dungeons.nodes.PositionNode;
 import dungeons.utils.Direction;
 import dungeons.utils.Vector;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 
 class PositionSystem extends ListIteratingSystem<PositionNode>
 {
     private var moveListeners:ObjectMap<PositionNode, MoveRequestListener>;
-    private var map:Map;
+    private var map:MapGrid;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         super(PositionNode, null, nodeAdded, nodeRemoved);
         this.map = map;
@@ -40,7 +40,7 @@ class PositionSystem extends ListIteratingSystem<PositionNode>
     {
         map.get(node.position.x, node.position.y).entities.push(node.entity);
 
-        var listener = callback(onNodeMoveRequessted, node);
+        var listener = onNodeMoveRequessted.bind(node);
         moveListeners.set(node, listener);
         node.position.moveRequested.add(listener);
     }

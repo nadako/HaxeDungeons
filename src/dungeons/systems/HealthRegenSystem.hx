@@ -24,7 +24,7 @@ class HealthRegenSystem extends ListIteratingSystem<HealthRegenNode>
     private function onNodeAdd(node:HealthRegenNode):Void
     {
         scheduler.addActor(node.regen);
-        var listener:Void->Void = callback(onNodeRegenTick, node);
+        var listener:Void->Void = onNodeRegenTick.bind(node);
         listeners.set(node, listener);
         node.regen.regenTick.add(listener);
     }

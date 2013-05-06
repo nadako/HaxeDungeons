@@ -76,7 +76,7 @@ import dungeons.systems.HealthRegenSystem;
 import dungeons.mapgen.Dungeon;
 import dungeons.utils.ShadowCaster;
 import dungeons.utils.TransitionTileHelper;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 import dungeons.utils.Vector;
 import dungeons.utils.Scheduler;
 
@@ -123,7 +123,7 @@ class GameScene extends Scene
                     default:
                         throw "WTF";
                 };
-                lines.push(Std.format("\tr$i -> r$j [label=\"${conn.toRoom.level}\", style=\"$style\", tailport=$tailport, headport=$headport];"));
+                lines.push('\tr$i -> r$j [label="${conn.toRoom.level}", style="$style", tailport=$tailport, headport=$headport];');
             }
         }
 
@@ -143,7 +143,7 @@ class GameScene extends Scene
         var ref:FileReference = new FileReference();
         ref.save(createDOT(dungeon), "dungeon.gv");
 
-        var map:Map = new Map(dungeon.width, dungeon.height);
+        var map:MapGrid = new MapGrid(dungeon.width, dungeon.height);
 
         var assetFactory:AssetFactory = new AssetFactory("tileset.json");
 

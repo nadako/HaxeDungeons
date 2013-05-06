@@ -9,11 +9,11 @@ import nme.Assets;
  **/
 class TransitionTileHelper
 {
-    private var transitionTiles:IntHash<Int>;
+    private var transitionTiles:Map<Int, Int>;
 
     public function new(path:String):Void
     {
-        transitionTiles = new IntHash<Int>();
+        transitionTiles = new Map<Int, Int>();
         var def:Dynamic = Json.parse(Assets.getText(path));
         for (field in Reflect.fields(def))
             transitionTiles.set(Std.parseInt(field), Reflect.field(def, field));

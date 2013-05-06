@@ -45,7 +45,7 @@ class InventorySystem extends ListIteratingSystem<InventoryNode>
 
     private function onNodeAdded(node:InventoryNode):Void
     {
-        var listener:PickupListener = callback(onNodePickupRequested, node);
+        var listener:PickupListener = onNodePickupRequested.bind(node);
         node.inventory.pickupRequested.add(listener);
         pickupListeners.set(node, listener);
     }

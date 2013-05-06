@@ -2,7 +2,7 @@ package dungeons.utils;
 
 import ash.core.Entity;
 
-class Map extends Grid<MapCell>
+class MapGrid extends Grid<MapCell>
 {
     public function new(width:Int, height:Int)
     {

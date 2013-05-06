@@ -50,7 +50,7 @@ class ActorSystem extends ListIteratingSystem<ActorNode>
 
     private function nodeAdded(node:ActorNode):Void
     {
-        var listener:Action -> Void = callback(processNodeAction, node);
+        var listener:Action -> Void = processNodeAction.bind(node);
         node.actor.actionReceived.add(listener);
         actionListeners.set(node, listener);
 

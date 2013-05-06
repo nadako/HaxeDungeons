@@ -1,6 +1,6 @@
 package dungeons.systems;
 
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 import nme.display.BitmapData;
 
 import com.haxepunk.graphics.Image;
@@ -22,7 +22,7 @@ class FOVSystem extends System
     private var calculationDisabled:Bool;
     private var shadowCaster:ShadowCaster;
 
-    private var map:Map;
+    private var map:MapGrid;
 
     public var prevLightMap(default, null):Grid<Float>;
     public var currentLightMap(default, null):Grid<Float>;
@@ -34,7 +34,7 @@ class FOVSystem extends System
 
     public var updated(default, null):Signal0;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         super();
         this.map = map;
@@ -85,7 +85,7 @@ class FOVSystem extends System
     {
         map.get(node.position.x, node.position.y).numOccluders++;
 
-        var listener = callback(onOccluderPositionChange, node);
+        var listener = onOccluderPositionChange.bind(node);
         node.position.changed.add(listener);
         occluderListeners.set(node, listener);
 

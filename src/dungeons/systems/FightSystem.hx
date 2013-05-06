@@ -45,7 +45,7 @@ class FightSystem extends ListIteratingSystem<FighterNode>
 
     private function onNodeAdded(node:FighterNode):Void
     {
-        var listener = callback(onNodeAttackRequested, node);
+        var listener = onNodeAttackRequested.bind(node);
         attackListeners.set(node, listener);
         node.fighter.attackRequested.add(listener);
     }

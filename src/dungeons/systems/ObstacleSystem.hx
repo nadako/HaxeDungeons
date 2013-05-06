@@ -6,14 +6,14 @@ import ash.tools.ListIteratingSystem;
 
 import dungeons.components.Position.PositionChangeListener;
 import dungeons.nodes.ObstacleNode;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 
 class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
 {
-    private var map:Map;
+    private var map:MapGrid;
     private var listeners:ObjectMap<ObstacleNode, PositionChangeListener>;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         super(ObstacleNode, null, addNode, removeNode);
         this.map = map;
@@ -47,7 +47,7 @@ class ObstacleSystem extends ListIteratingSystem<ObstacleNode>
     {
         addObstacle(node);
 
-        var listener = callback(onNodePositionChanged, node);
+        var listener = onNodePositionChanged.bind(node);
         node.position.changed.add(listener);
         listeners.set(node, listener);
     }

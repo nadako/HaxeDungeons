@@ -16,18 +16,18 @@ import dungeons.components.Item;
 import dungeons.components.Position;
 import dungeons.nodes.PlayerActorNode;
 import dungeons.utils.Direction;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 import dungeons.utils.Vector;
 
 using dungeons.utils.Direction.DirectionUtil;
 
 class PlayerControlSystem extends System
 {
-    public var map(default, null):Map;
+    public var map(default, null):MapGrid;
     private var nodeList:NodeList<PlayerActorNode>;
     private var inputStates:List<IInputState>;
 
-    public function new(map:Map)
+    public function new(map:MapGrid)
     {
         super();
         this.map = map;

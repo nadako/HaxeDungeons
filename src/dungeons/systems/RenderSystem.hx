@@ -37,7 +37,7 @@ import dungeons.nodes.PlayerInventoryNode;
 import dungeons.nodes.TimeTickerNode;
 import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
-import dungeons.utils.Map;
+import dungeons.utils.MapGrid;
 import dungeons.utils.TransitionTileHelper;
 import dungeons.utils.Scheduler;
 
@@ -46,7 +46,7 @@ using dungeons.utils.ArrayUtil;
 
 class RenderSystem extends System
 {
-    private var map:Map;
+    private var map:MapGrid;
 
     private var nodeList:NodeList<RenderNode>;
     private var positionListeners:ObjectMap<RenderNode, PositionChangeListener>;
@@ -69,7 +69,7 @@ class RenderSystem extends System
     private var timeNodes:NodeList<TimeTickerNode>;
     private var scheduler:Scheduler;
 
-    public function new(scene:Scene, map:Map, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals, scheduler:Scheduler)
+    public function new(scene:Scene, map:MapGrid, dungeon:Dungeon, assetFactory:AssetFactory, renderSignals:RenderSignals, scheduler:Scheduler)
     {
         super();
         this.scene = scene;
@@ -223,7 +223,7 @@ class RenderSystem extends System
 
     private function onNodeAdded(node:RenderNode):Void
     {
-        var listener:PositionChangeListener = callback(onNodePositionChanged, node);
+        var listener:PositionChangeListener = onNodePositionChanged.bind(node);
         node.position.changed.add(listener);
         positionListeners.set(node, listener);
 
