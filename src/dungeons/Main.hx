@@ -11,7 +11,7 @@ class Main extends Engine
     public function new()
     {
         super();
-        Control.useSkin("blueMagda.png");
+        Control.useSkin("gfx/ui/blueMagda.png");
         Control.defaultLayer = RenderLayers.UI;
 //        HXP.console.enable();
         trace('Random seed is ${HXP.randomSeed}');

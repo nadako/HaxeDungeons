@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Format:
+n  => name of the sprite
+x  => sprite x pos in texture
+y  => sprite y pos in texture
+w  => sprite width (may be trimmed)
+h  => sprite height (may be trimmed)
+oX => sprite's x-corner offset (only available if trimmed)
+oY => sprite's y-corner offset (only available if trimmed)
+oW => sprite's original width (only available if trimmed)
+oH => sprite's original height (only available if trimmed)
+r => 'y' only set if sprite is rotated
+-->
+<TextureAtlas imagePath="gfx/ui/themes.png" width="120" height="288">
+	<sprite n="gfx/ui/greyDefault.png" x="0" y="0" w="120" h="72" />
+	<sprite n="gfx/ui/blueMagda.png" x="0" y="72" w="120" h="72" />
+	<sprite n="gfx/ui/greenMagda.png" x="0" y="144" w="120" h="72" />
+	<sprite n="gfx/ui/purpleMagda.png" x="0" y="216" w="120" h="72" />
+</TextureAtlas>
