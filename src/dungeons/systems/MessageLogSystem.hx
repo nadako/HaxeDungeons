@@ -1,6 +1,6 @@
 package dungeons.systems;
 
-import nme.text.TextField;
+import flash.text.TextField;
 
 import ash.core.System;
 

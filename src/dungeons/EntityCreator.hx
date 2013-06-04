@@ -5,7 +5,7 @@ import haxe.Json;
 import ash.core.Engine;
 import ash.core.Entity;
 
-import nme.Assets;
+import openfl.Assets;
 
 import com.haxepunk.HXP;
 

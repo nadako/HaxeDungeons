@@ -1,9 +1,6 @@
 package dungeons.systems;
 
 import dungeons.utils.MapGrid;
-import nme.display.BitmapData;
-
-import com.haxepunk.graphics.Image;
 
 import ash.core.NodeList;
 import ash.core.Engine;

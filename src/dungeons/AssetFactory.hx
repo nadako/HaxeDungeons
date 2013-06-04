@@ -4,10 +4,10 @@ import com.haxepunk.graphics.Spritemap;
 import com.haxepunk.Graphic;
 import haxe.Json;
 
-import nme.geom.Rectangle;
-import nme.geom.Matrix;
-import nme.display.BitmapData;
-import nme.Assets;
+import flash.geom.Rectangle;
+import flash.geom.Matrix;
+import flash.display.BitmapData;
+import openfl.Assets;
 
 import com.haxepunk.HXP;
 import com.haxepunk.graphics.Image;

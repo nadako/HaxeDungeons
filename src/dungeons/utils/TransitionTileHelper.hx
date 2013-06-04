@@ -2,7 +2,7 @@ package dungeons.utils;
 
 import haxe.Json;
 
-import nme.Assets;
+import openfl.Assets;
 
 /**
  * Helper class for getting a wall transition tile number

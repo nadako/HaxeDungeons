@@ -1,8 +1,5 @@
 package dungeons.components;
 
-import com.haxepunk.HXP;
-import com.haxepunk.Graphic;
-
 import dungeons.systems.RenderSystem.RenderLayers;
 
 class Renderable

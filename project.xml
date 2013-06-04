@@ -5,12 +5,10 @@
 
     <source path="src"/>
 
-    <haxelib name="nme"/>
+    <haxelib name="openfl"/>
     <haxelib name="HaxePunk"/>
     <haxelib name="HaxePunk-gui"/>
     <haxelib name="ash"/>
-
-    <ndll name="nme" haxelib="nme"/>
 
     <assets path="assets" rename=""/>
 </project>

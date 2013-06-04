@@ -1,8 +1,7 @@
 package dungeons.systems;
 
-import nme.geom.Rectangle;
-import nme.display.BitmapData;
-import nme.Lib;
+import flash.geom.Rectangle;
+import flash.display.BitmapData;
 
 import com.haxepunk.tweens.misc.NumTween;
 import com.haxepunk.tweens.motion.LinearMotion;
@@ -29,12 +28,10 @@ import dungeons.components.Item;
 import dungeons.components.Inventory;
 import dungeons.components.Position.PositionChangeListener;
 import dungeons.components.Health;
-import dungeons.components.Fighter;
 import dungeons.components.Renderable;
 import dungeons.mapgen.Dungeon;
 import dungeons.nodes.PlayerInventoryNode;
 import dungeons.nodes.TimeTickerNode;
-import dungeons.nodes.PlayerStatsNode;
 import dungeons.utils.Grid;
 import dungeons.utils.MapGrid;
 import dungeons.utils.TransitionTileHelper;
@@ -101,7 +98,7 @@ class RenderSystem extends System
         fovOverlayImage = new Image(fovOverlayData);
         fovOverlayImage.scale = assetFactory.tileSize;
         fovOverlayEntity = scene.addGraphic(fovOverlayImage, RenderLayers.FOV);
-//        fovOverlayEntity.visible = false;
+        //        fovOverlayEntity.visible = false;
 
         fovOverlayDirty = true;
 

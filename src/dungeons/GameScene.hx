@@ -2,56 +2,26 @@ package dungeons;
 
 import Lambda;
 
-import com.haxepunk.graphics.Image;
-import com.haxepunk.graphics.Graphiclist;
-import com.haxepunk.graphics.Spritemap;
-import com.haxepunk.graphics.Tilemap;
-import com.haxepunk.Graphic;
 import com.haxepunk.HXP;
 import com.haxepunk.Scene;
 
-import haxe.Json;
-
-import nme.display.Bitmap;
-import nme.display.DisplayObjectContainer;
-import nme.events.KeyboardEvent;
-import nme.ui.Keyboard;
-import nme.display.Shape;
-import nme.Assets;
-import nme.geom.Point;
-import nme.geom.Rectangle;
-import nme.geom.Matrix;
-import nme.events.Event;
-import nme.display.BitmapData;
-import nme.display.StageScaleMode;
-import nme.display.Sprite;
-import nme.text.TextFormat;
-import nme.text.TextField;
-import nme.Lib;
+import openfl.Assets;
+import flash.text.TextFormat;
+import flash.text.TextField;
 
 import ash.core.Engine;
 import ash.core.Entity;
 
-import dungeons.components.HealthRegen;
 import dungeons.components.Key;
-import dungeons.components.Health;
 import dungeons.components.Description;
-import dungeons.components.MonsterAI;
 import dungeons.components.Obstacle;
-import dungeons.components.FOV;
-import dungeons.components.CameraFocus;
-import dungeons.components.Actor;
-import dungeons.components.PlayerControls;
 import dungeons.components.Position;
 import dungeons.components.LightOccluder;
 import dungeons.components.DoorRenderable;
 import dungeons.components.Door;
-import dungeons.components.Fighter;
 import dungeons.components.Renderable;
 import dungeons.components.Item;
-import dungeons.components.Inventory;
 import dungeons.components.TimeTicker;
-import dungeons.components.Equipment;
 
 import dungeons.systems.MessageLogSystem;
 import dungeons.systems.FightSystem;
@@ -72,8 +42,6 @@ import dungeons.systems.ScheduleSystem;
 import dungeons.systems.HealthRegenSystem;
 
 import dungeons.mapgen.Dungeon;
-import dungeons.utils.ShadowCaster;
-import dungeons.utils.TransitionTileHelper;
 import dungeons.utils.MapGrid;
 import dungeons.utils.Vector;
 import dungeons.utils.Scheduler;
@@ -188,7 +156,7 @@ class GameScene extends Scene
                         door.add(new Position(x, y));
                         door.add(new dungeons.components.Door(open, level));
                         var type:String = doorTypes[level % doorTypes.length];
-                        door.add(new DoorRenderable("door_"+type+"_open", "door_"+type+"_closed"), Renderable);
+                        door.add(new DoorRenderable("door_" + type + "_open", "door_" + type + "_closed"), Renderable);
                         engine.addEntity(door);
                     default:
                         continue;
@@ -199,14 +167,15 @@ class GameScene extends Scene
         for (keyLevel in 0...dungeon.keyLevel)
         {
             var rooms = Lambda.array(dungeon.getLevelRooms(keyLevel));
-            rooms.sort(function (a, b) { return Math.round(a.intensity - b.intensity); });
+            rooms.sort(function(a, b)
+            { return Math.round(a.intensity - b.intensity); });
 
             var room:Room = rooms[0];
             var point:Vector = getRandomRoomPoint(room);
 
             var key:Entity = new Entity();
             key.add(new Position(point.x, point.y));
-            key.add(new Item("key"+(keyLevel + 1), false, 1));
+            key.add(new Item("key" + (keyLevel + 1), false, 1));
             key.add(new Description("Key " + (keyLevel + 1)));
             key.add(new Key(keyLevel + 1));
 
@@ -272,7 +241,7 @@ class GameScene extends Scene
                         shelf.add(obstacle);
                         var type:String = HXP.random < 0.5 ? "bookshelf_ransacked" : "bookshelf";
                         var variant:Int = HXP.rand(3);
-                        shelf.add(new Renderable(type+variant, RenderLayers.OBJECT));
+                        shelf.add(new Renderable(type + variant, RenderLayers.OBJECT));
                         engine.addEntity(shelf);
                     }
                 case Fountain:
@@ -336,8 +305,8 @@ class GameScene extends Scene
     private static function getRandomRoomPoint(room:Room):Vector
     {
         return {
-            x: room.x + 1 + HXP.rand(room.grid.width - 2),
-            y: room.y + 1 + HXP.rand(room.grid.height - 2)
+        x: room.x + 1 + HXP.rand(room.grid.width - 2),
+        y: room.y + 1 + HXP.rand(room.grid.height - 2)
         };
     }
 
